@@ -74,64 +74,70 @@ const SetupScreen = () => {
 
     return (
         <div className="setup-screen">
-            {/* Video Background */}
-            <video
-                className="setup-video-background"
-                autoPlay
-                loop
-                muted
-                playsInline
-            >
-                <source src="/opening.mp4" type="video/mp4" />
-            </video>
+            <div className="setup-left-panel">
+                <video
+                    className="setup-video-background"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                >
+                    <source src="/opening.mp4" type="video/mp4" />
+                </video>
+            </div>
 
-            {/* Content Overlay */}
-            <div className="setup-content">
-                <h1>天國大富翁 Kingdom Harvest</h1>
-                <div className="setup-form">
-                    <label>
-                        隊伍數量:
-                        <select value={teamCount} onChange={(e) => setTeamCount(Number(e.target.value))}>
-                            <option value={2}>2 隊</option>
-                            <option value={3}>3 隊</option>
-                            <option value={4}>4 隊</option>
-                        </select>
-                    </label>
-
-                    <label>
-                        遊戲時間 (分鐘):
-                        <input
-                            type="number"
-                            min="0"
-                            value={gameDuration}
-                            onChange={(e) => setGameDuration(e.target.value)}
-                            placeholder="0 = 無限制"
-                        />
-                        <span className="hint">(0 表示無限制)</span>
-                    </label>
-
-                    <div className="names-inputs">
-                        {Array.from({ length: teamCount }).map((_, i) => (
-                            <input
-                                key={i}
-                                value={names[i]}
-                                onChange={(e) => {
-                                    const newNames = [...names];
-                                    newNames[i] = e.target.value;
-                                    setNames(newNames);
-                                }}
-                                placeholder={`隊伍 ${i + 1} 名稱`}
-                            />
-                        ))}
+            <div className="setup-right-panel">
+                <div className="setup-content">
+                    <div className="game-title">
+                        <h1 className="title-cn">天國大富翁</h1>
+                        <h2 className="title-en">Kingdom Harvest</h2>
                     </div>
+                    
+                    <div className="setup-form">
+                        <label>
+                            隊伍數量:
+                            <select value={teamCount} onChange={(e) => setTeamCount(Number(e.target.value))}>
+                                <option value={2}>2 隊</option>
+                                <option value={3}>3 隊</option>
+                                <option value={4}>4 隊</option>
+                            </select>
+                        </label>
 
-                    {savedGame && (
-                        <button className="btn-resume" onClick={handleResumeClick}>
-                            ▶️ 繼續上次遊戲
-                        </button>
-                    )}
+                        <label>
+                            遊戲時間 (分鐘):
+                            <input
+                                type="number"
+                                min="0"
+                                value={gameDuration}
+                                onChange={(e) => setGameDuration(e.target.value)}
+                                placeholder="0 = 無限制"
+                            />
+                            <span className="hint">(0 表示無限制)</span>
+                        </label>
 
-                    <button className="btn-primary" onClick={handleStart}>下一步：遊戲規則</button>
+                        <div className="names-inputs">
+                            {Array.from({ length: teamCount }).map((_, i) => (
+                                <input
+                                    key={i}
+                                    value={names[i]}
+                                    onChange={(e) => {
+                                        const newNames = [...names];
+                                        newNames[i] = e.target.value;
+                                        setNames(newNames);
+                                    }}
+                                    placeholder={`隊伍 ${i + 1} 名稱`}
+                                />
+                            ))}
+                        </div>
+
+                        {savedGame && (
+                            <button className="btn-resume" onClick={handleResumeClick}>
+                                ▶️ 繼續上次遊戲
+                            </button>
+                        )}
+
+                        <button className="btn-primary" onClick={handleStart}>下一步：遊戲規則</button>
+                    </div>
                 </div>
             </div>
 
