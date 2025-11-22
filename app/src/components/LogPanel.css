@@ -1,0 +1,100 @@
+.log-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 10px;
+}
+
+.log-panel h3 {
+    margin-top: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+/* Miracle Cards Section */
+.miracle-cards-section {
+    flex: 0 0 auto;
+    max-height: 30%;
+    overflow-y: auto;
+    border: 1px solid rgba(78, 204, 163, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    background: rgba(78, 204, 163, 0.05);
+}
+
+.miracle-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.miracle-card-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s;
+}
+
+.miracle-card-item:hover {
+    background: rgba(0, 0, 0, 0.5);
+    border-color: rgba(78, 204, 163, 0.5);
+}
+
+.miracle-card-name {
+    flex: 1;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #ffd700;
+}
+
+.btn-use-miracle {
+    padding: 4px 12px;
+    background: #4ecca3;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.btn-use-miracle:hover {
+    background: #45b393;
+}
+
+/* Game Log Section */
+.game-log-section {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.log-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.log-entry {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.log-time {
+    color: #666;
+    margin-right: 8px;
+    font-size: 0.8rem;
+}

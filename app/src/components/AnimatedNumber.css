@@ -1,0 +1,58 @@
+.animated-number {
+    display: inline-block;
+    position: relative;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.animated-number.changing {
+    animation: pulse 0.5s ease-in-out;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.change-indicator {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2rem;
+    font-weight: bold;
+    pointer-events: none;
+    animation: float-up 2s ease-out forwards;
+    white-space: nowrap;
+}
+
+.change-indicator.positive {
+    color: #4ecca3;
+    text-shadow: 0 0 8px rgba(78, 204, 163, 0.8);
+}
+
+.change-indicator.negative {
+    color: #ff6b6b;
+    text-shadow: 0 0 8px rgba(255, 107, 107, 0.8);
+}
+
+@keyframes float-up {
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-30px);
+    }
+}

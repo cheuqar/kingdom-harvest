@@ -1,0 +1,223 @@
+.game-board {
+    display: grid;
+    grid-template-columns: 250px 1fr 300px;
+    height: 100vh;
+    width: 100vw;
+    color: white;
+    overflow: hidden;
+    position: relative;
+
+    /* Retro Desert Background */
+    background:
+        /* Random sand particles - small dots */
+        radial-gradient(circle at 15% 25%, rgba(139, 115, 85, 0.4) 1px, transparent 1px),
+        radial-gradient(circle at 85% 75%, rgba(160, 130, 90, 0.3) 1px, transparent 1px),
+        radial-gradient(circle at 45% 55%, rgba(139, 115, 85, 0.35) 1px, transparent 1px),
+        radial-gradient(circle at 65% 20%, rgba(160, 130, 90, 0.4) 1px, transparent 1px),
+        radial-gradient(circle at 30% 80%, rgba(139, 115, 85, 0.3) 1px, transparent 1px),
+
+        /* Sand dunes pattern */
+        radial-gradient(ellipse 800px 100px at 20% 60%, rgba(237, 201, 175, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse 600px 80px at 70% 40%, rgba(218, 165, 105, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse 700px 90px at 40% 80%, rgba(237, 201, 175, 0.35) 0%, transparent 50%),
+
+        /* Fine grain texture - multiple layers */
+        repeating-linear-gradient(45deg,
+            transparent,
+            transparent 1px,
+            rgba(139, 115, 85, 0.06) 1px,
+            rgba(139, 115, 85, 0.06) 2px),
+        repeating-linear-gradient(-45deg,
+            transparent,
+            transparent 1px,
+            rgba(160, 130, 90, 0.05) 1px,
+            rgba(160, 130, 90, 0.05) 2px),
+        repeating-linear-gradient(0deg,
+            transparent,
+            transparent 1px,
+            rgba(210, 180, 140, 0.08) 1px,
+            rgba(210, 180, 140, 0.08) 3px),
+        repeating-linear-gradient(90deg,
+            transparent,
+            transparent 1px,
+            rgba(222, 184, 135, 0.07) 1px,
+            rgba(222, 184, 135, 0.07) 3px),
+
+        /* Coarser noise pattern */
+        repeating-linear-gradient(30deg,
+            rgba(210, 180, 140, 0.05),
+            rgba(210, 180, 140, 0.05) 3px,
+            rgba(139, 115, 85, 0.04) 3px,
+            rgba(139, 115, 85, 0.04) 6px),
+
+        /* Base desert gradient */
+        linear-gradient(180deg,
+            #c19a6b 0%,
+            #d2b48c 30%,
+            #daa520 60%,
+            #8b7355 100%);
+
+    background-size:
+        400px 400px,
+        350px 350px,
+        450px 450px,
+        500px 500px,
+        380px 380px,
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        2px 2px,
+        2px 2px,
+        3px 3px,
+        3px 3px,
+        6px 6px,
+        100% 100%;
+}
+
+.timer-display {
+    position: absolute;
+    top: 10px;
+    right: 320px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffd700;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.left-panel,
+.right-panel {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 10;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Ensure panels are above board if needed, but here they are side by side */
+}
+
+.center-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-over-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.game-over-screen h1 {
+    font-size: 4rem;
+    margin-bottom: 10px;
+    background: linear-gradient(to right, #ffd700, #ff8c00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.game-over-screen h2 {
+    font-size: 2rem;
+    margin-bottom: 40px;
+}
+
+.game-over-reason {
+    font-size: 1.5rem;
+    color: #4ecdc4;
+    margin-bottom: 30px;
+}
+
+.rankings {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px 0;
+}
+
+.rankings h2 {
+    text-align: center;
+    color: #ffd700;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border-left: 5px solid #ccc;
+    transition: all 0.3s ease;
+}
+
+.ranking-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.ranking-item.winner {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.1));
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    border-left-width: 8px;
+}
+
+.rank-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffd700;
+    min-width: 60px;
+    text-align: center;
+}
+
+.team-info {
+    flex: 1;
+}
+
+.team-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.5rem;
+}
+
+.team-stats {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.team-stats span {
+    font-size: 1.1rem;
+    color: #aaa;
+}
+
+.winner-badge {
+    font-size: 2rem;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}

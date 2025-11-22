@@ -1,0 +1,287 @@
+.visual-board {
+    display: grid;
+    grid-template-columns: 15vmin repeat(6, 1fr) 15vmin;
+    grid-template-rows: 15vmin 1fr 15vmin;
+    width: 98vmin;
+    height: 98vmin;
+    background: #121212;
+    border: 3px solid #444;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+    margin: 0 auto;
+    position: relative;
+}
+
+.board-cell {
+    background: #1e1e1e;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.corner-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    color: #ccc;
+    text-align: center;
+    padding: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.land-cell {
+    justify-content: space-between;
+}
+
+.land-cell:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+    z-index: 5;
+}
+
+.cell-header {
+    height: 18%;
+    width: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.cell-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    text-align: center;
+}
+
+.cell-name {
+    font-weight: bold;
+    line-height: 1.3;
+    margin-bottom: 3px;
+    font-size: 1.1rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.cell-price {
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.inn-icons {
+    font-size: 1.2rem;
+    line-height: 1;
+    margin: 2px 0;
+}
+
+.owner-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-top: 4px;
+    box-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Grid Placement */
+/* Top Row */
+.top-left {
+    grid-column: 1;
+    grid-row: 1;
+    border-radius: 12px 0 0 0;
+}
+
+.top-right {
+    grid-column: 8;
+    grid-row: 1;
+    border-radius: 0 12px 0 0;
+}
+
+.top-row {
+    grid-row: 1;
+}
+
+/* Bottom Row */
+.bottom-left {
+    grid-column: 1;
+    grid-row: 3;
+    border-radius: 0 0 0 12px;
+}
+
+.bottom-right {
+    grid-column: 8;
+    grid-row: 3;
+    border-radius: 0 0 12px 0;
+}
+
+.bottom-row {
+    grid-row: 3;
+}
+
+/* Middle Section Container spans the middle row */
+.board-middle {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.side-column .board-cell {
+    width: 100%;
+    height: 16.66%;
+}
+
+/* Build Inn Styles */
+.land-cell.buildable {
+    box-shadow: 0 0 15px #ffd700;
+    transform: scale(1.05);
+    z-index: 10;
+    animation: pulse 1.5s infinite;
+}
+
+.build-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    backdrop-filter: blur(2px);
+}
+
+.build-icon {
+    font-size: 1.8rem;
+    margin-bottom: 2px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.build-cost {
+    font-size: 1rem;
+    color: #ffd700;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 10px #ffd700;
+    }
+
+    50% {
+        box-shadow: 0 0 20px #ffd700;
+    }
+
+    100% {
+        box-shadow: 0 0 10px #ffd700;
+    }
+}
+
+/* Highlighted Series for Rent Collection */
+.land-cell.highlighted-series {
+    box-shadow: 0 0 20px #4ecca3, 0 0 40px #4ecca3;
+    transform: scale(1.05);
+    z-index: 10;
+    animation: highlightPulse 1.5s infinite;
+}
+
+@keyframes highlightPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 15px #4ecca3, 0 0 30px #4ecca3;
+    }
+
+    50% {
+        box-shadow: 0 0 25px #4ecca3, 0 0 50px #4ecca3;
+    }
+}
+
+.side-column {
+    width: 15vmin;
+    /* Match corner width */
+    display: flex;
+    flex-direction: column;
+}
+
+.left-col {
+    border-right: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.right-col {
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.left-col-item,
+.right-col-item {
+    flex: 1;
+    width: 100%;
+}
+
+.land-cell.owned {
+    animation: claim-land 0.6s ease-out;
+}
+
+.land-cell.has-inn {
+    animation: build-inn 0.5s ease-out;
+}
+
+@keyframes claim-land {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    }
+
+    50% {
+        transform: scale(1.15);
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+@keyframes build-inn {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1) rotate(2deg);
+    }
+}
+
+/* Center Content Area */
+.board-center-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.6) 100%);
+    padding: 20px;
+    position: relative;
+}
+
+/* Specific adjustments for vertical text if needed, but horizontal is fine for now */

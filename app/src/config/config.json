@@ -1,0 +1,14 @@
+{
+    "initialCash": 3000,
+    "minTeams": 2,
+    "maxTeams": 4,
+    "forceLiquidateBeforeBankrupt": true,
+    "diceMode": "internal",
+    "seriesBonus": {
+        "2": 2.0,
+        "3": 3.0,
+        "4": 4.0
+    },
+    "enableSeeds": true,
+    "logMaxEntries": 100
+}

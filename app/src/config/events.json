@@ -1,0 +1,232 @@
+[
+    {
+        "id": "ev_rent_series_1",
+        "name": "按地收租：祖先與應許",
+        "type": "miracle",
+        "effectCode": "E_COLLECT_RENT_SERIES",
+        "params": {
+            "series": "祖先與應許"
+        },
+        "description": "選擇一塊你擁有的「祖先與應許」系列土地，向每隊收取該地基本租金。"
+    },
+    {
+        "id": "ev_rent_series_2",
+        "name": "按地收租：出埃及與曠野",
+        "type": "miracle",
+        "effectCode": "E_COLLECT_RENT_SERIES",
+        "params": {
+            "series": "出埃及與曠野"
+        },
+        "description": "選擇一塊你擁有的「出埃及與曠野」系列土地，向每隊收取該地基本租金。"
+    },
+    {
+        "id": "ev_rent_series_3",
+        "name": "按地收租：王國與敬拜",
+        "type": "miracle",
+        "effectCode": "E_COLLECT_RENT_SERIES",
+        "params": {
+            "series": "王國與敬拜"
+        },
+        "description": "選擇一塊你擁有的「王國與敬拜」系列土地，向每隊收取該地基本租金。"
+    },
+    {
+        "id": "ev_rent_series_4",
+        "name": "按地收租：耶穌腳蹤",
+        "type": "miracle",
+        "effectCode": "E_COLLECT_RENT_SERIES",
+        "params": {
+            "series": "耶穌腳蹤"
+        },
+        "description": "選擇一塊你擁有的「耶穌腳蹤」系列土地，向每隊收取該地基本租金。"
+    },
+    {
+        "id": "ev_rent_series_5",
+        "name": "按地收租：宣教拓展",
+        "type": "miracle",
+        "effectCode": "E_COLLECT_RENT_SERIES",
+        "params": {
+            "series": "宣教拓展"
+        },
+        "description": "選擇一塊你擁有的「宣教拓展」系列土地，向每隊收取該地基本租金。"
+    },
+    {
+        "id": "ev_rent_series_6",
+        "name": "按地收租：普世與啟示",
+        "type": "miracle",
+        "effectCode": "E_COLLECT_RENT_SERIES",
+        "params": {
+            "series": "普世與啟示"
+        },
+        "description": "選擇一塊你擁有的「普世與啟示」系列土地，向每隊收取該地基本租金。"
+    },
+    {
+        "id": "ev_rent_jerusalem",
+        "name": "收租：耶路撒冷",
+        "type": "rent",
+        "effectCode": "E_COLLECT_RENT_LAND",
+        "params": {
+            "landId": "land_jerusalem"
+        },
+        "description": "擁有耶路撒冷者，向每隊收一次該地租金（含旅店）。"
+    },
+    {
+        "id": "ev_rent_rome",
+        "name": "收租：羅馬",
+        "type": "rent",
+        "effectCode": "E_COLLECT_RENT_LAND",
+        "params": {
+            "landId": "land_rome"
+        },
+        "description": "擁有羅馬者，向每隊收一次該地租金（含旅店）。"
+    },
+    {
+        "id": "ev_double_rent_1",
+        "name": "雙倍收租",
+        "type": "buff",
+        "effectCode": "E_BUFF_NEXT_RENT",
+        "params": {
+            "multiplier": 2
+        },
+        "description": "在你下次收租時使用，該次收租金額 x2。"
+    },
+    {
+        "id": "ev_seed_blessing",
+        "name": "暗中祝福有需要的肢體",
+        "type": "seed",
+        "effectCode": "E_PAY_AND_GAIN_SEED",
+        "params": {
+            "pay": 100,
+            "seed": 1
+        },
+        "description": "向銀行付 $100。【播種+1】"
+    },
+    {
+        "id": "ev_seed_extra_mile",
+        "name": "願意多走一里路",
+        "type": "seed",
+        "effectCode": "E_GIVE_PLAYER_AND_GAIN_SEED",
+        "params": {
+            "amount": 50,
+            "seed": 1
+        },
+        "description": "向任一隊送出 $50（對方收）。【播種+1】"
+    },
+    {
+        "id": "ev_seed_tithe",
+        "name": "忠心十一奉獻",
+        "type": "seed",
+        "effectCode": "E_PAY_AND_GAIN_SEED",
+        "params": {
+            "pay": 100,
+            "seed": 1
+        },
+        "description": "向銀行付 $100。【播種+1】"
+    },
+    {
+        "id": "ev_harvest_job",
+        "name": "工作升職",
+        "type": "harvest",
+        "effectCode": "E_GAIN_CASH_BY_SEED",
+        "params": {
+            "base": 150,
+            "threshold": 2,
+            "bonus": 100
+        },
+        "description": "從銀行收 $150。若你有 ≥2 粒種子 → 改為收 $250。"
+    },
+    {
+        "id": "ev_harvest_ministry",
+        "name": "事奉果子豐富",
+        "type": "harvest",
+        "effectCode": "E_GAIN_CASH_PER_SEED",
+        "params": {
+            "base": 100,
+            "perSeed": 20,
+            "max": 260
+        },
+        "description": "從銀行收 $100 + 每粒種子 $20（上限 $260）。"
+    },
+    {
+        "id": "ev_trial_words",
+        "name": "說話傷人",
+        "type": "trial",
+        "effectCode": "E_PAY_CASH",
+        "params": {
+            "amount": 100
+        },
+        "description": "付銀行 $100。"
+    },
+    {
+        "id": "ev_trial_lazy",
+        "name": "懶惰不參與",
+        "type": "trial",
+        "effectCode": "E_PAY_CASH_OR_SEED",
+        "params": {
+            "amount": 100,
+            "seedDiscountAmount": 50
+        },
+        "description": "付銀行 $100。若有種子，可選擇銷毀 1 粒種子 → 減半，只付 $50。"
+    },
+    {
+        "id": "ev_miracle_5_2",
+        "name": "五餅二魚",
+        "type": "miracle",
+        "effectCode": "E_MIRACLE_HALF_PAY",
+        "params": {
+            "grant": 150
+        },
+        "description": "當你需付款但現金不足時使用：從銀行立即收 $150，然後該次要付的金額減半。只可用一次。"
+    },
+    {
+        "id": "ev_miracle_manna",
+        "name": "馬那從天降",
+        "type": "miracle",
+        "effectCode": "E_MIRACLE_POOR_GRANT",
+        "params": {
+            "threshold": 200,
+            "grant": 200,
+            "seedBonus": 50
+        },
+        "description": "當你現金 ≤ $200 時可使用：從銀行收 $200。若你有 ≥1 粒種子，再多收 $50。"
+    },
+    {
+        "id": "ev_manip_swap",
+        "name": "最後要成為首先",
+        "type": "manipulation",
+        "effectCode": "E_MANIP_RICH_TO_POOR",
+        "params": {
+            "amount": 200
+        },
+        "description": "現金最多的一隊向現金最少的一隊轉 $200。"
+    },
+    {
+        "id": "ev_manip_exchange",
+        "name": "天國大反轉",
+        "type": "manipulation",
+        "effectCode": "E_MANIP_REVERSE_FORTUNE",
+        "params": {
+            "amount": 150
+        },
+        "description": "若你不是最高的一隊，從銀行收 $150；若你是最高的一隊，給銀行 $150。"
+    },
+    {
+        "id": "evt_rent_x2",
+        "name": "意外開支",
+        "description": "隨機選中一塊對手的土地，支付 2 倍租金。",
+        "type": "immediate",
+        "effectCode": "E_PAY_MULTIPLIER_RENT_RANDOM",
+        "params": {
+            "multiplier": 2
+        }
+    },
+    {
+        "id": "evt_rent_x3",
+        "name": "嚴重罰款",
+        "description": "隨機選中一塊對手的土地，支付 3 倍租金。",
+        "type": "immediate",
+        "effectCode": "E_PAY_MULTIPLIER_RENT_RANDOM",
+        "params": {
+            "multiplier": 3
+        }
+    }
+]

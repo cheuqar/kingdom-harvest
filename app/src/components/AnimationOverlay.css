@@ -1,0 +1,370 @@
+.animation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Miracle Effect */
+.miracle-effect {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.miracle-flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: white;
+    opacity: 0;
+    animation: flash 0.5s ease-out;
+}
+
+@keyframes flash {
+    0% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.miracle-card-visual {
+    background: linear-gradient(135deg, #ffd700, #ffa500);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+    transform: scale(0);
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.miracle-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    color: white;
+    font-weight: bold;
+    font-size: 2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.miracle-icon {
+    font-size: 4rem;
+}
+
+.particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ffd700;
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleFloat 1s ease-out forwards;
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-100px) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Pay Rent Effect */
+.pay-rent-effect {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.money-stream {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.flying-money {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0;
+    animation: flyMoney 1.5s ease-in-out forwards;
+}
+
+@keyframes flyMoney {
+    0% {
+        transform: translate(0, 0) scale(0.5);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1.2);
+    }
+
+    100% {
+        transform: translate(-300px, 0) scale(0.5);
+        opacity: 0;
+    }
+
+    /* Move left towards team list */
+}
+
+.rent-text {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: #ff4d4d;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    animation: floatUp 2s ease-out forwards;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translate(-50%, 0);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -100px);
+        opacity: 0;
+    }
+}
+
+/* Acquire Land Effect */
+.acquire-land-effect {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    height: 100%;
+    justify-content: center;
+}
+
+.flying-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: flyCard 1.5s ease-in-out forwards;
+}
+
+@keyframes flyCard {
+    0% {
+        transform: scale(0.5) translateY(50px);
+        opacity: 0;
+    }
+
+    20% {
+        transform: scale(1.2) translateY(0);
+        opacity: 1;
+    }
+
+    80% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0.2) translate(-400px, 0);
+        opacity: 0;
+    }
+
+    /* Move left */
+}
+
+.card-face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: #333;
+    font-weight: bold;
+}
+
+.card-icon {
+    font-size: 3rem;
+}
+
+.acquire-text {
+    font-size: 2rem;
+    color: #4ecca3;
+    font-weight: bold;
+    animation: fadeInOut 1.5s ease-in-out forwards;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Event Effect */
+.event-effect {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    position: absolute;
+    top: 15%;
+    width: 100%;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-10px) rotate(-5deg);
+    }
+
+    75% {
+        transform: translateX(10px) rotate(5deg);
+    }
+}
+
+.event-icon {
+    font-size: 5rem;
+}
+
+.event-name {
+    font-size: 2.5rem;
+    color: #ff6b6b;
+    font-weight: bold;
+    text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+/* Bonus Cash Effect */
+.bonus-cash-effect {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 40px 60px;
+    border-radius: 20px;
+    border: 4px solid #ffd700;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+    position: absolute;
+    top: 15%;
+    animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes zoomIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.bonus-title {
+    font-size: 2.5rem;
+    color: #ffd700;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.bonus-amount {
+    font-size: 4rem;
+    color: #4ecca3;
+    font-weight: bold;
+    text-shadow: 0 0 20px rgba(78, 204, 163, 0.5);
+}
+
+.bonus-coins {
+    font-size: 3rem;
+    display: flex;
+    gap: 10px;
+}
+
+.bonus-coins span {
+    display: inline-block;
+    animation: coinBounce 0.5s infinite alternate;
+}
+
+@keyframes coinBounce {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-10px);
+    }
+}

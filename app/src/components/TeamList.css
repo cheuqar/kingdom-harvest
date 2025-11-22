@@ -1,0 +1,377 @@
+.team-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.team-card {
+    background: var(--panel-bg);
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    border-left: 5px solid #ccc;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.team-card.active {
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(78, 204, 163, 0.4), 0 0 0 2px rgba(78, 204, 163, 0.6);
+    background: linear-gradient(135deg, #1f2b4d 0%, #2a3a5f 100%);
+    animation: active-glow 2s ease-in-out infinite;
+    border-left-color: #4ecca3;
+    border-left-width: 5px;
+}
+
+@keyframes active-glow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 6px 20px rgba(78, 204, 163, 0.4),
+            0 0 0 2px rgba(78, 204, 163, 0.6),
+            0 0 20px rgba(78, 204, 163, 0.2);
+    }
+
+    50% {
+        box-shadow:
+            0 8px 30px rgba(78, 204, 163, 0.6),
+            0 0 0 3px rgba(78, 204, 163, 0.8),
+            0 0 40px rgba(78, 204, 163, 0.4);
+    }
+}
+
+.team-card.bankrupt {
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+.team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.3rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    margin: -0.4rem -0.6rem 0.3rem -0.6rem;
+}
+
+.team-name-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.color-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px currentColor, 0 2px 4px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.team-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.2;
+}
+
+.turn-badge {
+    background: var(--accent-color);
+    font-size: 0.6rem;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+/* Horizontal Icon Boxes Stats */
+.team-stats-boxes {
+    display: flex;
+    gap: 4px;
+    margin: 6px 0;
+    flex-wrap: wrap;
+}
+
+.stat-box {
+    flex: 1;
+    min-width: 50px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    padding: 4px 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.05));
+    pointer-events: none;
+}
+
+.team-card.active .stat-box {
+    border-color: rgba(78, 204, 163, 0.8);
+    border-width: 2px;
+    box-shadow: 0 0 15px rgba(78, 204, 163, 0.3);
+    background: linear-gradient(135deg, rgba(78, 204, 163, 0.15), rgba(0, 0, 0, 0.6));
+}
+
+.team-card.active .turn-badge {
+    background: linear-gradient(135deg, #4ecca3, #45b393);
+    color: #000;
+    font-weight: bold;
+    animation: badge-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 5px rgba(78, 204, 163, 0.5);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(78, 204, 163, 0.8);
+    }
+}
+
+.stat-box:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.stat-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+}
+
+.stat-value {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    line-height: 1;
+}
+
+/* Specific box colors */
+.cash-box {
+    border-color: rgba(78, 204, 163, 0.4);
+}
+
+.cash-box:hover {
+    border-color: rgba(78, 204, 163, 0.8);
+    box-shadow: 0 0 15px rgba(78, 204, 163, 0.3);
+}
+
+.seed-box {
+    border-color: rgba(139, 195, 74, 0.4);
+}
+
+.seed-box:hover {
+    border-color: rgba(139, 195, 74, 0.8);
+    box-shadow: 0 0 15px rgba(139, 195, 74, 0.3);
+}
+
+.miracle-box {
+    border-color: rgba(255, 215, 0, 0.4);
+}
+
+.miracle-box:hover {
+    border-color: rgba(255, 215, 0, 0.8);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.land-box {
+    border-color: rgba(66, 165, 245, 0.4);
+}
+
+.land-box:hover {
+    border-color: rgba(66, 165, 245, 0.8);
+    box-shadow: 0 0 15px rgba(66, 165, 245, 0.3);
+}
+
+.negative {
+    color: #ff4d4d;
+}
+
+.bankrupt-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    border: 2px solid red;
+    color: red;
+    padding: 5px 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+}
+
+.team-card {
+    cursor: pointer;
+}
+
+.team-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+.view-assets-hint {
+    font-size: 0.6rem;
+    color: #888;
+    text-align: center;
+    margin-top: 3px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.team-card:hover .view-assets-hint {
+    opacity: 1;
+}
+
+.bonus-progress-container {
+    margin-top: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    height: 10px;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bonus-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ffd700, #ffa500);
+    transition: width 0.3s ease;
+}
+
+.bonus-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.55rem;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* Stack Effects */
+.team-card.stack-1 {
+    box-shadow:
+        2px 2px 0 rgba(255, 255, 255, 0.1),
+        4px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.team-card.stack-2 {
+    box-shadow:
+        2px 2px 0 rgba(255, 255, 255, 0.1),
+        4px 4px 0 rgba(0, 0, 0, 0.2),
+        6px 6px 0 rgba(255, 255, 255, 0.1),
+        8px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.team-card.stack-3 {
+    box-shadow:
+        2px 2px 0 rgba(255, 255, 255, 0.1),
+        4px 4px 0 rgba(0, 0, 0, 0.2),
+        6px 6px 0 rgba(255, 255, 255, 0.1),
+        8px 8px 0 rgba(0, 0, 0, 0.2),
+        10px 10px 0 rgba(255, 255, 255, 0.1),
+        12px 12px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure active glow overrides or combines with stack */
+.team-card.active.stack-1,
+.team-card.active.stack-2,
+.team-card.active.stack-3 {
+    /* We keep the glow but maybe shift it? 
+       Actually, box-shadow doesn't stack well with animation if not careful.
+       The animation uses box-shadow.
+       Let's use ::before/::after for stacks to avoid conflict with active glow.
+    */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    /* Reset to base active shadow */
+}
+
+/* Re-implement stack using pseudo-elements for better compatibility with active glow */
+.team-card.stack-1::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: -4px;
+    bottom: -4px;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: -1;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.team-card.stack-2::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: -4px;
+    bottom: -4px;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: -1;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.team-card.stack-2::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: -8px;
+    bottom: -8px;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: -2;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.team-card.stack-3::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: -4px;
+    bottom: -4px;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: -1;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.team-card.stack-3::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: -8px;
+    bottom: -8px;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: -2;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 4px 4px 0 rgba(255, 255, 255, 0.05);
+    /* 3rd layer simulation */
+}

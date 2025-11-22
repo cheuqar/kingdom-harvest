@@ -1,0 +1,62 @@
+[
+    {
+        "id": "q_shechem",
+        "landId": "land_shechem",
+        "question": "亞伯蘭在示劍為耶和華築了什麼？",
+        "answer": "壇"
+    },
+    {
+        "id": "q_bethel",
+        "landId": "land_bethel",
+        "question": "雅各在伯特利夢見了什麼？",
+        "answer": "天梯 / 梯子"
+    },
+    {
+        "id": "q_bethlehem",
+        "landId": "land_bethlehem",
+        "question": "耶穌出生在哪一個城？",
+        "answer": "伯利恆"
+    },
+    {
+        "id": "q_red_sea",
+        "landId": "land_red_sea",
+        "question": "以色列人出埃及後是在哪裡經歷海分開？",
+        "answer": "紅海"
+    },
+    {
+        "id": "q_jericho",
+        "landId": "land_jericho",
+        "question": "以色列人繞行耶利哥城幾天後城牆倒塌？",
+        "answer": "七天"
+    },
+    {
+        "id": "q_nazareth",
+        "landId": "land_nazareth",
+        "question": "耶穌在哪裡長大？",
+        "answer": "拿撒勒"
+    },
+    {
+        "id": "q_capernaum",
+        "landId": "land_capernaum",
+        "question": "耶穌在迦百農醫治了誰的岳母？",
+        "answer": "彼得"
+    },
+    {
+        "id": "q_antioch",
+        "landId": "land_antioch",
+        "question": "門徒稱為「基督徒」是從哪裡開始的？",
+        "answer": "安提阿"
+    },
+    {
+        "id": "q_patmos",
+        "landId": "land_patmos",
+        "question": "約翰在哪裡領受啟示錄？",
+        "answer": "帕摩島 / 拔摩海島"
+    },
+    {
+        "id": "q_rome",
+        "landId": "land_rome",
+        "question": "保羅最後被押解到哪裡？",
+        "answer": "羅馬"
+    }
+]

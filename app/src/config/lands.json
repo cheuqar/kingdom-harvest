@@ -1,0 +1,242 @@
+[
+    {
+        "id": "land_shechem",
+        "name": "示劍",
+        "series": "祖先與應許",
+        "price": 150,
+        "baseRent": 40,
+        "innRentIncrement": 30,
+        "innCost": 80,
+        "bibleRef": "創 12:6-7"
+    },
+    {
+        "id": "land_bethel",
+        "name": "伯特利",
+        "series": "祖先與應許",
+        "price": 188,
+        "baseRent": 50,
+        "innRentIncrement": 30,
+        "innCost": 80,
+        "bibleRef": "創 28:16-19"
+    },
+    {
+        "id": "land_hebron",
+        "name": "希伯崙",
+        "series": "祖先與應許",
+        "price": 210,
+        "baseRent": 60,
+        "innRentIncrement": 30,
+        "innCost": 90,
+        "bibleRef": "創 13:18"
+    },
+    {
+        "id": "land_bethlehem",
+        "name": "伯利恆",
+        "series": "祖先與應許",
+        "price": 225,
+        "baseRent": 70,
+        "innRentIncrement": 40,
+        "innCost": 100,
+        "bibleRef": "彌 5:2 / 路 2"
+    },
+    {
+        "id": "land_goshen",
+        "name": "歌珊",
+        "series": "出埃及與曠野",
+        "price": 240,
+        "baseRent": 70,
+        "innRentIncrement": 40,
+        "innCost": 100,
+        "bibleRef": "創 47:27"
+    },
+    {
+        "id": "land_red_sea",
+        "name": "紅海岸",
+        "series": "出埃及與曠野",
+        "price": 255,
+        "baseRent": 80,
+        "innRentIncrement": 40,
+        "innCost": 100,
+        "bibleRef": "出 14"
+    },
+    {
+        "id": "land_horeb",
+        "name": "何烈山",
+        "series": "出埃及與曠野",
+        "price": 270,
+        "baseRent": 90,
+        "innRentIncrement": 50,
+        "innCost": 110,
+        "bibleRef": "出 3 / 王上 19"
+    },
+    {
+        "id": "land_tabernacle",
+        "name": "曠野會幕",
+        "series": "出埃及與曠野",
+        "price": 285,
+        "baseRent": 100,
+        "innRentIncrement": 50,
+        "innCost": 110,
+        "bibleRef": "出 25-40"
+    },
+    {
+        "id": "land_jerusalem",
+        "name": "耶路撒冷",
+        "series": "王國與敬拜",
+        "price": 315,
+        "baseRent": 110,
+        "innRentIncrement": 60,
+        "innCost": 120,
+        "bibleRef": "王上 8 / 詩 122"
+    },
+    {
+        "id": "land_zion",
+        "name": "錫安山",
+        "series": "王國與敬拜",
+        "price": 338,
+        "baseRent": 120,
+        "innRentIncrement": 60,
+        "innCost": 130,
+        "bibleRef": "詩 125:1"
+    },
+    {
+        "id": "land_jericho",
+        "name": "耶利哥",
+        "series": "王國與敬拜",
+        "price": 360,
+        "baseRent": 130,
+        "innRentIncrement": 70,
+        "innCost": 140,
+        "bibleRef": "書 6"
+    },
+    {
+        "id": "land_beersheba",
+        "name": "伯示巴",
+        "series": "王國與敬拜",
+        "price": 375,
+        "baseRent": 150,
+        "innRentIncrement": 70,
+        "innCost": 150,
+        "bibleRef": "創 21:33"
+    },
+    {
+        "id": "land_nazareth",
+        "name": "拿撒勒",
+        "series": "耶穌腳蹤",
+        "price": 390,
+        "baseRent": 150,
+        "innRentIncrement": 80,
+        "innCost": 150,
+        "bibleRef": "路 2:39-40"
+    },
+    {
+        "id": "land_capernaum",
+        "name": "迦百農",
+        "series": "耶穌腳蹤",
+        "price": 405,
+        "baseRent": 160,
+        "innRentIncrement": 80,
+        "innCost": 160,
+        "bibleRef": "太 4:13"
+    },
+    {
+        "id": "land_galilee",
+        "name": "加利利海",
+        "series": "耶穌腳蹤",
+        "price": 420,
+        "baseRent": 170,
+        "innRentIncrement": 90,
+        "innCost": 160,
+        "bibleRef": "馬 4:35-41"
+    },
+    {
+        "id": "land_bethany",
+        "name": "伯大尼",
+        "series": "耶穌腳蹤",
+        "price": 435,
+        "baseRent": 180,
+        "innRentIncrement": 90,
+        "innCost": 170,
+        "bibleRef": "約 11"
+    },
+    {
+        "id": "land_antioch",
+        "name": "安提阿",
+        "series": "宣教拓展",
+        "price": 450,
+        "baseRent": 190,
+        "innRentIncrement": 100,
+        "innCost": 180,
+        "bibleRef": "徒 11:26"
+    },
+    {
+        "id": "land_philippi",
+        "name": "腓立比",
+        "series": "宣教拓展",
+        "price": 465,
+        "baseRent": 200,
+        "innRentIncrement": 100,
+        "innCost": 180,
+        "bibleRef": "腓 1:5"
+    },
+    {
+        "id": "land_corinth",
+        "name": "哥林多",
+        "series": "宣教拓展",
+        "price": 480,
+        "baseRent": 210,
+        "innRentIncrement": 110,
+        "innCost": 190,
+        "bibleRef": "林前、林後"
+    },
+    {
+        "id": "land_ephesus",
+        "name": "以弗所",
+        "series": "宣教拓展",
+        "price": 495,
+        "baseRent": 220,
+        "innRentIncrement": 120,
+        "innCost": 200,
+        "bibleRef": "徒 19 / 弗書"
+    },
+    {
+        "id": "land_smyrna",
+        "name": "士每拿",
+        "series": "普世與啟示",
+        "price": 525,
+        "baseRent": 250,
+        "innRentIncrement": 130,
+        "innCost": 220,
+        "bibleRef": "啟 2:8-11"
+    },
+    {
+        "id": "land_patmos",
+        "name": "帕摩島",
+        "series": "普世與啟示",
+        "price": 540,
+        "baseRent": 260,
+        "innRentIncrement": 140,
+        "innCost": 230,
+        "bibleRef": "啟 1:9"
+    },
+    {
+        "id": "land_laodicea",
+        "name": "拉歐底加",
+        "series": "普世與啟示",
+        "price": 563,
+        "baseRent": 280,
+        "innRentIncrement": 150,
+        "innCost": 240,
+        "bibleRef": "啟 3:14-22"
+    },
+    {
+        "id": "land_rome",
+        "name": "羅馬",
+        "series": "普世與啟示",
+        "price": 600,
+        "baseRent": 300,
+        "innRentIncrement": 160,
+        "innCost": 250,
+        "bibleRef": "徒 28 / 羅馬書"
+    }
+]
