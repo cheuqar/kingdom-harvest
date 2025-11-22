@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { useGame } from '../state/GameContext';
 import { useGameEngine } from '../hooks/useGameEngine';
 import { calculateRent } from '../utils/gameUtils';
@@ -26,7 +27,7 @@ const TeamAssetsModal = ({ teamId, onClose }) => {
         return Math.floor(land.price / 2) + Math.floor((innCount * land.innCost) / 2);
     };
 
-    return (
+    return ReactDOM.createPortal(
         <div className="modal-overlay" onClick={onClose}>
             <div className="assets-modal" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
@@ -118,7 +119,8 @@ const TeamAssetsModal = ({ teamId, onClose }) => {
                     )}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
