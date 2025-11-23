@@ -54,10 +54,10 @@ const MainArea = () => {
                         <button
                             className="btn-success"
                             onClick={buyLand}
-                            disabled={Number(currentTeam.cash) < Number(state.currentCard.price)}
-                            title={Number(currentTeam.cash) < Number(state.currentCard.price) ? "現金不足" : ""}
+                            disabled={!state.currentCard || Number(currentTeam.cash) < Number(state.currentCard.price)}
+                            title={state.currentCard && Number(currentTeam.cash) < Number(state.currentCard.price) ? "現金不足" : ""}
                         >
-                            購買 (${state.currentCard.price})
+                            購買 ({state.currentCard ? `$${state.currentCard.price}` : '-'})
                         </button>
                         <button className="btn-secondary" onClick={skipLand}>
                             放棄

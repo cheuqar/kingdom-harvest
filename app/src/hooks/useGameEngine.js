@@ -153,6 +153,8 @@ export const useGameEngine = () => {
 
     const buyLand = () => {
         const card = state.currentCard;
+        if (!card) return; // Guard against null card
+
         if (currentTeam.cash >= card.price) {
             dispatch({
                 type: 'ADD_CASH',
@@ -176,6 +178,7 @@ export const useGameEngine = () => {
 
     const skipLand = () => {
         const card = state.currentCard;
+        if (!card) return; // Guard against null card
         // Trigger Auction instead of just adding to pool
         startAuction(card);
     };
