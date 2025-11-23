@@ -364,10 +364,7 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
 
           // Trigger a broadcast immediately
           // We can do this by just calling broadcast directly
-          const dynamicState = {
-            ...state,
-            config: undefined
-          };
+          const { config, ...dynamicState } = state;
           network.broadcast({ type: 'SYNC_STATE', state: dynamicState });
         } else {
           console.warn('[Host] Invalid team index in JOIN_REQUEST');
@@ -397,10 +394,8 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
   // Broadcast state on change (Host only)
   useEffect(() => {
     if (!isClientMode && network.peerId && state.phase !== 'SETUP') {
-      const dynamicState = {
-        ...state,
-        config: undefined
-      };
+      // Create a copy and remove config to avoid sending undefined
+      const { config, ...dynamicState } = state;
       network.broadcast({ type: 'SYNC_STATE', state: dynamicState });
     }
   }, [state, isClientMode, network.peerId]);
