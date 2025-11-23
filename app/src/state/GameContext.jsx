@@ -316,7 +316,10 @@ const gameReducer = (state, action) => {
       return state;
 
     case 'REPLACE_STATE':
-      return action.payload;
+      return {
+        ...action.payload,
+        config: action.payload.config || state.config
+      };
 
     default:
       return state;
@@ -330,14 +333,20 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
   // Client Connection Logic
   useEffect(() => {
     if (isClientMode && networkParams.hostId) {
+      console.log('[Client] Connecting to host:', networkParams.hostId);
       const conn = network.connectToHost(networkParams.hostId);
 
       conn.on('open', () => {
+        console.log('[Client] Connection opened, sending JOIN_REQUEST');
         // Use conn directly to avoid state race condition
         conn.send({
           type: 'JOIN_REQUEST',
           teamIndex: networkParams.teamIndex
         });
+      });
+
+      conn.on('error', (err) => {
+        console.error('[Client] Connection error:', err);
       });
     }
   }, [isClientMode, networkParams.hostId, networkParams.teamIndex]); // Run once on mount/params change
@@ -345,9 +354,12 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
   // Network Data Handler
   useEffect(() => {
     network.setOnDataReceived((data, senderPeerId, conn) => {
+      console.log('[GameContext] Received data:', data.type, 'from', senderPeerId);
+
       if (data.type === 'JOIN_REQUEST') {
         // Host handles join request
         const { teamIndex } = data;
+        console.log('[Host] Received JOIN_REQUEST for team', teamIndex);
         if (state.teams[teamIndex]) {
           network.registerTeamDevice(teamIndex, senderPeerId);
 
@@ -355,10 +367,19 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
           const targetConn = conn || network.connections[senderPeerId];
 
           if (targetConn && targetConn.open) {
+            console.log('[Host] Sending SYNC_STATE to', senderPeerId);
             targetConn.send({ type: 'JOIN_ACCEPTED', teamIndex });
             // Send current state immediately
-            // Create a sanitized state copy if needed, but for now send full state
-            targetConn.send({ type: 'SYNC_STATE', state });
+            // Optimize: Don't send static data (config, landsData, etc)
+            const dynamicState = {
+              ...state,
+              config: undefined, // Client has this
+              // landsData/eventsData are not in state root, they are imported
+              // But 'deck' contains full card objects. This is fine.
+            };
+            targetConn.send({ type: 'SYNC_STATE', state: dynamicState });
+          } else {
+            console.error('[Host] Connection not open for response');
           }
         } else {
           if (conn && conn.open) {
@@ -368,6 +389,7 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
       } else if (data.type === 'ACTION') {
         localDispatch(data.action);
       } else if (data.type === 'SYNC_STATE') {
+        console.log('[Client] Received SYNC_STATE, updating local state');
         localDispatch({ type: 'REPLACE_STATE', payload: data.state });
       } else if (data.type === 'JOIN_ACCEPTED') {
         console.log('Joined as team', data.teamIndex);
@@ -389,10 +411,11 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
   // Broadcast state on change (Host only)
   useEffect(() => {
     if (!isClientMode && network.peerId && state.phase !== 'SETUP') {
-      // Debounce or throttle could be good here, but for now direct broadcast
-      // Only broadcast if we have connected peers? 
-      // Actually broadcast() handles iterating over connections
-      network.broadcast({ type: 'SYNC_STATE', state });
+      const dynamicState = {
+        ...state,
+        config: undefined
+      };
+      network.broadcast({ type: 'SYNC_STATE', state: dynamicState });
     }
   }, [state, isClientMode, network.peerId]);
 
