@@ -315,6 +315,49 @@ const gameReducer = (state, action) => {
     case 'CLEAR_SAVE':
       return state;
 
+    case 'START_AUCTION':
+      return {
+        ...state,
+        phase: 'AUCTION',
+        auction: {
+          landId: action.payload.landId,
+          highestBid: action.payload.startBid,
+          highestBidderId: null,
+          activeBidders: action.payload.bidders, // IDs
+          initialBidders: action.payload.bidders
+        }
+      };
+
+    case 'PLACE_BID':
+      return {
+        ...state,
+        auction: {
+          ...state.auction,
+          highestBid: action.payload.amount,
+          highestBidderId: action.payload.teamId
+        },
+        log: [...state.log, `${state.teams.find(t => t.id === action.payload.teamId).name} 出價 $${action.payload.amount}`]
+      };
+
+    case 'PASS_AUCTION':
+      const newActiveBidders = state.auction.activeBidders.filter(id => id !== action.payload.teamId);
+      return {
+        ...state,
+        auction: {
+          ...state.auction,
+          activeBidders: newActiveBidders
+        },
+        log: [...state.log, `${state.teams.find(t => t.id === action.payload.teamId).name} 放棄競拍`]
+      };
+
+    case 'END_AUCTION':
+      return {
+        ...state,
+        auction: null,
+        // Phase change usually handled separately or here?
+        // Let's assume caller handles phase change (e.g. NEXT_TURN)
+      };
+
     case 'REPLACE_STATE':
       return {
         ...action.payload,

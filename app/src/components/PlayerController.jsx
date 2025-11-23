@@ -8,10 +8,11 @@ import { useGameEngine } from '../hooks/useGameEngine';
 const PlayerInterface = ({ teamIndex }) => {
     const { state, dispatch, network } = useGame();
     const { teams, currentTeamIndex, phase } = state;
-    const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle } = useGameEngine();
+    const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass } = useGameEngine();
 
     const myTeam = teams[teamIndex];
     const isMyTurn = currentTeamIndex === teamIndex;
+    const isAuction = phase === 'AUCTION';
 
     if (!myTeam) return <div className="loading">Waiting for game state...</div>;
 
@@ -73,7 +74,43 @@ const PlayerInterface = ({ teamIndex }) => {
             case 'BUILD_INN':
                 return <div className="phase-msg">請在主螢幕選擇土地建造旅店</div>;
             case 'AUCTION':
-                return <div className="phase-msg">拍賣進行中 (請在主螢幕出價)</div>;
+                if (!state.auction) return <div className="phase-msg">等待拍賣數據...</div>;
+
+                const isActiveBidder = state.auction.activeBidders.includes(myTeam.id);
+                const isHighestBidder = state.auction.highestBidderId === myTeam.id;
+                const currentBid = state.auction.highestBid;
+
+                if (!isActiveBidder) {
+                    return <div className="phase-msg">您已放棄競拍或無資格</div>;
+                }
+
+                return (
+                    <div className="decision-controls">
+                        <div className="auction-info">
+                            <h3>當前最高價: ${currentBid}</h3>
+                            {isHighestBidder && <p className="status-winning">目前最高出價者！</p>}
+                        </div>
+                        <div className="btn-group-vertical">
+                            <button
+                                className="btn-action btn-bid"
+                                onClick={() => handleBid(myTeam.id, currentBid + 50)}
+                                disabled={myTeam.cash < currentBid + 50}
+                            >
+                                出價 ${currentBid + 50}
+                            </button>
+                            <button
+                                className="btn-action btn-bid"
+                                onClick={() => handleBid(myTeam.id, currentBid + 100)}
+                                disabled={myTeam.cash < currentBid + 100}
+                            >
+                                出價 ${currentBid + 100}
+                            </button>
+                            <button className="btn-action btn-secondary" onClick={() => handlePass(myTeam.id)}>
+                                放棄
+                            </button>
+                        </div>
+                    </div>
+                );
             default:
                 return <div className="phase-msg">等待中... ({phase})</div>;
         }
@@ -100,9 +137,9 @@ const PlayerInterface = ({ teamIndex }) => {
             </div>
 
             <div className="action-area">
-                {isMyTurn ? (
+                {isMyTurn || isAuction ? (
                     <div className="active-turn-controls">
-                        <h2>輪到你了！</h2>
+                        {isAuction ? <h2>土地拍賣</h2> : <h2>輪到你了！</h2>}
                         {renderPhaseControls()}
                     </div>
                 ) : (

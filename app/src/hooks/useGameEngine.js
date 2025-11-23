@@ -181,10 +181,95 @@ export const useGameEngine = () => {
     };
 
     const startAuction = (card) => {
-        dispatch({ type: 'SET_PHASE', payload: 'AUCTION' });
-        dispatch({ type: 'ADD_LOG', payload: `${card.name} 進入拍賣！` });
-        // Initialize auction state if needed (e.g. current bidder, highest bid)
-        // We'll handle this in the component state or context
+        // Exclude current player from initial bidders? Or include?
+        // Usually current player declined to buy, so they might be excluded or included depending on rules.
+        // Let's exclude them as per previous logic.
+        const eligibleTeams = state.teams.filter(t => t.id !== currentTeam.id && !t.isBankrupt);
+        const bidderIds = eligibleTeams.map(t => t.id);
+        const startBid = Math.floor(card.price * 0.5);
+
+        dispatch({
+            type: 'START_AUCTION',
+            payload: {
+                landId: card.id,
+                startBid,
+                bidders: bidderIds
+            }
+        });
+        dispatch({ type: 'ADD_LOG', payload: `${card.name} 進入拍賣！起標價 $${startBid}` });
+    };
+
+    const placeBid = (amount) => {
+        // Check if amount > highestBid
+        if (state.auction && amount > state.auction.highestBid) {
+            // We need to know WHO is bidding. 
+            // In Client mode, useGameEngine uses 'currentTeam' which is the TURN owner.
+            // But in auction, ANYONE can bid.
+            // So placeBid needs to accept teamId.
+        }
+    };
+
+    // Actually, useGameEngine is used by PlayerController too.
+    // PlayerController knows its own teamIndex.
+    // So we should export a generic placeBid(teamId, amount).
+
+    const handleBid = (teamId, amount) => {
+        if (state.auction && amount > state.auction.highestBid) {
+            dispatch({ type: 'PLACE_BID', payload: { teamId, amount } });
+        }
+    };
+
+    const handlePass = (teamId) => {
+        if (state.auction) {
+            dispatch({ type: 'PASS_AUCTION', payload: { teamId } });
+        }
+    };
+
+    const resolveAuction = () => {
+        if (!state.auction) return;
+
+        const { highestBidderId, highestBid, landId } = state.auction;
+        const land = landsData.find(l => l.id === landId);
+
+        if (highestBidderId) {
+            const winner = state.teams.find(t => t.id === highestBidderId);
+            dispatch({
+                type: 'ADD_CASH',
+                payload: { teamId: winner.id, amount: -highestBid }
+            });
+            dispatch({
+                type: 'UPDATE_LAND',
+                payload: { landId: land.id, updates: { ownerId: winner.id } }
+            });
+            dispatch({ type: 'ADD_LOG', payload: `拍賣結束！${winner.name} 以 $${highestBid} 購得 ${land.name}` });
+            dispatch({
+                type: 'SET_ANIMATION',
+                payload: { type: 'ACQUIRE_LAND', data: { name: land.name }, duration: 2000 }
+            });
+        } else {
+            dispatch({ type: 'ADD_LOG', payload: '無人出價，土地流拍。' });
+        }
+
+        dispatch({ type: 'END_AUCTION' });
+        endTurn();
+    };
+
+    // ...
+
+    return {
+        rollDice,
+        buyLand,
+        skipLand,
+        buildInn,
+        useMiracle,
+        payRent,
+        sellLand,
+        endTurn,
+        startAuction,
+        handleBid,
+        handlePass,
+        resolveAuction,
+        currentTeam
     };
 
     const handleInnPhase = () => {
