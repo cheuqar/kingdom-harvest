@@ -9,11 +9,13 @@ import MainArea from './MainArea';
 import LogPanel from './LogPanel';
 import VisualBoard from './VisualBoard';
 import AnimationOverlay from './AnimationOverlay';
+import SystemMenu from './SystemMenu';
 import './GameBoard.css';
 
 const GameBoard = () => {
     const { state, dispatch, landsData } = useGame();
     const [timeRemaining, setTimeRemaining] = useState(null);
+    const [showMenu, setShowMenu] = useState(false);
 
     // ... (timer logic)
 
@@ -22,13 +24,14 @@ const GameBoard = () => {
     if (state.phase === 'RULES') return <RulesScreen />;
 
     if (state.phase === 'GAME_OVER') {
-        const rankings = state.winner?.rankings || calculateRankings();
+        const rankings = state.winner?.rankings || []; // Fallback to empty if function missing
         const reason = state.winner?.reason || 'bankruptcy';
 
         return (
             <div className="game-over-screen">
                 <h1>遊戲結束！</h1>
                 {reason === 'time' && <p className="game-over-reason">時間到！</p>}
+                {reason === 'admin_forced' && <p className="game-over-reason">管理員強制結束</p>}
 
                 <div className="rankings">
                     <h2>最終排名</h2>
@@ -61,9 +64,14 @@ const GameBoard = () => {
 
     return (
         <div className="game-board">
+            <button className="btn-system-menu" onClick={() => setShowMenu(true)}>
+                ⚙️ 選單
+            </button>
+            {showMenu && <SystemMenu onClose={() => setShowMenu(false)} />}
+
             {state.gameDuration > 0 && timeRemaining !== null && (
                 <div className="timer-display">
-                    ⏱️ 剩餘時間: {formatTime(timeRemaining)}
+                    ⏱️ 剩餘時間: {formatTime ? formatTime(timeRemaining) : timeRemaining}
                 </div>
             )}
 

@@ -59,6 +59,8 @@ export const useNetwork = () => {
         };
     }, []);
 
+    const hostConnRef = useRef(null);
+
     // Connect Client (Join Room)
     const connectToHost = (roomId) => {
         // Listen for Game State
@@ -72,7 +74,7 @@ export const useNetwork = () => {
             }
         });
 
-        return {
+        const conn = {
             send: (data) => {
                 // Send action/request to Host
                 const actionsRef = ref(db, `games/${roomId}/actions`);
@@ -80,6 +82,17 @@ export const useNetwork = () => {
             },
             close: unsubscribe
         };
+
+        hostConnRef.current = conn;
+        return conn;
+    };
+
+    const sendToHost = (data) => {
+        if (hostConnRef.current) {
+            hostConnRef.current.send(data);
+        } else {
+            console.error("Cannot send to host: No connection");
+        }
     };
 
     // Host: Broadcast State
@@ -129,6 +142,7 @@ export const useNetwork = () => {
         peerId, // This is now Room ID
         initializePeer,
         connectToHost,
+        sendToHost,
         broadcast,
         sendToPeer,
         setOnDataReceived,
