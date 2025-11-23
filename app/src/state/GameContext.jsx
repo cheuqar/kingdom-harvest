@@ -331,11 +331,10 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
   useEffect(() => {
     if (isClientMode && networkParams.hostId) {
       const conn = network.connectToHost(networkParams.hostId);
-      // We need to wait for open, but connectToHost returns conn immediately
-      // The event listener inside connectToHost handles the 'open' event for internal state
-      // But we need to send JOIN_REQUEST once open
+
       conn.on('open', () => {
-        network.sendToHost({
+        // Use conn directly to avoid state race condition
+        conn.send({
           type: 'JOIN_REQUEST',
           teamIndex: networkParams.teamIndex
         });
@@ -345,27 +344,30 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
 
   // Network Data Handler
   useEffect(() => {
-    network.setOnDataReceived((data, senderPeerId) => {
+    network.setOnDataReceived((data, senderPeerId, conn) => {
       if (data.type === 'JOIN_REQUEST') {
         // Host handles join request
-        // For now, auto-approve if slot is valid
-        // We need to know which team slot they want
         const { teamIndex } = data;
         if (state.teams[teamIndex]) {
           network.registerTeamDevice(teamIndex, senderPeerId);
-          network.sendToPeer(senderPeerId, { type: 'JOIN_ACCEPTED', teamIndex });
-          // Send current state immediately
-          network.sendToPeer(senderPeerId, { type: 'SYNC_STATE', state });
+
+          // Use direct connection if available (avoids state race condition)
+          const targetConn = conn || network.connections[senderPeerId];
+
+          if (targetConn && targetConn.open) {
+            targetConn.send({ type: 'JOIN_ACCEPTED', teamIndex });
+            // Send current state immediately
+            // Create a sanitized state copy if needed, but for now send full state
+            targetConn.send({ type: 'SYNC_STATE', state });
+          }
         } else {
-          network.sendToPeer(senderPeerId, { type: 'JOIN_REJECTED', reason: 'Invalid team' });
+          if (conn && conn.open) {
+            conn.send({ type: 'JOIN_REJECTED', reason: 'Invalid team' });
+          }
         }
       } else if (data.type === 'ACTION') {
-        // Host receives action from client
-        // Verify if it's the correct team's turn?
-        // For now, trust the client
         localDispatch(data.action);
       } else if (data.type === 'SYNC_STATE') {
-        // Client receives state from host
         localDispatch({ type: 'REPLACE_STATE', payload: data.state });
       } else if (data.type === 'JOIN_ACCEPTED') {
         console.log('Joined as team', data.teamIndex);

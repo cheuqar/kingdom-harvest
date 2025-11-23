@@ -40,7 +40,7 @@ export const useNetwork = () => {
             console.log('Received data:', data);
             // Events will be handled by the consumer of this hook via a callback
             if (onDataReceivedRef.current) {
-                onDataReceivedRef.current(data, conn.peer);
+                onDataReceivedRef.current(data, conn.peer, conn);
             }
         });
 
