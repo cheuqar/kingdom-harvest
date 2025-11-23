@@ -116,8 +116,8 @@ const PlayerInterface = ({ teamIndex }) => {
             <div className="cards-section">
                 <h3>我的神蹟卡</h3>
                 <div className="cards-list">
-                    {myTeam.miracles.length === 0 && <p className="empty-text">無神蹟卡</p>}
-                    {myTeam.miracles.map((card, i) => (
+                    {(!myTeam.miracles || myTeam.miracles.length === 0) && <p className="empty-text">無神蹟卡</p>}
+                    {(myTeam.miracles || []).map((card, i) => (
                         <div key={i} className="card-item">
                             <div className="card-info">
                                 <span className="card-name">{card.name}</span>

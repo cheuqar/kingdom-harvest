@@ -54,6 +54,12 @@ const ConnectionScreen = () => {
                                         />
                                     )}
                                 </div>
+                                {!isConnected && (
+                                    <div className="url-display">
+                                        <p>或訪問:</p>
+                                        <div className="url-box">{getJoinUrl(index)}</div>
+                                    </div>
+                                )}
                                 {isConnected && (
                                     <button
                                         className="btn-disconnect"

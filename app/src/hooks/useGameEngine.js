@@ -5,7 +5,7 @@ import { EFFECTS } from '../engine/effects';
 export const useGameEngine = () => {
     const { state, dispatch, landsData, eventsData, questionsData } = useGame();
 
-    const currentTeam = state.teams[state.currentTeamIndex];
+    const currentTeam = state.teams[state.currentTeamIndex] || {};
 
     const rollDice = () => {
         // Guard: Only allow rolling if phase is ROLL
