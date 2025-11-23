@@ -8,14 +8,14 @@
 
 1. **Create a new repository on GitHub:**
    - Go to https://github.com/new
-   - Repository name: `monopoly-heavenly-kingdom` (or your preferred name)
+   - Repository name: `monopoly-bible` (or your preferred name)
    - Make it Public or Private
    - **DO NOT** initialize with README (we already have one)
    - Click "Create repository"
 
 2. **Push your local code to GitHub:**
    ```bash
-   git remote add origin https://github.com/cheuqar/monopoly-heavenly-kingdom.git
+   git remote add origin https://github.com/YOUR_USERNAME/monopoly-bible.git
    git branch -M main
    git push -u origin main
    ```
@@ -29,7 +29,7 @@
 1. Go to https://vercel.com
 2. Click "Add New Project"
 3. Import from GitHub
-4. Select your `monopoly-heavenly-kingdom` repository
+4. Select your `monopoly-bible` repository
 5. Vercel will auto-detect the configuration
 6. Click "Deploy"
 7. Wait 2-3 minutes for deployment
@@ -65,6 +65,13 @@ The `vercel.json` file tells Vercel:
 - Output directory: `app/dist` (where Vite builds to)
 - Framework: Vite
 - Rewrites: SPA routing (all routes go to index.html)
+
+## Multi-Device Feature
+
+The game uses **PeerJS** for multi-device connection.
+- **No Configuration Needed**: It works automatically on Vercel using the public PeerJS cloud server.
+- **HTTPS**: Vercel provides HTTPS by default, which is required for the connection to work securely.
+- **QR Codes**: The game automatically generates QR codes using the deployment URL.
 
 ## Post-Deployment
 
