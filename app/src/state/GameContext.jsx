@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
+import { useNetwork } from '../hooks/useNetwork';
 import config from '../config/config.json';
 import landsData from '../config/lands.json';
 import eventsData from '../config/events.json';
@@ -79,9 +80,9 @@ const gameReducer = (state, action) => {
           landDiscard: [],
           eventDiscard: []
         },
-        phase: 'RULES', // Go to Rules first
+        phase: 'CONNECT', // Go to Connection screen first
         gameDuration: gameDuration || 0,
-        log: ['遊戲準備就緒，請閱讀規則。'],
+        log: ['遊戲準備就緒，請連接玩家裝置。'],
         currentTeamIndex: 0
       };
     }
@@ -314,16 +315,89 @@ const gameReducer = (state, action) => {
     case 'CLEAR_SAVE':
       return state;
 
+    case 'REPLACE_STATE':
+      return action.payload;
+
     default:
       return state;
   }
 };
 
-export const GameProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(gameReducer, initialState);
+export const GameProvider = ({ children, isClientMode = false, networkParams = {} }) => {
+  const [state, localDispatch] = useReducer(gameReducer, initialState);
+  const network = useNetwork();
 
-  // Auto-save game state to localStorage
+  // Client Connection Logic
   useEffect(() => {
+    if (isClientMode && networkParams.hostId) {
+      const conn = network.connectToHost(networkParams.hostId);
+      // We need to wait for open, but connectToHost returns conn immediately
+      // The event listener inside connectToHost handles the 'open' event for internal state
+      // But we need to send JOIN_REQUEST once open
+      conn.on('open', () => {
+        network.sendToHost({
+          type: 'JOIN_REQUEST',
+          teamIndex: networkParams.teamIndex
+        });
+      });
+    }
+  }, [isClientMode, networkParams.hostId, networkParams.teamIndex]); // Run once on mount/params change
+
+  // Network Data Handler
+  useEffect(() => {
+    network.setOnDataReceived((data, senderPeerId) => {
+      if (data.type === 'JOIN_REQUEST') {
+        // Host handles join request
+        // For now, auto-approve if slot is valid
+        // We need to know which team slot they want
+        const { teamIndex } = data;
+        if (state.teams[teamIndex]) {
+          network.registerTeamDevice(teamIndex, senderPeerId);
+          network.sendToPeer(senderPeerId, { type: 'JOIN_ACCEPTED', teamIndex });
+          // Send current state immediately
+          network.sendToPeer(senderPeerId, { type: 'SYNC_STATE', state });
+        } else {
+          network.sendToPeer(senderPeerId, { type: 'JOIN_REJECTED', reason: 'Invalid team' });
+        }
+      } else if (data.type === 'ACTION') {
+        // Host receives action from client
+        // Verify if it's the correct team's turn?
+        // For now, trust the client
+        localDispatch(data.action);
+      } else if (data.type === 'SYNC_STATE') {
+        // Client receives state from host
+        localDispatch({ type: 'REPLACE_STATE', payload: data.state });
+      } else if (data.type === 'JOIN_ACCEPTED') {
+        console.log('Joined as team', data.teamIndex);
+      }
+    });
+  }, [network, state]);
+
+  // Enhanced Dispatch
+  const dispatch = (action) => {
+    if (isClientMode) {
+      // Client sends action to host
+      network.sendToHost({ type: 'ACTION', action });
+    } else {
+      // Host updates local state
+      localDispatch(action);
+    }
+  };
+
+  // Broadcast state on change (Host only)
+  useEffect(() => {
+    if (!isClientMode && network.peerId && state.phase !== 'SETUP') {
+      // Debounce or throttle could be good here, but for now direct broadcast
+      // Only broadcast if we have connected peers? 
+      // Actually broadcast() handles iterating over connections
+      network.broadcast({ type: 'SYNC_STATE', state });
+    }
+  }, [state, isClientMode, network.peerId]);
+
+  // Auto-save game state to localStorage (Host only)
+  useEffect(() => {
+    if (isClientMode) return;
+
     // Only save if game is in progress (not SETUP, RULES, or GAME_OVER)
     if (state.phase !== 'SETUP' && state.phase !== 'RULES' && state.phase !== 'GAME_OVER') {
       try {
@@ -341,10 +415,10 @@ export const GameProvider = ({ children }) => {
     if (state.phase === 'GAME_OVER') {
       localStorage.removeItem('monopoly-game-save');
     }
-  }, [state]);
+  }, [state, isClientMode]);
 
   return (
-    <GameContext.Provider value={{ state, dispatch, landsData, eventsData, questionsData }}>
+    <GameContext.Provider value={{ state, dispatch, landsData, eventsData, questionsData, network, isClientMode }}>
       {children}
     </GameContext.Provider>
   );

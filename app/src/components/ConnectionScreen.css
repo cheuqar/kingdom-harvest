@@ -1,0 +1,99 @@
+.connection-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100vw;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    padding: 2rem;
+}
+
+.connection-screen h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(to right, #e94560, #4ecca3);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.instruction {
+    font-size: 1.2rem;
+    color: #aab7b8;
+    margin-bottom: 3rem;
+}
+
+.qr-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.qr-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    overflow: hidden;
+    width: 250px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.qr-card.connected {
+    border-color: #4ecca3;
+    box-shadow: 0 0 20px rgba(78, 204, 163, 0.2);
+}
+
+.team-header {
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.qr-wrapper {
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    min-height: 200px;
+}
+
+.connected-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: #4ecca3;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.connected-status .icon {
+    font-size: 3rem;
+}
+
+.btn-disconnect {
+    width: 100%;
+    padding: 0.8rem;
+    background: rgba(255, 82, 82, 0.1);
+    border: none;
+    color: #ff5252;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-disconnect:hover {
+    background: rgba(255, 82, 82, 0.2);
+}
+
+.controls {
+    margin-top: 2rem;
+}

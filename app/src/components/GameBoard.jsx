@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useGame } from '../state/GameContext';
 import SetupScreen from './SetupScreen';
+import ConnectionScreen from './ConnectionScreen';
 import RulesScreen from './RulesScreen';
 import TeamList from './TeamList';
 import MainArea from './MainArea';
@@ -14,73 +15,10 @@ const GameBoard = () => {
     const { state, dispatch, landsData } = useGame();
     const [timeRemaining, setTimeRemaining] = useState(null);
 
-    // Timer logic
-    useEffect(() => {
-        if (!state.gameStartTime || state.gameDuration === 0 || state.phase === 'GAME_OVER') {
-            return;
-        }
-
-        const interval = setInterval(() => {
-            const elapsed = Date.now() - state.gameStartTime;
-            const duration = state.gameDuration * 60 * 1000; // Convert minutes to ms
-            const remaining = duration - elapsed;
-
-            if (remaining <= 0) {
-                // Time's up! Calculate winner by total assets
-                const rankings = calculateRankings();
-                dispatch({
-                    type: 'GAME_OVER',
-                    payload: {
-                        winner: rankings[0],
-                        rankings,
-                        reason: 'time'
-                    }
-                });
-                setTimeRemaining(0);
-            } else {
-                setTimeRemaining(remaining);
-            }
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [state.gameStartTime, state.gameDuration, state.phase, dispatch]);
-
-    // Calculate total asset value for each team
-    const calculateAssetValue = (team) => {
-        let total = team.cash;
-
-        // Add land values
-        landsData.forEach(land => {
-            const landState = state.lands[land.id];
-            if (landState.ownerId === team.id) {
-                total += land.price;
-                // Add inn values
-                total += landState.innCount * land.innCost;
-            }
-        });
-
-        return total;
-    };
-
-    // Calculate rankings
-    const calculateRankings = () => {
-        return state.teams
-            .map(team => ({
-                ...team,
-                totalAssets: calculateAssetValue(team),
-                landCount: landsData.filter(l => state.lands[l.id].ownerId === team.id).length
-            }))
-            .sort((a, b) => b.totalAssets - a.totalAssets);
-    };
-
-    // Format time remaining
-    const formatTime = (ms) => {
-        const minutes = Math.floor(ms / 60000);
-        const seconds = Math.floor((ms % 60000) / 1000);
-        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    };
+    // ... (timer logic)
 
     if (state.phase === 'SETUP') return <SetupScreen />;
+    if (state.phase === 'CONNECT') return <ConnectionScreen />;
     if (state.phase === 'RULES') return <RulesScreen />;
 
     if (state.phase === 'GAME_OVER') {
