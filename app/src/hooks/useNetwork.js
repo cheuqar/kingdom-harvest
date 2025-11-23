@@ -1,147 +1,139 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import Peer from 'peerjs';
+import { db } from '../config/firebase';
+import { ref, set, onValue, push, remove, onDisconnect, serverTimestamp } from 'firebase/database';
 
 export const useNetwork = () => {
-    const [peerId, setPeerId] = useState(null);
-    const [connections, setConnections] = useState({}); // Map peerId -> conn
-    const [hostConnection, setHostConnection] = useState(null);
+    const [peerId, setPeerId] = useState(null); // We'll use this as "Room ID"
+    const [connectedTeams, setConnectedTeams] = useState({});
     const [isHost, setIsHost] = useState(false);
-    const [connectedTeams, setConnectedTeams] = useState({}); // Map teamIndex -> peerId
-    const peerRef = useRef(null);
 
-    // Initialize Peer
-    const initializePeer = useCallback(() => {
-        const peer = new Peer();
-        peerRef.current = peer;
-
-        peer.on('open', (id) => {
-            console.log('My Peer ID is: ' + id);
-            setPeerId(id);
-        });
-
-        peer.on('connection', (conn) => {
-            handleIncomingConnection(conn);
-        });
-
-        peer.on('error', (err) => {
-            console.error('Peer error:', err);
-        });
-
-        return peer;
-    }, []);
-
-    const handleIncomingConnection = (conn) => {
-        conn.on('open', () => {
-            console.log('Incoming connection from:', conn.peer);
-            setConnections(prev => ({ ...prev, [conn.peer]: conn }));
-        });
-
-        conn.on('data', (data) => {
-            console.log('Received data:', data);
-            // Events will be handled by the consumer of this hook via a callback
-            if (onDataReceivedRef.current) {
-                onDataReceivedRef.current(data, conn.peer, conn);
-            }
-        });
-
-        conn.on('close', () => {
-            console.log('Connection closed:', conn.peer);
-            setConnections(prev => {
-                const newConns = { ...prev };
-                delete newConns[conn.peer];
-                return newConns;
-            });
-            // Also remove from connectedTeams if present
-            setConnectedTeams(prev => {
-                const newTeams = { ...prev };
-                Object.keys(newTeams).forEach(key => {
-                    if (newTeams[key] === conn.peer) {
-                        delete newTeams[key];
-                    }
-                });
-                return newTeams;
-            });
-        });
-    };
-
-    const connectToHost = (hostId) => {
-        if (!peerRef.current) initializePeer();
-
-        const conn = peerRef.current.connect(hostId);
-
-        conn.on('open', () => {
-            console.log('Connected to host:', hostId);
-            setHostConnection(conn);
-        });
-
-        conn.on('data', (data) => {
-            if (onDataReceivedRef.current) {
-                onDataReceivedRef.current(data, 'HOST');
-            }
-        });
-
-        conn.on('close', () => {
-            console.log('Disconnected from host');
-            setHostConnection(null);
-        });
-
-        return conn;
-    };
-
-    const sendToHost = (data) => {
-        if (hostConnection && hostConnection.open) {
-            hostConnection.send(data);
-        }
-    };
-
-    const broadcast = (data) => {
-        Object.values(connections).forEach(conn => {
-            if (conn.open) {
-                conn.send(data);
-            }
-        });
-    };
-
-    const sendToPeer = (peerId, data) => {
-        const conn = connections[peerId];
-        if (conn && conn.open) {
-            conn.send(data);
-        }
-    };
-
-    // Callback ref pattern to avoid stale closures in event listeners
+    // Callback ref
     const onDataReceivedRef = useRef(null);
     const setOnDataReceived = (callback) => {
         onDataReceivedRef.current = callback;
     };
 
-    // Admin functions
-    const registerTeamDevice = (teamIndex, peerId) => {
-        setConnectedTeams(prev => ({ ...prev, [teamIndex]: peerId }));
+    // Generate a random 6-character Room ID
+    const generateRoomId = () => {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let result = '';
+        for (let i = 0; i < 6; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    };
+
+    // Initialize Host (Create Room)
+    const initializeHost = useCallback(() => {
+        const roomId = generateRoomId();
+        setPeerId(roomId);
+        setIsHost(true);
+
+        const roomRef = ref(db, `games/${roomId}`);
+        const actionsRef = ref(db, `games/${roomId}/actions`);
+        const presenceRef = ref(db, `games/${roomId}/host`);
+
+        // Set host presence
+        set(presenceRef, { online: true, timestamp: serverTimestamp() });
+        onDisconnect(presenceRef).remove();
+        onDisconnect(roomRef).remove(); // Optional: Delete room when host leaves? Maybe keep it for refresh.
+
+        // Listen for actions from clients
+        const unsubscribe = onValue(actionsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // Iterate over actions (since it's a list)
+                Object.entries(data).forEach(([key, actionData]) => {
+                    if (onDataReceivedRef.current) {
+                        onDataReceivedRef.current(actionData, actionData.sender);
+                    }
+                    // Remove processed action
+                    remove(ref(db, `games/${roomId}/actions/${key}`));
+                });
+            }
+        });
+
+        return () => {
+            unsubscribe();
+            remove(roomRef);
+        };
+    }, []);
+
+    // Connect Client (Join Room)
+    const connectToHost = (roomId) => {
+        // Listen for Game State
+        const stateRef = ref(db, `games/${roomId}/state`);
+
+        const unsubscribe = onValue(stateRef, (snapshot) => {
+            const state = snapshot.val();
+            if (state && onDataReceivedRef.current) {
+                // Simulate SYNC_STATE message
+                onDataReceivedRef.current({ type: 'SYNC_STATE', state }, 'HOST');
+            }
+        });
+
+        return {
+            send: (data) => {
+                // Send action/request to Host
+                const actionsRef = ref(db, `games/${roomId}/actions`);
+                push(actionsRef, { ...data, sender: 'CLIENT', timestamp: serverTimestamp() });
+            },
+            close: unsubscribe
+        };
+    };
+
+    // Host: Broadcast State
+    const broadcast = (data) => {
+        if (!peerId) return;
+        if (data.type === 'SYNC_STATE') {
+            const stateRef = ref(db, `games/${peerId}/state`);
+            set(stateRef, data.state);
+        }
+    };
+
+    // Host: Send to specific peer (Not strictly needed in FB model, usually we just update state)
+    // But for JOIN_ACCEPTED, we can write to a specific path or just rely on state sync.
+    // For simplicity, let's assume state sync handles everything.
+    // But we need to handle "Join Request".
+
+    // In Firebase model:
+    // 1. Client pushes JOIN_REQUEST to actions.
+    // 2. Host sees it, updates "connectedTeams" in local state (and maybe in DB).
+    // 3. Host broadcasts new state.
+    // 4. Client sees new state with them in it.
+
+    const sendToPeer = (targetId, data) => {
+        // Not implemented for Firebase broadcast model
+        // We rely on global state sync
+    };
+
+    const registerTeamDevice = (teamIndex, deviceId) => {
+        setConnectedTeams(prev => ({ ...prev, [teamIndex]: deviceId }));
+        // Optionally write to DB
+        set(ref(db, `games/${peerId}/teams/${teamIndex}`), { deviceId, online: true });
     };
 
     const disconnectTeam = (teamIndex) => {
-        const peerId = connectedTeams[teamIndex];
-        if (peerId && connections[peerId]) {
-            connections[peerId].close();
-        }
         setConnectedTeams(prev => {
             const newTeams = { ...prev };
             delete newTeams[teamIndex];
             return newTeams;
         });
+        remove(ref(db, `games/${peerId}/teams/${teamIndex}`));
     };
 
+    // Compatibility shim for existing code
+    const initializePeer = initializeHost;
+
     return {
-        peerId,
+        peerId, // This is now Room ID
         initializePeer,
         connectToHost,
-        sendToHost,
         broadcast,
         sendToPeer,
         setOnDataReceived,
-        connections,
-        hostConnection,
+        connections: {}, // Not used in Firebase
+        hostConnection: { open: true }, // Always "open" for Firebase
         connectedTeams,
         registerTeamDevice,
         disconnectTeam,

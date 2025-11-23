@@ -333,21 +333,19 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
   // Client Connection Logic
   useEffect(() => {
     if (isClientMode && networkParams.hostId) {
-      console.log('[Client] Connecting to host:', networkParams.hostId);
+      console.log('[Client] Connecting to room:', networkParams.hostId);
       const conn = network.connectToHost(networkParams.hostId);
 
-      conn.on('open', () => {
-        console.log('[Client] Connection opened, sending JOIN_REQUEST');
-        // Use conn directly to avoid state race condition
-        conn.send({
-          type: 'JOIN_REQUEST',
-          teamIndex: networkParams.teamIndex
-        });
+      // Firebase connection is "open" immediately (optimistic)
+      console.log('[Client] Connected, sending JOIN_REQUEST');
+      conn.send({
+        type: 'JOIN_REQUEST',
+        teamIndex: networkParams.teamIndex
       });
 
-      conn.on('error', (err) => {
-        console.error('[Client] Connection error:', err);
-      });
+      return () => {
+        if (conn.close) conn.close();
+      };
     }
   }, [isClientMode, networkParams.hostId, networkParams.teamIndex]); // Run once on mount/params change
 
@@ -362,29 +360,17 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
         console.log('[Host] Received JOIN_REQUEST for team', teamIndex);
         if (state.teams[teamIndex]) {
           network.registerTeamDevice(teamIndex, senderPeerId);
+          console.log('[Host] Registered team device, broadcasting state');
 
-          // Use direct connection if available (avoids state race condition)
-          const targetConn = conn || network.connections[senderPeerId];
-
-          if (targetConn && targetConn.open) {
-            console.log('[Host] Sending SYNC_STATE to', senderPeerId);
-            targetConn.send({ type: 'JOIN_ACCEPTED', teamIndex });
-            // Send current state immediately
-            // Optimize: Don't send static data (config, landsData, etc)
-            const dynamicState = {
-              ...state,
-              config: undefined, // Client has this
-              // landsData/eventsData are not in state root, they are imported
-              // But 'deck' contains full card objects. This is fine.
-            };
-            targetConn.send({ type: 'SYNC_STATE', state: dynamicState });
-          } else {
-            console.error('[Host] Connection not open for response');
-          }
+          // Trigger a broadcast immediately
+          // We can do this by just calling broadcast directly
+          const dynamicState = {
+            ...state,
+            config: undefined
+          };
+          network.broadcast({ type: 'SYNC_STATE', state: dynamicState });
         } else {
-          if (conn && conn.open) {
-            conn.send({ type: 'JOIN_REJECTED', reason: 'Invalid team' });
-          }
+          console.warn('[Host] Invalid team index in JOIN_REQUEST');
         }
       } else if (data.type === 'ACTION') {
         localDispatch(data.action);
