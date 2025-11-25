@@ -259,23 +259,6 @@ export const useGameEngine = () => {
 
     // ...
 
-    return {
-        rollDice,
-        buyLand,
-        skipLand,
-        buildInn,
-        useMiracle,
-        payRent,
-        sellLand,
-        endTurn,
-        startAuction,
-        handleBid,
-        handlePass,
-        handleDecision,
-        resolveAuction,
-        currentTeam
-    };
-
     const handleInnPhase = () => {
         // Check if team has lands
         const ownedLands = landsData.filter(l => state.lands[l.id].ownerId === currentTeam.id);
@@ -363,8 +346,6 @@ export const useGameEngine = () => {
         endTurn();
     };
 
-
-
     const buildInn = (landId) => {
         const land = landsData.find(l => l.id === landId);
         if (currentTeam.cash >= land.innCost) {
@@ -448,6 +429,11 @@ export const useGameEngine = () => {
         payRent,
         sellLand,
         endTurn,
+        startAuction,
+        handleBid,
+        handlePass,
+        handleDecision,
+        resolveAuction,
         currentTeam
     };
 };
