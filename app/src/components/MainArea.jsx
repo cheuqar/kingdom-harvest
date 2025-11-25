@@ -5,6 +5,7 @@ import CardDisplay from './CardDisplay';
 import QuestionModal from './QuestionModal';
 import AuctionInterface from './AuctionInterface';
 import Modal from './Modal';
+import CountdownTimer from './CountdownTimer';
 import './MainArea.css';
 
 
@@ -43,30 +44,38 @@ const MainArea = () => {
 
             {/* Draw Land Modal */}
             {state.phase === 'DRAW_LAND' && !state.currentQuestion && (
-                <Modal title="抽到土地卡">
-                    <div className="modal-card-display">
-                        {state.currentCard && <CardDisplay card={state.currentCard} type="land" />}
-                    </div>
-                    <div className="player-cash-info" style={{ textAlign: 'center', margin: '10px 0', fontSize: '1.1rem' }}>
-                        <strong>您的現金：</strong> <span style={{ color: '#4ecca3', fontWeight: 'bold' }}>${currentTeam.cash}</span>
-                    </div>
-                    <div className="modal-actions">
-                        <button
-                            className="btn-success"
-                            onClick={buyLand}
-                            disabled={!state.currentCard || Number(currentTeam.cash) < Number(state.currentCard.price)}
-                            title={state.currentCard && Number(currentTeam.cash) < Number(state.currentCard.price) ? "現金不足" : ""}
-                        >
-                            購買 ({state.currentCard ? `$${state.currentCard.price}` : '-'})
-                        </button>
-                        <button className="btn-secondary" onClick={skipLand}>
-                            放棄
-                        </button>
-                    </div>
-                    {Number(currentTeam.cash) < Number(state.currentCard.price) && (
-                        <div className="error-message">現金不足 (缺 ${Number(state.currentCard.price) - Number(currentTeam.cash)})</div>
+                <>
+                    {state.actionTimer > 0 && (
+                        <CountdownTimer
+                            duration={state.actionTimer}
+                            onExpire={skipLand}
+                        />
                     )}
-                </Modal>
+                    <Modal title="抽到土地卡">
+                        <div className="modal-card-display">
+                            {state.currentCard && <CardDisplay card={state.currentCard} type="land" />}
+                        </div>
+                        <div className="player-cash-info" style={{ textAlign: 'center', margin: '10px 0', fontSize: '1.1rem' }}>
+                            <strong>您的現金：</strong> <span style={{ color: '#4ecca3', fontWeight: 'bold' }}>${currentTeam.cash}</span>
+                        </div>
+                        <div className="modal-actions">
+                            <button
+                                className="btn-success"
+                                onClick={buyLand}
+                                disabled={!state.currentCard || Number(currentTeam.cash) < Number(state.currentCard.price)}
+                                title={state.currentCard && Number(currentTeam.cash) < Number(state.currentCard.price) ? "現金不足" : ""}
+                            >
+                                購買 ({state.currentCard ? `$${state.currentCard.price}` : '-'})
+                            </button>
+                            <button className="btn-secondary" onClick={skipLand}>
+                                放棄
+                            </button>
+                        </div>
+                        {Number(currentTeam.cash) < Number(state.currentCard.price) && (
+                            <div className="error-message">現金不足 (缺 ${Number(state.currentCard.price) - Number(currentTeam.cash)})</div>
+                        )}
+                    </Modal>
+                </>
             )}
 
             {/* Question Modal (Miracle) */}
@@ -90,36 +99,44 @@ const MainArea = () => {
 
             {/* Decision Event Modal */}
             {state.phase === 'DECISION_EVENT' && (
-                <Modal title="決策事件">
-                    <div className="modal-card-display">
-                        {state.currentCard && <CardDisplay card={state.currentCard} type="event" />}
-                    </div>
-                    <div className="decision-effects">
-                        <div className="effect-option">
-                            <strong>是 (Y):</strong>
-                            <span>
-                                {state.currentCard?.yEffect.cash !== 0 && ` 現金${state.currentCard.yEffect.cash > 0 ? '+' : ''}$${state.currentCard.yEffect.cash}`}
-                                {state.currentCard?.yEffect.seeds !== 0 && ` 種子${state.currentCard.yEffect.seeds > 0 ? '+' : ''}${state.currentCard.yEffect.seeds}`}
-                            </span>
+                <>
+                    {state.actionTimer > 0 && (
+                        <CountdownTimer
+                            duration={state.actionTimer}
+                            onExpire={() => handleDecision('N')}
+                        />
+                    )}
+                    <Modal title="決策事件">
+                        <div className="modal-card-display">
+                            {state.currentCard && <CardDisplay card={state.currentCard} type="event" />}
                         </div>
-                        <div className="effect-option">
-                            <strong>否 (N):</strong>
-                            <span>
-                                {state.currentCard?.nEffect.cash !== 0 && ` 現金${state.currentCard.nEffect.cash > 0 ? '+' : ''}$${state.currentCard.nEffect.cash}`}
-                                {state.currentCard?.nEffect.seeds !== 0 && ` 種子${state.currentCard.nEffect.seeds > 0 ? '+' : ''}${state.currentCard.nEffect.seeds}`}
-                                {state.currentCard?.nEffect.cash === 0 && state.currentCard?.nEffect.seeds === 0 && ' 無效果'}
-                            </span>
+                        <div className="decision-effects">
+                            <div className="effect-option">
+                                <strong>是 (Y):</strong>
+                                <span>
+                                    {state.currentCard?.yEffect.cash !== 0 && ` 現金${state.currentCard.yEffect.cash > 0 ? '+' : ''}$${state.currentCard.yEffect.cash}`}
+                                    {state.currentCard?.yEffect.seeds !== 0 && ` 種子${state.currentCard.yEffect.seeds > 0 ? '+' : ''}${state.currentCard.yEffect.seeds}`}
+                                </span>
+                            </div>
+                            <div className="effect-option">
+                                <strong>否 (N):</strong>
+                                <span>
+                                    {state.currentCard?.nEffect.cash !== 0 && ` 現金${state.currentCard.nEffect.cash > 0 ? '+' : ''}$${state.currentCard.nEffect.cash}`}
+                                    {state.currentCard?.nEffect.seeds !== 0 && ` 種子${state.currentCard.nEffect.seeds > 0 ? '+' : ''}${state.currentCard.nEffect.seeds}`}
+                                    {state.currentCard?.nEffect.cash === 0 && state.currentCard?.nEffect.seeds === 0 && ' 無效果'}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div className="modal-actions">
-                        <button className="btn-success" onClick={() => handleDecision('Y')}>
-                            是 (Y)
-                        </button>
-                        <button className="btn-secondary" onClick={() => handleDecision('N')}>
-                            否 (N)
-                        </button>
-                    </div>
-                </Modal>
+                        <div className="modal-actions">
+                            <button className="btn-success" onClick={() => handleDecision('Y')}>
+                                是 (Y)
+                            </button>
+                            <button className="btn-secondary" onClick={() => handleDecision('N')}>
+                                否 (N)
+                            </button>
+                        </div>
+                    </Modal>
+                </>
             )}
 
             {/* Auction Modal */}

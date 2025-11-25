@@ -12,6 +12,7 @@ const SetupScreen = () => {
     const [showResumeModal, setShowResumeModal] = useState(false);
 
     const [selectedDecks, setSelectedDecks] = useState(['default']);
+    const [actionTimer, setActionTimer] = useState(5);
 
     // Helper function to format time ago
     const getTimeAgo = (timestamp) => {
@@ -53,7 +54,8 @@ const SetupScreen = () => {
             payload: {
                 teamNames: activeNames,
                 gameDuration: Number(gameDuration),
-                selectedEventDecks: selectedDecks
+                selectedEventDecks: selectedDecks,
+                actionTimer: Number(actionTimer)
             }
         });
     };
@@ -116,6 +118,19 @@ const SetupScreen = () => {
                                 placeholder="0 = 無限制"
                             />
                             <span className="hint">(0 表示無限制)</span>
+                        </label>
+
+                        <label>
+                            行動計時器 (秒):
+                            <input
+                                type="number"
+                                min="0"
+                                max="60"
+                                value={actionTimer}
+                                onChange={(e) => setActionTimer(e.target.value)}
+                                placeholder="5"
+                            />
+                            <span className="hint">(0 = 無計時, 建議 5-10 秒)</span>
                         </label>
 
                         <div className="names-inputs">

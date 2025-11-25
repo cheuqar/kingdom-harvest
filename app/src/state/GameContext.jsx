@@ -39,7 +39,8 @@ const initialState = {
   animation: null, // { type, data, duration }
   highlightedSeries: null, // Series name to highlight on board
   selectedEventDecks: ['default'],
-  auction: null
+  auction: null,
+  actionTimer: 5 // seconds, 0 = disabled
 };
 
 // Helper to shuffle array
@@ -56,7 +57,7 @@ const shuffle = (array) => {
 const gameReducer = (state, action) => {
   switch (action.type) {
     case 'INIT_GAME': {
-      const { teamNames, gameDuration, selectedEventDecks } = action.payload;
+      const { teamNames, gameDuration, selectedEventDecks, actionTimer } = action.payload;
 
       // Combine selected event decks
       let allEvents = [];
@@ -106,6 +107,7 @@ const gameReducer = (state, action) => {
         gameDuration: gameDuration || 0,
         gameStartTime: Date.now(),
         selectedEventDecks: selectedEventDecks || ['default'],
+        actionTimer: actionTimer || 5,
         log: ['遊戲開始！'],
         currentTeamIndex: 0
       };
