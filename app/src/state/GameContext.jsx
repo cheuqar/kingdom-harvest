@@ -303,11 +303,33 @@ const gameReducer = (state, action) => {
       // Check winner
       const activeTeams = newTeams.filter(t => !t.isBankrupt);
       if (activeTeams.length === 1) {
+        // Calculate final rankings
+        const rankings = newTeams.map(team => {
+          const ownedLands = Object.values(state.lands).filter(l => l.ownerId === team.id);
+          const landCount = ownedLands.length;
+          const landValue = ownedLands.reduce((sum, land) => {
+            const landData = state.config?.lands?.find(l => l.id === land.id);
+            return sum + (landData?.price || 0) + (land.innCount * (landData?.innCost || 0));
+          }, 0);
+          const totalAssets = team.cash + landValue;
+
+          return {
+            ...team,
+            landCount,
+            landValue,
+            totalAssets
+          };
+        }).sort((a, b) => b.totalAssets - a.totalAssets);
+
         return {
           ...state,
           teams: newTeams,
           phase: 'GAME_OVER',
-          winner: activeTeams[0],
+          winner: {
+            team: activeTeams[0],
+            rankings,
+            reason: 'bankruptcy'
+          },
           log: [...state.log, `${currentTeam.cash < 0 ? currentTeam.name + ' 破產了！' : ''}`, `遊戲結束！${activeTeams[0].name} 獲勝！`]
         };
       }
@@ -339,12 +361,35 @@ const gameReducer = (state, action) => {
       };
     }
 
-    case 'GAME_OVER':
+    case 'GAME_OVER': {
+      // Calculate final rankings
+      const rankings = state.teams.map(team => {
+        const ownedLands = Object.values(state.lands).filter(l => l.ownerId === team.id);
+        const landCount = ownedLands.length;
+        const landValue = ownedLands.reduce((sum, land) => {
+          const landData = state.config?.lands?.find(l => l.id === land.id);
+          return sum + (landData?.price || 0) + (land.innCount * (landData?.innCost || 0));
+        }, 0);
+        const totalAssets = team.cash + landValue;
+
+        return {
+          ...team,
+          landCount,
+          landValue,
+          totalAssets
+        };
+      }).sort((a, b) => b.totalAssets - a.totalAssets);
+
       return {
         ...state,
         phase: 'GAME_OVER',
-        winner: action.payload
+        winner: {
+          team: rankings[0],
+          rankings,
+          reason: action.payload?.reason || 'manual'
+        }
       };
+    }
 
     case 'LOAD_GAME':
       return action.payload;

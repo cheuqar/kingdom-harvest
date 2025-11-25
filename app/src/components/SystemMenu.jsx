@@ -19,7 +19,6 @@ const SystemMenu = ({ onClose }) => {
             dispatch({
                 type: 'GAME_OVER',
                 payload: {
-                    winner: null,
                     reason: 'admin_forced'
                 }
             });
