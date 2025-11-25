@@ -85,16 +85,24 @@ const MainArea = () => {
 
             {/* Draw Event Modal */}
             {state.phase === 'DRAW_EVENT' && (
-                <Modal title="抽到事件卡">
-                    <div className="modal-card-display">
-                        {state.currentCard && <CardDisplay card={state.currentCard} type="event" />}
-                    </div>
-                    <div className="modal-actions">
-                        <button className="btn-primary" onClick={endTurn}>
-                            確定
-                        </button>
-                    </div>
-                </Modal>
+                <>
+                    {state.actionTimer > 0 && (
+                        <CountdownTimer
+                            duration={state.actionTimer}
+                            onExpire={endTurn}
+                        />
+                    )}
+                    <Modal title="抽到事件卡">
+                        <div className="modal-card-display">
+                            {state.currentCard && <CardDisplay card={state.currentCard} type="event" />}
+                        </div>
+                        <div className="modal-actions">
+                            <button className="btn-primary" onClick={endTurn}>
+                                確定
+                            </button>
+                        </div>
+                    </Modal>
+                </>
             )}
 
             {/* Decision Event Modal */}

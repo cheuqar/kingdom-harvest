@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../state/GameContext';
 import Modal from './Modal';
+import CountdownTimer from './CountdownTimer';
 import './QuestionModal.css';
 
 const QuestionModal = () => {
@@ -24,23 +25,31 @@ const QuestionModal = () => {
     if (!question) return null;
 
     return (
-        <Modal title="聖經問答">
-            <div className="question-card-content">
-                <p className="question-text">{question.question}</p>
+        <>
+            {state.actionTimer > 0 && (
+                <CountdownTimer
+                    duration={state.actionTimer}
+                    onExpire={handleWrong}
+                />
+            )}
+            <Modal title="聖經問答">
+                <div className="question-card-content">
+                    <p className="question-text">{question.question}</p>
 
-                {showAnswer ? (
-                    <div className="answer-section">
-                        <p className="answer-text">答案：{question.answer}</p>
-                        <div className="judge-buttons">
-                            <button className="btn-success" onClick={handleCorrect}>答對 (購買)</button>
-                            <button className="btn-secondary" onClick={handleWrong}>答錯 (放棄)</button>
+                    {showAnswer ? (
+                        <div className="answer-section">
+                            <p className="answer-text">答案：{question.answer}</p>
+                            <div className="judge-buttons">
+                                <button className="btn-success" onClick={handleCorrect}>答對 (購買)</button>
+                                <button className="btn-secondary" onClick={handleWrong}>答錯 (放棄)</button>
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <button className="btn-primary" onClick={() => setShowAnswer(true)}>顯示答案</button>
-                )}
-            </div>
-        </Modal>
+                    ) : (
+                        <button className="btn-primary" onClick={() => setShowAnswer(true)}>顯示答案</button>
+                    )}
+                </div>
+            </Modal>
+        </>
     );
 };
 
