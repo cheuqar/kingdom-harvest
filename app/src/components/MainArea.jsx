@@ -88,6 +88,19 @@ const MainArea = () => {
                 </Modal>
             )}
 
+            {/* Decision Event Modal */}
+            {state.phase === 'DECISION_EVENT' && (
+                <Modal title="決策事件">
+                    <div className="modal-card-display">
+                        {state.currentCard && <CardDisplay card={state.currentCard} type="event" />}
+                    </div>
+                    <div className="decision-prompt">
+                        <p>玩家正在做出選擇...</p>
+                        <p className="hint">請於手機裝置上選擇「是」或「否」</p>
+                    </div>
+                </Modal>
+            )}
+
             {/* Auction Modal */}
             {state.phase === 'AUCTION' && (
                 <Modal>

@@ -259,3 +259,24 @@
     color: #aaa;
     font-size: 1rem !important;
 }
+
+/* Decision Event Prompt */
+.decision-prompt {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.decision-prompt p {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.decision-prompt .hint {
+    font-size: 1rem;
+    color: #aaa;
+    font-style: italic;
+}
