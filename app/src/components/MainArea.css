@@ -260,23 +260,29 @@
     font-size: 1rem !important;
 }
 
-/* Decision Event Prompt */
-.decision-prompt {
-    text-align: center;
-    padding: 20px;
+/* Decision Event Effects */
+.decision-effects {
+    text-align: left;
+    padding: 15px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
-    margin-top: 20px;
+    margin: 15px 0;
 }
 
-.decision-prompt p {
+.effect-option {
+    display: flex;
+    gap: 10px;
     margin: 10px 0;
-    font-size: 1.2rem;
-    color: #fff;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
 }
 
-.decision-prompt .hint {
-    font-size: 1rem;
-    color: #aaa;
-    font-style: italic;
+.effect-option strong {
+    color: #4ecca3;
+    min-width: 70px;
+}
+
+.effect-option span {
+    color: #fff;
 }

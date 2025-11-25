@@ -10,7 +10,7 @@ import './MainArea.css';
 
 const MainArea = () => {
     const { state, dispatch } = useGame();
-    const { rollDice, buyLand, skipLand, payRent, endTurn, currentTeam, useMiracle } = useGameEngine();
+    const { rollDice, buyLand, skipLand, payRent, endTurn, currentTeam, useMiracle, handleDecision } = useGameEngine();
 
     return (
         <div className="main-area">
@@ -94,9 +94,30 @@ const MainArea = () => {
                     <div className="modal-card-display">
                         {state.currentCard && <CardDisplay card={state.currentCard} type="event" />}
                     </div>
-                    <div className="decision-prompt">
-                        <p>玩家正在做出選擇...</p>
-                        <p className="hint">請於手機裝置上選擇「是」或「否」</p>
+                    <div className="decision-effects">
+                        <div className="effect-option">
+                            <strong>是 (Y):</strong>
+                            <span>
+                                {state.currentCard?.yEffect.cash !== 0 && ` 現金${state.currentCard.yEffect.cash > 0 ? '+' : ''}$${state.currentCard.yEffect.cash}`}
+                                {state.currentCard?.yEffect.seeds !== 0 && ` 種子${state.currentCard.yEffect.seeds > 0 ? '+' : ''}${state.currentCard.yEffect.seeds}`}
+                            </span>
+                        </div>
+                        <div className="effect-option">
+                            <strong>否 (N):</strong>
+                            <span>
+                                {state.currentCard?.nEffect.cash !== 0 && ` 現金${state.currentCard.nEffect.cash > 0 ? '+' : ''}$${state.currentCard.nEffect.cash}`}
+                                {state.currentCard?.nEffect.seeds !== 0 && ` 種子${state.currentCard.nEffect.seeds > 0 ? '+' : ''}${state.currentCard.nEffect.seeds}`}
+                                {state.currentCard?.nEffect.cash === 0 && state.currentCard?.nEffect.seeds === 0 && ' 無效果'}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="modal-actions">
+                        <button className="btn-success" onClick={() => handleDecision('Y')}>
+                            是 (Y)
+                        </button>
+                        <button className="btn-secondary" onClick={() => handleDecision('N')}>
+                            否 (N)
+                        </button>
                     </div>
                 </Modal>
             )}
