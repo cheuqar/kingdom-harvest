@@ -303,7 +303,9 @@ const gameReducer = (state, action) => {
       // Check winner
       const activeTeams = newTeams.filter(t => !t.isBankrupt);
       if (activeTeams.length === 1) {
-        // Calculate final rankings
+        // Calculate final rankings with seed multiplier
+        const totalSeeds = newTeams.reduce((sum, t) => sum + (t.seeds || 0), 0);
+
         const rankings = newTeams.map(team => {
           const ownedLands = Object.values(state.lands).filter(l => l.ownerId === team.id);
           const landCount = ownedLands.length;
@@ -311,26 +313,36 @@ const gameReducer = (state, action) => {
             const landData = state.config?.lands?.find(l => l.id === land.id);
             return sum + (landData?.price || 0) + (land.innCount * (landData?.innCost || 0));
           }, 0);
-          const totalAssets = team.cash + landValue;
+          const baseAssets = team.cash + landValue;
+
+          // Seed multiplier: (baseAssets) * (playerSeeds / totalSeeds)
+          // If totalSeeds is 0, no multiplier bonus
+          const seedMultiplier = totalSeeds > 0 ? (team.seeds || 0) / totalSeeds : 0;
+          const seedBonus = baseAssets * seedMultiplier;
+          const finalScore = baseAssets + seedBonus;
 
           return {
             ...team,
             landCount,
             landValue,
-            totalAssets
+            baseAssets,
+            seedMultiplier,
+            seedBonus,
+            finalScore
           };
-        }).sort((a, b) => b.totalAssets - a.totalAssets);
+        }).sort((a, b) => b.finalScore - a.finalScore);
 
         return {
           ...state,
           teams: newTeams,
           phase: 'GAME_OVER',
           winner: {
-            team: activeTeams[0],
+            team: rankings[0],
             rankings,
-            reason: 'bankruptcy'
+            reason: 'bankruptcy',
+            totalSeeds
           },
-          log: [...state.log, `${currentTeam.cash < 0 ? currentTeam.name + ' 破產了！' : ''}`, `遊戲結束！${activeTeams[0].name} 獲勝！`]
+          log: [...state.log, `${currentTeam.cash < 0 ? currentTeam.name + ' 破產了！' : ''}`, `遊戲結束！${rankings[0].name} 獲勝！`]
         };
       }
 
@@ -362,7 +374,9 @@ const gameReducer = (state, action) => {
     }
 
     case 'GAME_OVER': {
-      // Calculate final rankings
+      // Calculate final rankings with seed multiplier
+      const totalSeeds = state.teams.reduce((sum, t) => sum + (t.seeds || 0), 0);
+
       const rankings = state.teams.map(team => {
         const ownedLands = Object.values(state.lands).filter(l => l.ownerId === team.id);
         const landCount = ownedLands.length;
@@ -370,15 +384,23 @@ const gameReducer = (state, action) => {
           const landData = state.config?.lands?.find(l => l.id === land.id);
           return sum + (landData?.price || 0) + (land.innCount * (landData?.innCost || 0));
         }, 0);
-        const totalAssets = team.cash + landValue;
+        const baseAssets = team.cash + landValue;
+
+        // Seed multiplier: (baseAssets) * (playerSeeds / totalSeeds)
+        const seedMultiplier = totalSeeds > 0 ? (team.seeds || 0) / totalSeeds : 0;
+        const seedBonus = baseAssets * seedMultiplier;
+        const finalScore = baseAssets + seedBonus;
 
         return {
           ...team,
           landCount,
           landValue,
-          totalAssets
+          baseAssets,
+          seedMultiplier,
+          seedBonus,
+          finalScore
         };
-      }).sort((a, b) => b.totalAssets - a.totalAssets);
+      }).sort((a, b) => b.finalScore - a.finalScore);
 
       return {
         ...state,
@@ -386,7 +408,8 @@ const gameReducer = (state, action) => {
         winner: {
           team: rankings[0],
           rankings,
-          reason: action.payload?.reason || 'manual'
+          reason: action.payload?.reason || 'manual',
+          totalSeeds
         }
       };
     }

@@ -4,6 +4,7 @@ import { useGame } from '../state/GameContext';
 import SetupScreen from './SetupScreen';
 import ConnectionScreen from './ConnectionScreen';
 import RulesScreen from './RulesScreen';
+import GameOverScreen from './GameOverScreen';
 import TeamList from './TeamList';
 import MainArea from './MainArea';
 import LogPanel from './LogPanel';
@@ -24,42 +25,7 @@ const GameBoard = () => {
     if (state.phase === 'RULES') return <RulesScreen />;
 
     if (state.phase === 'GAME_OVER') {
-        const rankings = state.winner?.rankings || []; // Fallback to empty if function missing
-        const reason = state.winner?.reason || 'bankruptcy';
-
-        return (
-            <div className="game-over-screen">
-                <h1>遊戲結束！</h1>
-                {reason === 'time' && <p className="game-over-reason">時間到！</p>}
-                {reason === 'admin_forced' && <p className="game-over-reason">管理員強制結束</p>}
-
-                <div className="rankings">
-                    <h2>最終排名</h2>
-                    {rankings.map((team, index) => (
-                        <div
-                            key={team.id}
-                            className={`ranking-item ${index === 0 ? 'winner' : ''}`}
-                            style={{ borderLeftColor: team.color }}
-                        >
-                            <div className="rank-number">#{index + 1}</div>
-                            <div className="team-info">
-                                <h3>{team.name}</h3>
-                                <div className="team-stats">
-                                    <span>💰 現金: ${team.cash}</span>
-                                    <span>🏠 土地: {team.landCount}</span>
-                                    <span>📊 總資產: ${team.totalAssets}</span>
-                                </div>
-                            </div>
-                            {index === 0 && <div className="winner-badge">👑 冠軍</div>}
-                        </div>
-                    ))}
-                </div>
-
-                <button className="btn-primary" onClick={() => window.location.reload()}>
-                    重新開始
-                </button>
-            </div>
-        );
+        return <GameOverScreen winner={state.winner} />;
     }
 
     return (
