@@ -8,11 +8,12 @@ import { useGameEngine } from '../hooks/useGameEngine';
 const PlayerInterface = ({ teamIndex }) => {
     const { state, dispatch, network } = useGame();
     const { teams, currentTeamIndex, phase } = state;
-    const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass } = useGameEngine();
+    const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass, handleDecision } = useGameEngine();
 
     const myTeam = teams[teamIndex];
     const isMyTurn = currentTeamIndex === teamIndex;
     const isAuction = phase === 'AUCTION';
+    const isDecision = phase === 'DECISION_EVENT';
 
     if (!myTeam) return <div className="loading">Waiting for game state...</div>;
 
@@ -69,6 +70,25 @@ const PlayerInterface = ({ teamIndex }) => {
                     <div className="phase-msg">
                         <p>抽到事件卡 (查看主螢幕)</p>
                         <button className="btn-action btn-primary" onClick={endTurn}>確定</button>
+                    </div>
+                );
+            case 'DECISION_EVENT':
+                const card = state.currentCard;
+                if (!card) return <div className="phase-msg">等待事件...</div>;
+                return (
+                    <div className="decision-controls">
+                        <div className="card-preview">
+                            <h3>{card.name}</h3>
+                            <p>{card.description}</p>
+                        </div>
+                        <div className="btn-group">
+                            <button className="btn-action btn-success" onClick={() => handleDecision('Y')}>
+                                是 (Y)
+                            </button>
+                            <button className="btn-action btn-secondary" onClick={() => handleDecision('N')}>
+                                否 (N)
+                            </button>
+                        </div>
                     </div>
                 );
             case 'BUILD_INN':
@@ -139,7 +159,7 @@ const PlayerInterface = ({ teamIndex }) => {
             <div className="action-area">
                 {isMyTurn || isAuction ? (
                     <div className="active-turn-controls">
-                        {isAuction ? <h2>土地拍賣</h2> : <h2>輪到你了！</h2>}
+                        {isAuction ? <h2>土地拍賣</h2> : (phase === 'DECISION_EVENT' ? <h2>事件選擇</h2> : <h2>輪到你了！</h2>)}
                         {renderPhaseControls()}
                     </div>
                 ) : (

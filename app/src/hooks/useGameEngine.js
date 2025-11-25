@@ -271,6 +271,7 @@ export const useGameEngine = () => {
         startAuction,
         handleBid,
         handlePass,
+        handleDecision,
         resolveAuction,
         currentTeam
     };
@@ -317,6 +318,11 @@ export const useGameEngine = () => {
     const executeEvent = (card) => {
         console.log('[Event] Executing:', card.name, 'Type:', card.type, 'Effect:', card.effectCode);
 
+        if (card.type === 'decision') {
+            dispatch({ type: 'SET_PHASE', payload: 'DECISION_EVENT' });
+            return;
+        }
+
         if (card.type === 'miracle') {
             dispatch({
                 type: 'SET_ANIMATION',
@@ -338,9 +344,23 @@ export const useGameEngine = () => {
                 dispatch({ type: 'ADD_LOG', payload: `未知效果: ${card.name}` });
             }
         }
-        // Move to discard logic is missing here for normal cards too.
-        // Ideally we move to discard if not miracle.
-        // But for now let's just keep it simple.
+    };
+
+    const handleDecision = (choice) => {
+        const card = state.currentCard;
+        if (!card || card.type !== 'decision') return;
+
+        const effect = choice === 'Y' ? card.yEffect : card.nEffect;
+
+        if (effect.cash !== 0) {
+            dispatch({ type: 'ADD_CASH', payload: { teamId: currentTeam.id, amount: effect.cash } });
+        }
+        if (effect.seeds !== 0) {
+            dispatch({ type: 'ADD_SEEDS', payload: { teamId: currentTeam.id, amount: effect.seeds } });
+        }
+
+        dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 選擇了 ${choice === 'Y' ? '是' : '否'}。` });
+        endTurn();
     };
 
 

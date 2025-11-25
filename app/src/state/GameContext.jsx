@@ -2,8 +2,14 @@ import React, { createContext, useContext, useReducer, useEffect, useState } fro
 import { useNetwork } from '../hooks/useNetwork';
 import config from '../config/config.json';
 import landsData from '../config/lands.json';
-import eventsData from '../config/events.json';
+import eventsDefault from '../config/events.json';
+import eventsMoney from '../config/events_money.json';
 import questionsData from '../config/questions.json';
+
+const ALL_EVENT_DECKS = {
+  default: { name: '預設事件', cards: eventsDefault },
+  money: { name: '天國金錢管理', cards: eventsMoney }
+};
 
 const GameContext = createContext();
 
@@ -12,7 +18,7 @@ const initialState = {
   teams: [],
   currentTeamIndex: 0,
   rollCount: 0,
-  phase: 'SETUP', // SETUP, RULES, ROLL, DRAW_LAND, DRAW_EVENT, PAY_RENT, BUILD_INN, AUCTION, GAME_OVER
+  phase: 'SETUP', // SETUP, RULES, ROLL, DRAW_LAND, DRAW_EVENT, PAY_RENT, BUILD_INN, AUCTION, GAME_OVER, DECISION_EVENT
   dice: null,
   currentCard: null,
   currentQuestion: null,
@@ -31,7 +37,9 @@ const initialState = {
   gameStartTime: null,
   rentInfo: null, // { land, rent, owner }
   animation: null, // { type, data, duration }
-  highlightedSeries: null // Series name to highlight on board
+  highlightedSeries: null, // Series name to highlight on board
+  selectedEventDecks: ['default'],
+  auction: null
 };
 
 // Helper to shuffle array
@@ -48,41 +56,57 @@ const shuffle = (array) => {
 const gameReducer = (state, action) => {
   switch (action.type) {
     case 'INIT_GAME': {
-      const { teamNames, gameDuration } = action.payload;
+      const { teamNames, gameDuration, selectedEventDecks } = action.payload;
+
+      // Combine selected event decks
+      let allEvents = [];
+      (selectedEventDecks || ['default']).forEach(deckKey => {
+        if (ALL_EVENT_DECKS[deckKey]) {
+          allEvents = [...allEvents, ...ALL_EVENT_DECKS[deckKey].cards];
+        }
+      });
+
+      const shuffledLands = shuffle([...landsData]);
+      const shuffledEvents = shuffle([...allEvents]);
+
+      // Initialize teams
       const teams = teamNames.map((name, index) => ({
         id: `team_${index}`,
         name,
-        cash: state.config.initialCash,
-        seeds: 0,
+        cash: config.initialCash,
+        seeds: config.initialSeeds || 0,
+        landCount: 0,
+        totalAssets: config.initialCash,
+        isBankrupt: false,
         miracles: [],
         rollCount: 0,
-        isBankrupt: false,
         color: ['#FF5252', '#4CAF50', '#2196F3', '#FFC107'][index % 4]
       }));
 
-      // Initialize lands state
-      const landsState = {};
+      // Initialize lands ownership
+      const initialLands = {};
       landsData.forEach(land => {
-        landsState[land.id] = { ownerId: null, innCount: 0 };
+        initialLands[land.id] = {
+          ownerId: null,
+          innCount: 0
+        };
       });
 
-      // Shuffle decks
-      const landsDeck = shuffle([...landsData]);
-      const eventsDeck = shuffle([...eventsData]);
-
       return {
-        ...state,
+        ...initialState,
         teams,
-        lands: landsState,
+        lands: initialLands,
         deck: {
-          lands: landsDeck,
-          events: eventsDeck,
+          lands: shuffledLands,
+          events: shuffledEvents,
           landDiscard: [],
           eventDiscard: []
         },
-        phase: 'CONNECT', // Go to Connection screen first
+        phase: 'RULES',
         gameDuration: gameDuration || 0,
-        log: ['遊戲準備就緒，請連接玩家裝置。'],
+        gameStartTime: Date.now(),
+        selectedEventDecks: selectedEventDecks || ['default'],
+        log: ['遊戲開始！'],
         currentTeamIndex: 0
       };
     }
@@ -144,6 +168,17 @@ const gameReducer = (state, action) => {
       const newTeams = state.teams.map(t => {
         if (t.id === teamId) {
           return { ...t, cash: t.cash + amount };
+        }
+        return t;
+      });
+      return { ...state, teams: newTeams };
+    }
+
+    case 'ADD_SEEDS': {
+      const { teamId, amount } = action.payload;
+      const newTeams = state.teams.map(t => {
+        if (t.id === teamId) {
+          return { ...t, seeds: (t.seeds || 0) + amount };
         }
         return t;
       });
@@ -373,25 +408,6 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
   const [state, localDispatch] = useReducer(gameReducer, initialState);
   const network = useNetwork();
 
-  // Client Connection Logic
-  useEffect(() => {
-    if (isClientMode && networkParams.hostId) {
-      console.log('[Client] Connecting to room:', networkParams.hostId);
-      const conn = network.connectToHost(networkParams.hostId);
-
-      // Firebase connection is "open" immediately (optimistic)
-      console.log('[Client] Connected, sending JOIN_REQUEST');
-      conn.send({
-        type: 'JOIN_REQUEST',
-        teamIndex: networkParams.teamIndex
-      });
-
-      return () => {
-        if (conn.close) conn.close();
-      };
-    }
-  }, [isClientMode, networkParams.hostId, networkParams.teamIndex]); // Run once on mount/params change
-
   // Network Data Handler
   useEffect(() => {
     network.setOnDataReceived((data, senderPeerId, conn) => {
@@ -422,6 +438,25 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
       }
     });
   }, [network, state]);
+
+  // Client Connection Logic
+  useEffect(() => {
+    if (isClientMode && networkParams.hostId) {
+      console.log('[Client] Connecting to room:', networkParams.hostId);
+      const conn = network.connectToHost(networkParams.hostId);
+
+      // Firebase connection is "open" immediately (optimistic)
+      console.log('[Client] Connected, sending JOIN_REQUEST');
+      conn.send({
+        type: 'JOIN_REQUEST',
+        teamIndex: networkParams.teamIndex
+      });
+
+      return () => {
+        if (conn.close) conn.close();
+      };
+    }
+  }, [isClientMode, networkParams.hostId, networkParams.teamIndex]); // Run once on mount/params change
 
   // Enhanced Dispatch
   const dispatch = (action) => {
@@ -467,7 +502,7 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
   }, [state, isClientMode]);
 
   return (
-    <GameContext.Provider value={{ state, dispatch, landsData, eventsData, questionsData, network, isClientMode }}>
+    <GameContext.Provider value={{ state, dispatch, landsData, eventsData: eventsDefault, questionsData, network, isClientMode }}>
       {children}
     </GameContext.Provider>
   );

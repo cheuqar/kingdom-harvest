@@ -1,0 +1,212 @@
+[
+    {
+        "id": "ev_money_A1",
+        "name": "建殿奉獻",
+        "type": "decision",
+        "description": "教會展開場地優化與擴建，是否認獻？",
+        "yEffect": {
+            "cash": -300,
+            "seeds": 2
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_A2",
+        "name": "慈惠奉獻",
+        "type": "decision",
+        "description": "教會成立關懷金給急難家庭。",
+        "yEffect": {
+            "cash": -200,
+            "seeds": 2
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_A3",
+        "name": "宣教基金",
+        "type": "decision",
+        "description": "支援外地／本地宣教差傳。",
+        "yEffect": {
+            "cash": -250,
+            "seeds": 2
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_A4",
+        "name": "媒體事工",
+        "type": "decision",
+        "description": "支持直播與影音製作器材更新。",
+        "yEffect": {
+            "cash": -180,
+            "seeds": 1
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_A5",
+        "name": "青年裝備",
+        "type": "decision",
+        "description": "資助青年門訓／退修。",
+        "yEffect": {
+            "cash": -200,
+            "seeds": 2
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_B1",
+        "name": "新人關懷午餐",
+        "type": "decision",
+        "description": "邀請新朋友吃飯更認識彼此。",
+        "yEffect": {
+            "cash": -90,
+            "seeds": 1
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_B2",
+        "name": "組長鼓勵禮",
+        "type": "decision",
+        "description": "送組長一本書表謝意。",
+        "yEffect": {
+            "cash": -120,
+            "seeds": 2
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_B3",
+        "name": "組員生日祝福",
+        "type": "decision",
+        "description": "小蛋糕＋代禱。",
+        "yEffect": {
+            "cash": -80,
+            "seeds": 1
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_B4",
+        "name": "探病同行",
+        "type": "decision",
+        "description": "病中探訪帶水果。",
+        "yEffect": {
+            "cash": -150,
+            "seeds": 2
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_B5",
+        "name": "家庭關係日",
+        "type": "decision",
+        "description": "為家人預備一餐與傾聽。",
+        "yEffect": {
+            "cash": -100,
+            "seeds": 1
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_C1",
+        "name": "佈道茶會同工",
+        "type": "decision",
+        "description": "分擔點心與場地。",
+        "yEffect": {
+            "cash": -120,
+            "seeds": 1
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_C2",
+        "name": "街頭關懷",
+        "type": "decision",
+        "description": "派暖包／水／小禮。",
+        "yEffect": {
+            "cash": -90,
+            "seeds": 1
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_C3",
+        "name": "受浸見證拍攝",
+        "type": "decision",
+        "description": "支援器材租借。",
+        "yEffect": {
+            "cash": -150,
+            "seeds": 2
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_C4",
+        "name": "社區清潔日",
+        "type": "decision",
+        "description": "購清潔工具。",
+        "yEffect": {
+            "cash": -90,
+            "seeds": 1
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    },
+    {
+        "id": "ev_money_C5",
+        "name": "公園親子日",
+        "type": "decision",
+        "description": "小手作材料。",
+        "yEffect": {
+            "cash": -100,
+            "seeds": 1
+        },
+        "nEffect": {
+            "cash": 0,
+            "seeds": 0
+        }
+    }
+]

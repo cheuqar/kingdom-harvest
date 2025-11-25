@@ -11,6 +11,8 @@ const SetupScreen = () => {
     const [saveTimestamp, setSaveTimestamp] = useState(null);
     const [showResumeModal, setShowResumeModal] = useState(false);
 
+    const [selectedDecks, setSelectedDecks] = useState(['default']);
+
     // Helper function to format time ago
     const getTimeAgo = (timestamp) => {
         const seconds = Math.floor((Date.now() - timestamp) / 1000);
@@ -50,7 +52,8 @@ const SetupScreen = () => {
             type: 'INIT_GAME',
             payload: {
                 teamNames: activeNames,
-                gameDuration: Number(gameDuration)
+                gameDuration: Number(gameDuration),
+                selectedEventDecks: selectedDecks
             }
         });
     };
@@ -92,7 +95,7 @@ const SetupScreen = () => {
                         <h1 className="title-cn">天國大富翁</h1>
                         <h2 className="title-en">Kingdom Harvest</h2>
                     </div>
-                    
+
                     <div className="setup-form">
                         <label>
                             隊伍數量:
@@ -130,13 +133,49 @@ const SetupScreen = () => {
                             ))}
                         </div>
 
+                        <div className="deck-selection">
+                            <label className="deck-label">事件卡牌庫:</label>
+                            <div className="deck-options">
+                                <label className="checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedDecks.includes('default')}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setSelectedDecks([...selectedDecks, 'default']);
+                                            } else {
+                                                setSelectedDecks(selectedDecks.filter(d => d !== 'default'));
+                                            }
+                                        }}
+                                    />
+                                    預設事件
+                                </label>
+                                <label className="checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedDecks.includes('money')}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setSelectedDecks([...selectedDecks, 'money']);
+                                            } else {
+                                                setSelectedDecks(selectedDecks.filter(d => d !== 'money'));
+                                            }
+                                        }}
+                                    />
+                                    天國金錢管理
+                                </label>
+                            </div>
+                        </div>
+
                         {savedGame && (
                             <button className="btn-resume" onClick={handleResumeClick}>
                                 ▶️ 繼續上次遊戲
                             </button>
                         )}
 
-                        <button className="btn-primary" onClick={handleStart}>下一步：遊戲規則</button>
+                        <button className="btn-primary" onClick={handleStart} disabled={selectedDecks.length === 0}>
+                            下一步：遊戲規則
+                        </button>
                     </div>
                 </div>
             </div>

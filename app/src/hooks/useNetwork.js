@@ -59,26 +59,33 @@ export const useNetwork = () => {
         };
     }, []);
 
+    const [clientId] = useState(() => 'client_' + Math.random().toString(36).substr(2, 9));
     const hostConnRef = useRef(null);
 
     // Connect Client (Join Room)
     const connectToHost = (roomId) => {
+        console.log('[useNetwork] Connecting to room:', roomId);
         // Listen for Game State
         const stateRef = ref(db, `games/${roomId}/state`);
 
         const unsubscribe = onValue(stateRef, (snapshot) => {
             const state = snapshot.val();
-            if (state && onDataReceivedRef.current) {
-                // Simulate SYNC_STATE message
-                onDataReceivedRef.current({ type: 'SYNC_STATE', state }, 'HOST');
+            if (state) {
+                if (onDataReceivedRef.current) {
+                    // Simulate SYNC_STATE message
+                    onDataReceivedRef.current({ type: 'SYNC_STATE', state }, 'HOST');
+                } else {
+                    console.warn('[useNetwork] Received state but no handler set!');
+                }
             }
         });
 
         const conn = {
             send: (data) => {
                 // Send action/request to Host
+                console.log('[useNetwork] Sending action:', data.type);
                 const actionsRef = ref(db, `games/${roomId}/actions`);
-                push(actionsRef, { ...data, sender: 'CLIENT', timestamp: serverTimestamp() });
+                push(actionsRef, { ...data, sender: clientId, timestamp: serverTimestamp() });
             },
             close: unsubscribe
         };
