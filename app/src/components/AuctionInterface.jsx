@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../state/GameContext';
 import { useGameEngine } from '../hooks/useGameEngine';
 import CardDisplay from './CardDisplay';
+import CountdownTimer from './CountdownTimer';
 import './AuctionInterface.css';
 
 const AuctionInterface = () => {
@@ -22,78 +23,93 @@ const AuctionInterface = () => {
         }
     }, [auction, resolveAuction]);
 
+    // Auto-pass all remaining bidders when timer expires
+    const handleAuctionExpire = () => {
+        if (!auction) return;
+        // Pass all active bidders
+        auction.activeBidders.forEach(bidderId => {
+            handlePass(bidderId);
+        });
+    };
+
     if (!auction) return null;
 
     const land = state.currentCard; // Or find by auction.landId
 
     return (
-        <div className="auction-interface">
-            <h2>土地拍賣</h2>
+        <>
+            {state.actionTimer > 0 && (
+                <CountdownTimer
+                    duration={state.actionTimer}
+                    onExpire={handleAuctionExpire}
+                />
+            )}
+            <div className="auction-interface">
+                <h2>土地拍賣</h2>
 
-            <div className="auction-content">
-                <div className="auction-left">
-                    <CardDisplay card={land} type="land" />
-                </div>
-
-                <div className="auction-right">
-                    <div className="auction-status">
-                        <div className="highest-bid">
-                            當前最高價: <span className="price">${auction.highestBid}</span>
-                            {auction.highestBidderId && (
-                                <span className="bidder-name">
-                                    (由 {state.teams.find(t => t.id === auction.highestBidderId).name} 出價)
-                                </span>
-                            )}
-                        </div>
+                <div className="auction-content">
+                    <div className="auction-left">
+                        <CardDisplay card={land} type="land" />
                     </div>
 
-                    <div className="bidders-grid">
-                        {state.teams.map(team => {
-                            // Only show initial eligible bidders
-                            if (!auction.initialBidders.includes(team.id)) return null;
+                    <div className="auction-right">
+                        <div className="auction-status">
+                            <div className="highest-bid">
+                                當前最高價: <span className="price">${auction.highestBid}</span>
+                                {auction.highestBidderId && (
+                                    <span className="bidder-name">
+                                        (由 {state.teams.find(t => t.id === auction.highestBidderId).name} 出價)
+                                    </span>
+                                )}
+                            </div>
+                        </div>
 
-                            const isActive = auction.activeBidders.includes(team.id);
-                            const isHighest = team.id === auction.highestBidderId;
-                            const canAfford = (amount) => team.cash >= amount;
+                        <div className="bidders-grid">
+                            {state.teams.map(team => {
+                                const isActive = auction.activeBidders.includes(team.id);
+                                const isHighest = auction.highestBidderId === team.id;
+                                const canBid = isActive && team.cash >= auction.highestBid + 50;
 
-                            return (
-                                <div key={team.id} className={`bidder-card ${isHighest ? 'winning' : ''} ${!isActive ? 'folded' : ''}`} style={{ borderLeftColor: team.color }}>
-                                    <h3>{team.name}</h3>
-                                    <div className="cash-display">現金: ${team.cash}</div>
-                                    {!isActive && <div className="status-badge">已放棄</div>}
-
-                                    {/* Host controls for players without devices */}
-                                    {isActive && (
-                                        <div className="bid-actions">
-                                            <button
-                                                className="btn-bid"
-                                                onClick={() => handleBid(team.id, auction.highestBid + 50)}
-                                                disabled={!canAfford(auction.highestBid + 50)}
-                                            >
-                                                + $50
-                                            </button>
-                                            <button
-                                                className="btn-bid"
-                                                onClick={() => handleBid(team.id, auction.highestBid + 100)}
-                                                disabled={!canAfford(auction.highestBid + 100)}
-                                            >
-                                                + $100
-                                            </button>
-                                            <button
-                                                className="btn-pass"
-                                                onClick={() => handlePass(team.id)}
-                                            >
-                                                放棄
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                                return (
+                                    <div
+                                        key={team.id}
+                                        className={`bidder-card ${isActive ? 'active' : 'passed'} ${isHighest ? 'highest' : ''}`}
+                                    >
+                                        <div className="bidder-name">{team.name}</div>
+                                        <div className="bidder-cash">${team.cash}</div>
+                                        {isActive && (
+                                            <div className="bidder-actions">
+                                                <button
+                                                    className="btn-bid small"
+                                                    onClick={() => handleBid(team.id, auction.highestBid + 50)}
+                                                    disabled={!canBid}
+                                                >
+                                                    +$50
+                                                </button>
+                                                <button
+                                                    className="btn-bid small"
+                                                    onClick={() => handleBid(team.id, auction.highestBid + 100)}
+                                                    disabled={team.cash < auction.highestBid + 100}
+                                                >
+                                                    +$100
+                                                </button>
+                                                <button
+                                                    className="btn-pass small"
+                                                    onClick={() => handlePass(team.id)}
+                                                >
+                                                    放棄
+                                                </button>
+                                            </div>
+                                        )}
+                                        {!isActive && <div className="status-passed">已放棄</div>}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

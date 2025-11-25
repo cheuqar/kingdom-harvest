@@ -1,21 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './CountdownTimer.css';
 
 const CountdownTimer = ({ duration, onExpire, paused = false }) => {
     const [timeLeft, setTimeLeft] = useState(duration);
+    const onExpireRef = useRef(onExpire);
+
+    // Update ref when callback changes
+    useEffect(() => {
+        onExpireRef.current = onExpire;
+    }, [onExpire]);
 
     useEffect(() => {
         setTimeLeft(duration);
     }, [duration]);
 
     useEffect(() => {
-        if (paused || timeLeft <= 0) return;
+        if (paused || timeLeft <= 0 || duration === 0) return;
 
         const timer = setInterval(() => {
             setTimeLeft(prev => {
                 if (prev <= 1) {
                     clearInterval(timer);
-                    if (onExpire) onExpire();
+                    // Use setTimeout to defer the callback to next tick
+                    setTimeout(() => {
+                        if (onExpireRef.current) {
+                            onExpireRef.current();
+                        }
+                    }, 0);
                     return 0;
                 }
                 return prev - 1;
@@ -23,7 +34,7 @@ const CountdownTimer = ({ duration, onExpire, paused = false }) => {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [timeLeft, paused, onExpire]);
+    }, [timeLeft, paused, duration]);
 
     if (duration === 0) return null; // Timer disabled
 
