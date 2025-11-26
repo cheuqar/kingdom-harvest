@@ -68,6 +68,14 @@
     font-weight: bold;
     color: #fff;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.connected-badge {
+    font-size: 0.9rem;
 }
 
 .qr-wrapper-mini {

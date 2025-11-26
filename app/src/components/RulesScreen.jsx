@@ -51,7 +51,7 @@ const RulesScreen = () => {
                                                 ) : (
                                                     <QRCodeSVG
                                                         value={getJoinUrl(index)}
-                                                        size={70}
+                                                        size={140}
                                                         level="L"
                                                         includeMargin={false}
                                                     />

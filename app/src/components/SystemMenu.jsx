@@ -61,30 +61,23 @@ const SystemMenu = ({ onClose }) => {
                                         <div key={team.id} className={`qr-card-mini ${isConnected ? 'connected' : ''}`}>
                                             <div className="team-header-mini" style={{ backgroundColor: team.color }}>
                                                 {team.name}
+                                                {isConnected && <span className="connected-badge">✅</span>}
                                             </div>
                                             <div className="qr-wrapper-mini">
-                                                {isConnected ? (
-                                                    <div className="status-connected">
-                                                        <span>✅ 已連接</span>
-                                                    </div>
-                                                ) : (
-                                                    <QRCodeSVG
-                                                        value={getJoinUrl(index)}
-                                                        size={100}
-                                                        level="L"
-                                                        includeMargin={true}
-                                                    />
-                                                )}
+                                                <QRCodeSVG
+                                                    value={getJoinUrl(index)}
+                                                    size={120}
+                                                    level="L"
+                                                    includeMargin={true}
+                                                />
                                             </div>
-                                            {!isConnected && (
-                                                <div className="url-mini">{getJoinUrl(index)}</div>
-                                            )}
+                                            <div className="url-mini">{getJoinUrl(index)}</div>
                                             {isConnected && (
                                                 <button
                                                     className="btn-disconnect-mini"
                                                     onClick={() => network.disconnectTeam(index)}
                                                 >
-                                                    斷開
+                                                    斷開連接
                                                 </button>
                                             )}
                                         </div>

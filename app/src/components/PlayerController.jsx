@@ -114,9 +114,40 @@ const PlayerInterface = ({ teamIndex }) => {
                     </div>
                 );
             case 'DRAW_EVENT':
+                const eventCard = state.currentCard;
+                if (!eventCard) {
+                    return (
+                        <div className="phase-msg">
+                            <p>抽到事件卡 (查看主螢幕)</p>
+                            <button className="btn-action btn-primary" onClick={endTurn}>確定</button>
+                        </div>
+                    );
+                }
                 return (
-                    <div className="phase-msg">
-                        <p>抽到事件卡 (查看主螢幕)</p>
+                    <div className="decision-controls">
+                        <div className="card-preview compact">
+                            <h3>{eventCard.name}</h3>
+                            <p className="card-desc-compact">{eventCard.description}</p>
+                            {eventCard.type === 'decision' && eventCard.yEffect && (
+                                <div className="decision-effects-preview compact">
+                                    <div className="effect-row">
+                                        <strong>Y:</strong>
+                                        <span>
+                                            {eventCard.yEffect.cash !== 0 && ` $${eventCard.yEffect.cash}`}
+                                            {eventCard.yEffect.seeds !== 0 && ` 🌰${eventCard.yEffect.seeds}`}
+                                        </span>
+                                    </div>
+                                    <div className="effect-row">
+                                        <strong>N:</strong>
+                                        <span>
+                                            {eventCard.nEffect?.cash !== 0 && ` $${eventCard.nEffect?.cash}`}
+                                            {eventCard.nEffect?.seeds !== 0 && ` 🌰${eventCard.nEffect?.seeds}`}
+                                            {eventCard.nEffect?.cash === 0 && eventCard.nEffect?.seeds === 0 && ' 無效果'}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         <button className="btn-action btn-primary" onClick={endTurn}>確定</button>
                     </div>
                 );
@@ -279,15 +310,15 @@ const PlayerInterface = ({ teamIndex }) => {
 
             <div className="stats-grid">
                 <div className="stat-box">
-                    <span className="label">現金</span>
-                    <span className="value">${myTeam.cash}</span>
+                    <span className="label">💰</span>
+                    <span className="value">{myTeam.cash}</span>
                 </div>
                 <div className="stat-box">
-                    <span className="label">種子</span>
+                    <span className="label">🌰</span>
                     <span className="value">{myTeam.seeds}</span>
                 </div>
                 <div className="stat-box">
-                    <span className="label">擲骰</span>
+                    <span className="label">🎲</span>
                     <span className="value">{myTeam.rollCount || 0}</span>
                 </div>
             </div>
