@@ -124,10 +124,10 @@
 
 .action-area {
     background: rgba(255, 255, 255, 0.05);
-    padding: 1.5rem;
+    padding: 1rem;
     border-radius: 16px;
     text-align: center;
-    min-height: 150px;
+    min-height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -140,7 +140,8 @@
 
 .active-turn-controls h2 {
     color: #4ecca3;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.3rem;
 }
 
 .btn-action {
@@ -169,21 +170,32 @@
     font-style: italic;
 }
 
-.cards-section h3 {
+.cards-section {
+    max-height: 250px;
+    overflow-y: auto;
     margin-bottom: 1rem;
-    font-size: 1.1rem;
+}
+
+.cards-section h3 {
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
     color: #aab7b8;
+    position: sticky;
+    top: 0;
+    background: #1a1a2e;
+    padding: 0.5rem 0;
+    z-index: 1;
 }
 
 .cards-list {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.6rem;
 }
 
 .card-item {
     background: linear-gradient(135deg, #2c3e50, #34495e);
-    padding: 1rem;
+    padding: 0.8rem;
     border-radius: 8px;
     border-left: 4px solid #f1c40f;
 }
@@ -207,21 +219,22 @@
 
 /* Offering styles */
 .offering-preview {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .offering-preview h3 {
     color: #ffd700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
+    font-size: 1.1rem;
 }
 
 .offering-preview p {
-    font-size: 1.1rem;
-    margin: 0.3rem 0;
+    font-size: 0.95rem;
+    margin: 0.2rem 0;
 }
 
 .offering-hint {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: #aab7b8;
     font-style: italic;
 }
@@ -241,8 +254,13 @@
 .btn-group-vertical {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.6rem;
     width: 100%;
+}
+
+.btn-group-vertical .btn-action {
+    padding: 0.75rem;
+    font-size: 1rem;
 }
 
 .btn-success {
