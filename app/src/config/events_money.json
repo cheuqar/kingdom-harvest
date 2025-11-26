@@ -3,7 +3,7 @@
         "id": "ev_money_A1",
         "name": "建殿奉獻",
         "type": "decision",
-        "description": "教會展開場地優化與擴建，是否認獻？",
+        "description": "教會正進行場地擴建工程，需要弟兄姊妹的奉獻支持，你願意參與這份聖工嗎？",
         "yEffect": {
             "cash": -300,
             "seeds": 2
@@ -17,7 +17,7 @@
         "id": "ev_money_A2",
         "name": "慈惠奉獻",
         "type": "decision",
-        "description": "教會成立關懷金給急難家庭。",
+        "description": "教會設立急難救助金，幫助陷入困境的家庭度過難關，你願意為此奉獻嗎？",
         "yEffect": {
             "cash": -200,
             "seeds": 2
@@ -31,7 +31,7 @@
         "id": "ev_money_A3",
         "name": "宣教基金",
         "type": "decision",
-        "description": "支援外地／本地宣教差傳。",
+        "description": "支持宣教士在各地傳揚福音，拓展神的國度，你願意為宣教事工奉獻嗎？",
         "yEffect": {
             "cash": -250,
             "seeds": 2
@@ -45,7 +45,7 @@
         "id": "ev_money_A4",
         "name": "媒體事工",
         "type": "decision",
-        "description": "支持直播與影音製作器材更新。",
+        "description": "教會媒體事工需要更新影音器材，以提升線上聚會品質，你願意支持嗎？",
         "yEffect": {
             "cash": -180,
             "seeds": 1
@@ -59,7 +59,7 @@
         "id": "ev_money_A5",
         "name": "青年裝備",
         "type": "decision",
-        "description": "資助青年門訓／退修。",
+        "description": "投資下一代的屬靈生命，資助青年參與門徒訓練與退修會，你願意支持嗎？",
         "yEffect": {
             "cash": -200,
             "seeds": 2
@@ -73,7 +73,7 @@
         "id": "ev_money_B1",
         "name": "新人關懷午餐",
         "type": "decision",
-        "description": "邀請新朋友吃飯更認識彼此。",
+        "description": "邀請新朋友共進午餐，建立關係並分享福音，這是一份愛的行動。",
         "yEffect": {
             "cash": -90,
             "seeds": 1
@@ -87,7 +87,7 @@
         "id": "ev_money_B2",
         "name": "組長鼓勵禮",
         "type": "decision",
-        "description": "送組長一本書表謝意。",
+        "description": "為感謝小組長的辛勞牧養，贈送屬靈書籍表達心意與鼓勵。",
         "yEffect": {
             "cash": -120,
             "seeds": 2
@@ -101,7 +101,7 @@
         "id": "ev_money_B3",
         "name": "組員生日祝福",
         "type": "decision",
-        "description": "小蛋糕＋代禱。",
+        "description": "為組員慶生，準備小蛋糕並獻上代禱祝福，讓愛在小組中流動。",
         "yEffect": {
             "cash": -80,
             "seeds": 1
@@ -115,7 +115,7 @@
         "id": "ev_money_B4",
         "name": "探病同行",
         "type": "decision",
-        "description": "病中探訪帶水果。",
+        "description": "探訪生病的肢體，帶上水果與關懷，奉主的名為他禱告求醫治。",
         "yEffect": {
             "cash": -150,
             "seeds": 2
@@ -129,7 +129,7 @@
         "id": "ev_money_B5",
         "name": "家庭關係日",
         "type": "decision",
-        "description": "為家人預備一餐與傾聽。",
+        "description": "放下忙碌，為家人親手預備一餐，並花時間傾聽他們的心聲。",
         "yEffect": {
             "cash": -100,
             "seeds": 1
@@ -143,7 +143,7 @@
         "id": "ev_money_C1",
         "name": "佈道茶會同工",
         "type": "decision",
-        "description": "分擔點心與場地。",
+        "description": "參與佈道茶會的服事，分擔點心與場地費用，與神同工領人歸主。",
         "yEffect": {
             "cash": -120,
             "seeds": 1
@@ -157,7 +157,7 @@
         "id": "ev_money_C2",
         "name": "街頭關懷",
         "type": "decision",
-        "description": "派暖包／水／小禮。",
+        "description": "走上街頭關懷弱勢群體，發送暖包或物資，傳遞耶穌的愛與溫暖。",
         "yEffect": {
             "cash": -90,
             "seeds": 1
@@ -171,7 +171,7 @@
         "id": "ev_money_C3",
         "name": "受浸見證拍攝",
         "type": "decision",
-        "description": "支援器材租借。",
+        "description": "支援受浸典禮的攝影與器材租借，記錄弟兄姊妹重生的美好時刻。",
         "yEffect": {
             "cash": -150,
             "seeds": 2
@@ -185,7 +185,7 @@
         "id": "ev_money_C4",
         "name": "社區清潔日",
         "type": "decision",
-        "description": "購清潔工具。",
+        "description": "參與社區清潔日，購買清潔工具，用實際行動愛我們的鄰舍與社區。",
         "yEffect": {
             "cash": -90,
             "seeds": 1
@@ -199,7 +199,7 @@
         "id": "ev_money_C5",
         "name": "公園親子日",
         "type": "decision",
-        "description": "小手作材料。",
+        "description": "舉辦公園親子日，準備手作材料，接觸社區家庭並分享福音。",
         "yEffect": {
             "cash": -100,
             "seeds": 1

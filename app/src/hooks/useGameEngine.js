@@ -514,21 +514,31 @@ export const useGameEngine = () => {
         dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 以半價 $${sellPrice} 出售了 ${land.name}` });
     };
 
+    const answerQuestion = (isCorrect) => {
+        if (isCorrect) {
+            dispatch({ type: 'SET_QUESTION', payload: null });
+        } else {
+            const card = state.currentCard;
+            dispatch({ type: 'ADD_TO_AUCTION', payload: card });
+            dispatch({ type: 'SET_QUESTION', payload: null });
+            dispatch({ type: 'ADD_LOG', payload: '回答錯誤，無法購買土地，土地進入拍賣池。' });
+            endTurn();
+        }
+    };
+
     return {
         rollDice,
         buyLand,
         skipLand,
-        buildInn,
-        useMiracle,
         payRent,
-        sellLand,
         endTurn,
-        startAuction,
+        useMiracle,
         handleBid,
         handlePass,
         handleDecision,
         handleOffering,
-        resolveAuction,
+        buildInn,
+        answerQuestion,
         currentTeam
     };
 };

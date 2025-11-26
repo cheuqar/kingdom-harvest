@@ -8,7 +8,7 @@ import { useGameEngine } from '../hooks/useGameEngine';
 const PlayerInterface = ({ teamIndex }) => {
     const { state, dispatch, network, landsData } = useGame();
     const { teams, currentTeamIndex, phase } = state;
-    const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass, handleDecision, handleOffering, buildInn } = useGameEngine();
+    const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass, handleDecision, handleOffering, buildInn, answerQuestion } = useGameEngine();
     const [timeLeft, setTimeLeft] = React.useState(null);
 
     const myTeam = teams[teamIndex];
@@ -58,10 +58,32 @@ const PlayerInterface = ({ teamIndex }) => {
                     </button>
                 );
             case 'DRAW_LAND':
-                if (state.currentQuestion) return <div className="phase-msg">請回答問題 (查看主螢幕)</div>;
+                if (state.currentQuestion) {
+                    const q = state.currentQuestion;
+                    return (
+                        <div className="question-control">
+                            <h3 className="question-text">{q.question}</h3>
+                            <div className="options-grid">
+                                {q.options ? (
+                                    q.options.map((opt, i) => (
+                                        <button
+                                            key={i}
+                                            className="btn-option"
+                                            onClick={() => answerQuestion(opt === q.answer)}
+                                        >
+                                            {opt}
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="phase-msg">請在主螢幕回答問題</div>
+                                )}
+                            </div>
+                        </div>
+                    );
+                }
                 return (
                     <div className="decision-controls">
-                        <div className="card-preview">
+                        <div className="card-preview compact">
                             <h3>{state.currentCard?.name}</h3>
                             <p>價格: ${state.currentCard?.price}</p>
                         </div>
@@ -82,7 +104,7 @@ const PlayerInterface = ({ teamIndex }) => {
             case 'PAY_RENT':
                 return (
                     <div className="decision-controls">
-                        <div className="rent-preview">
+                        <div className="rent-preview compact">
                             <h3>需支付租金</h3>
                             <p>金額: ${state.rentInfo?.rent}</p>
                         </div>
@@ -103,11 +125,11 @@ const PlayerInterface = ({ teamIndex }) => {
                 if (!card) return <div className="phase-msg">等待事件...</div>;
                 return (
                     <div className="decision-controls">
-                        <div className="card-preview">
+                        <div className="card-preview compact">
                             <h3>{card.name}</h3>
-                            <p>{card.description}</p>
+                            <p className="card-desc-compact">{card.description}</p>
                         </div>
-                        <div className="decision-effects-preview">
+                        <div className="decision-effects-preview compact">
                             <div className="effect-row">
                                 <strong>Y:</strong>
                                 <span>
@@ -146,7 +168,7 @@ const PlayerInterface = ({ teamIndex }) => {
                                 const landState = state.lands[land.id];
                                 const canAfford = myTeam.cash >= land.innCost;
                                 return (
-                                    <div key={land.id} className="land-item">
+                                    <div key={land.id} className="land-item compact">
                                         <div className="land-info">
                                             <span className="land-name">{land.name}</span>
                                             <span className="inn-count">旅店: {landState.innCount}</span>
@@ -177,7 +199,7 @@ const PlayerInterface = ({ teamIndex }) => {
                 const canAffordDouble = myTeam.cash >= doubleAmount;
                 return (
                     <div className="decision-controls">
-                        <div className="offering-preview">
+                        <div className="offering-preview compact">
                             <h3>十分之一奉獻</h3>
                             <p>十分之一: ${oneTenthAmount}</p>
                             <p className="offering-hint">每 $100 = 1 種子</p>
@@ -216,7 +238,7 @@ const PlayerInterface = ({ teamIndex }) => {
 
                 return (
                     <div className="decision-controls">
-                        <div className="auction-info">
+                        <div className="auction-info compact">
                             <h3>當前最高價: ${currentBid}</h3>
                             {isHighestBidder && <p className="status-winning">目前最高出價者！</p>}
                         </div>
@@ -264,10 +286,14 @@ const PlayerInterface = ({ teamIndex }) => {
                     <span className="label">種子</span>
                     <span className="value">{myTeam.seeds}</span>
                 </div>
+                <div className="stat-box">
+                    <span className="label">擲骰</span>
+                    <span className="value">{myTeam.rollCount || 0}</span>
+                </div>
             </div>
 
             <div className="action-area">
-                {isMyTurn || isAuction || isOffering ? (
+                {isMyTurn || isAuction ? (
                     <div className="active-turn-controls">
                         {isAuction ? <h2>土地拍賣</h2> : (isOffering ? <h2>十分之一奉獻</h2> : (phase === 'DECISION_EVENT' ? <h2>事件選擇</h2> : <h2>輪到你了！</h2>))}
                         {timeLeft !== null && (

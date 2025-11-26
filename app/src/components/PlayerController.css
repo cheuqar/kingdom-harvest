@@ -31,17 +31,81 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
 }
 
 .stat-box {
     background: rgba(255, 255, 255, 0.05);
-    padding: 1rem;
+    padding: 0.8rem 0.5rem;
     border-radius: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+/* Compact Mode Adjustments */
+.compact {
+    padding: 0.8rem !important;
+    margin-bottom: 0.8rem !important;
+}
+
+.card-desc-compact {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    color: #ccc;
+}
+
+.decision-effects-preview.compact {
+    padding: 0.6rem;
+    margin-bottom: 0.8rem;
+}
+
+.land-item.compact {
+    padding: 0.6rem;
+}
+
+/* Question Control */
+.question-control {
+    width: 100%;
+}
+
+.question-text {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: #fff;
+    line-height: 1.4;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+.btn-option {
+    background: rgba(78, 204, 163, 0.1);
+    border: 1px solid rgba(78, 204, 163, 0.3);
+    padding: 1rem 0.5rem;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+}
+
+.btn-option:active {
+    background: rgba(78, 204, 163, 0.3);
+    transform: scale(0.98);
+}
+
+.mt-2 {
+    margin-top: 1rem;
 }
 
 .stat-box .label {
