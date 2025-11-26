@@ -21,12 +21,13 @@ const PlayerInterface = ({ teamIndex }) => {
 
     // Calculate owned properties
     const ownedProperties = React.useMemo(() => {
+        if (!myTeam?.id) return [];
         return landsData.filter(land => state.lands[land.id]?.ownerId === myTeam.id).map(land => ({
             ...land,
             innCount: state.lands[land.id].innCount,
             currentRent: land.rent + (state.lands[land.id].innCount * land.innRent)
         }));
-    }, [landsData, state.lands, myTeam.id]);
+    }, [landsData, state.lands, myTeam?.id]);
 
     const totalPropertyValue = React.useMemo(() => {
         return ownedProperties.reduce((sum, prop) => {
