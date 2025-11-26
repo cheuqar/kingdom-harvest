@@ -37,34 +37,47 @@ const RulesScreen = () => {
                             <div className="qr-grid">
                                 {teams.map((team, index) => {
                                     const isConnected = network.connectedTeams[index];
+                                    const joinUrl = getJoinUrl(index);
                                     return (
                                         <div key={team.id} className={`qr-card ${isConnected ? 'connected' : ''}`}>
                                             <div className="team-header" style={{ backgroundColor: team.color }}>
                                                 {team.name}
+                                                {isConnected && <span className="connected-badge-inline">✅</span>}
                                             </div>
-                                            <div className="qr-wrapper">
-                                                {isConnected ? (
-                                                    <div className="connected-status">
-                                                        <span className="icon">✅</span>
-                                                        <span>已連接</span>
-                                                    </div>
-                                                ) : (
-                                                    <QRCodeSVG
-                                                        value={getJoinUrl(index)}
-                                                        size={140}
-                                                        level="L"
-                                                        includeMargin={false}
+                                            <div className="qr-content">
+                                                <div className="qr-wrapper">
+                                                    {isConnected ? (
+                                                        <div className="connected-status">
+                                                            <span className="icon">✅</span>
+                                                            <span>已連接</span>
+                                                        </div>
+                                                    ) : (
+                                                        <QRCodeSVG
+                                                            value={joinUrl}
+                                                            size={180}
+                                                            level="L"
+                                                            includeMargin={false}
+                                                        />
+                                                    )}
+                                                </div>
+                                                <div className="url-display">
+                                                    <input
+                                                        type="text"
+                                                        value={joinUrl}
+                                                        readOnly
+                                                        onClick={(e) => e.target.select()}
+                                                        className="url-input"
                                                     />
+                                                </div>
+                                                {isConnected && (
+                                                    <button
+                                                        className="btn-disconnect-mini"
+                                                        onClick={() => network.disconnectTeam(index)}
+                                                    >
+                                                        斷開連接
+                                                    </button>
                                                 )}
                                             </div>
-                                            {isConnected && (
-                                                <button
-                                                    className="btn-disconnect-mini"
-                                                    onClick={() => network.disconnectTeam(index)}
-                                                >
-                                                    斷開
-                                                </button>
-                                            )}
                                         </div>
                                     );
                                 })}
