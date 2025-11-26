@@ -55,6 +55,82 @@ const PlayerInterface = ({ teamIndex }) => {
 
     if (!myTeam) return <div className="loading">Waiting for game state...</div>;
 
+    // Show Game Over Screen
+    if (phase === 'GAME_OVER' && state.winner) {
+        const rankings = state.winner.rankings || [];
+        const myRanking = rankings.find(r => r.id === myTeam.id);
+        const myRank = rankings.findIndex(r => r.id === myTeam.id) + 1;
+        const isWinner = myRank === 1;
+        const hasSeedBonus = (state.winner.totalSeeds || 0) > 0;
+
+        return (
+            <div className="player-controller game-over" style={{ '--team-color': myTeam.color }}>
+                <div className="gameover-player-header">
+                    <h1 className="gameover-title">
+                        {isWinner ? '🏆 恭喜獲勝！ 🏆' : '遊戲結束'}
+                    </h1>
+                    <div className="rank-display">
+                        {isWinner ? (
+                            <div className="winner-badge">第 1 名 👑</div>
+                        ) : (
+                            <div className="rank-badge-large">第 {myRank} 名</div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="my-results-card">
+                    <div className="result-row">
+                        <span className="result-label">💰 現金</span>
+                        <span className="result-value">${myRanking?.cash.toLocaleString() || 0}</span>
+                    </div>
+                    <div className="result-row">
+                        <span className="result-label">🏠 土地價值</span>
+                        <span className="result-value">${myRanking?.landValue.toLocaleString() || 0}</span>
+                    </div>
+                    <div className="result-row highlight">
+                        <span className="result-label">💼 基礎資產</span>
+                        <span className="result-value">${myRanking?.baseAssets.toLocaleString() || 0}</span>
+                    </div>
+                    {hasSeedBonus && (
+                        <>
+                            <div className="result-row">
+                                <span className="result-label">🌱 種子</span>
+                                <span className="result-value">{myRanking?.seeds || 0} ({((myRanking?.seedMultiplier || 0) * 100).toFixed(0)}%)</span>
+                            </div>
+                            <div className="result-row bonus">
+                                <span className="result-label">✨ 種子獎勵</span>
+                                <span className="result-value">+${myRanking?.seedBonus.toLocaleString() || 0}</span>
+                            </div>
+                        </>
+                    )}
+                    <div className="result-row final">
+                        <span className="result-label">🏆 最終得分</span>
+                        <span className="result-value final">${myRanking?.finalScore.toLocaleString() || 0}</span>
+                    </div>
+                </div>
+
+                <div className="all-rankings-section">
+                    <h3>完整排名</h3>
+                    {rankings.map((team, index) => (
+                        <div
+                            key={team.id}
+                            className={`ranking-item ${team.id === myTeam.id ? 'my-team' : ''} ${index === 0 ? 'winner' : ''}`}
+                            style={{ '--team-color': team.color }}
+                        >
+                            <div className="ranking-left">
+                                <span className="ranking-position">#{index + 1}</span>
+                                <span className="ranking-name">{team.name}</span>
+                            </div>
+                            <span className="ranking-score">${team.finalScore.toLocaleString()}</span>
+                        </div>
+                    ))}
+                </div>
+
+                <AnimationOverlay />
+            </div>
+        );
+    }
+
     const handleUseMiracle = (card) => {
         if (isMyTurn && phase === 'ROLL') {
             useMiracle(card);

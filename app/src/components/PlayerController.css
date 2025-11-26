@@ -608,3 +608,174 @@
     padding: 1rem;
     text-align: center;
 }
+
+/* Game Over Screen on Player Controller */
+.player-controller.game-over {
+    justify-content: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.gameover-player-header {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(135deg, rgba(78, 204, 163, 0.2), rgba(78, 204, 163, 0.05));
+    border-radius: 16px;
+    border: 2px solid rgba(78, 204, 163, 0.3);
+}
+
+.gameover-player-header .gameover-title {
+    font-size: 1.8rem;
+    margin: 0 0 1rem 0;
+    color: #ffd700;
+    text-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+}
+
+.rank-display {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.winner-badge {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #1a1a2e;
+    padding: 0.8rem 2rem;
+    border-radius: 25px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+    animation: pulse 2s infinite;
+}
+
+.rank-badge-large {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    padding: 0.8rem 2rem;
+    border-radius: 25px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.my-results-card {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 2px solid var(--team-color, #4ecca3);
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.result-row:last-child {
+    border-bottom: none;
+}
+
+.result-row.highlight {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin: 0.3rem 0;
+}
+
+.result-row.bonus {
+    background: rgba(78, 204, 163, 0.1);
+    border-radius: 8px;
+    margin: 0.3rem 0;
+}
+
+.result-row.final {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.05));
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    padding: 1rem;
+    border: 2px solid rgba(255, 215, 0, 0.5);
+}
+
+.result-label {
+    font-size: 1rem;
+    color: #aab7b8;
+    font-weight: 500;
+}
+
+.result-value {
+    font-size: 1.1rem;
+    color: #fff;
+    font-weight: bold;
+}
+
+.result-value.final {
+    font-size: 1.5rem;
+    color: #ffd700;
+    text-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
+}
+
+.all-rankings-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.all-rankings-section h3 {
+    margin: 0 0 1rem 0;
+    color: #aab7b8;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.ranking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border-left: 3px solid #555;
+}
+
+.ranking-item.my-team {
+    border-left-color: var(--team-color, #4ecca3);
+    background: rgba(78, 204, 163, 0.1);
+    box-shadow: 0 0 10px rgba(78, 204, 163, 0.3);
+}
+
+.ranking-item.winner {
+    border-left-color: #ffd700;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.05));
+}
+
+.ranking-left {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.ranking-position {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #aab7b8;
+    min-width: 40px;
+}
+
+.ranking-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.ranking-score {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #4ecca3;
+}
+
+.ranking-item.winner .ranking-score {
+    color: #ffd700;
+}
