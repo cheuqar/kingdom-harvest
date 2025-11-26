@@ -99,57 +99,84 @@ const SetupScreen = () => {
                     </div>
 
                     <div className="setup-form">
-                        <label>
-                            隊伍數量:
-                            <select value={teamCount} onChange={(e) => setTeamCount(Number(e.target.value))}>
-                                <option value={2}>2 隊</option>
-                                <option value={3}>3 隊</option>
-                                <option value={4}>4 隊</option>
-                            </select>
-                        </label>
+                        {/* Team Count Selection */}
+                        <div className="form-section">
+                            <div className="section-header">
+                                <span className="section-icon">👥</span>
+                                <span className="section-title">隊伍設定</span>
+                            </div>
+                            <label>
+                                隊伍數量:
+                                <select value={teamCount} onChange={(e) => setTeamCount(Number(e.target.value))}>
+                                    <option value={2}>2 隊</option>
+                                    <option value={3}>3 隊</option>
+                                    <option value={4}>4 隊</option>
+                                </select>
+                            </label>
 
-                        <label>
-                            遊戲時間 (分鐘):
-                            <input
-                                type="number"
-                                min="0"
-                                value={gameDuration}
-                                onChange={(e) => setGameDuration(e.target.value)}
-                                placeholder="0 = 無限制"
-                            />
-                            <span className="hint">(0 表示無限制)</span>
-                        </label>
-
-                        <label>
-                            行動計時器 (秒):
-                            <input
-                                type="number"
-                                min="0"
-                                max="60"
-                                value={actionTimer}
-                                onChange={(e) => setActionTimer(e.target.value)}
-                                placeholder="5"
-                            />
-                            <span className="hint">(0 = 無計時, 建議 5-10 秒)</span>
-                        </label>
-
-                        <div className="names-inputs">
-                            {Array.from({ length: teamCount }).map((_, i) => (
-                                <input
-                                    key={i}
-                                    value={names[i]}
-                                    onChange={(e) => {
-                                        const newNames = [...names];
-                                        newNames[i] = e.target.value;
-                                        setNames(newNames);
-                                    }}
-                                    placeholder={`隊伍 ${i + 1} 名稱`}
-                                />
-                            ))}
+                            <div className="names-inputs">
+                                {Array.from({ length: teamCount }).map((_, i) => (
+                                    <div key={i} className="team-name-input">
+                                        <span className="team-number">隊伍 {i + 1}</span>
+                                        <input
+                                            value={names[i]}
+                                            onChange={(e) => {
+                                                const newNames = [...names];
+                                                newNames[i] = e.target.value;
+                                                setNames(newNames);
+                                            }}
+                                            placeholder={`輸入隊伍 ${i + 1} 名稱`}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="deck-selection">
-                            <label className="deck-label">事件卡牌庫:</label>
+                        {/* Game Settings */}
+                        <div className="form-section">
+                            <div className="section-header">
+                                <span className="section-icon">⚙️</span>
+                                <span className="section-title">遊戲設定</span>
+                            </div>
+
+                            <label>
+                                <div className="label-with-icon">
+                                    <span className="label-icon">⏱️</span>
+                                    <span>遊戲時間 (分鐘)</span>
+                                </div>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={gameDuration}
+                                    onChange={(e) => setGameDuration(e.target.value)}
+                                    placeholder="0 = 無限制"
+                                />
+                                <span className="hint">設定 0 表示無時間限制</span>
+                            </label>
+
+                            <label>
+                                <div className="label-with-icon">
+                                    <span className="label-icon">⏲️</span>
+                                    <span>行動計時器 (秒)</span>
+                                </div>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="60"
+                                    value={actionTimer}
+                                    onChange={(e) => setActionTimer(e.target.value)}
+                                    placeholder="5"
+                                />
+                                <span className="hint">建議 5-10 秒，設定 0 為無計時</span>
+                            </label>
+                        </div>
+
+                        {/* Event Deck Selection */}
+                        <div className="form-section">
+                            <div className="section-header">
+                                <span className="section-icon">🎴</span>
+                                <span className="section-title">事件卡牌庫</span>
+                            </div>
                             <div className="deck-options">
                                 <label className="checkbox-label">
                                     <input
@@ -163,7 +190,10 @@ const SetupScreen = () => {
                                             }
                                         }}
                                     />
-                                    預設事件
+                                    <span className="checkbox-text">
+                                        <span className="checkbox-name">預設事件</span>
+                                        <span className="checkbox-desc">基本遊戲事件</span>
+                                    </span>
                                 </label>
                                 <label className="checkbox-label">
                                     <input
@@ -177,20 +207,32 @@ const SetupScreen = () => {
                                             }
                                         }}
                                     />
-                                    天國金錢管理
+                                    <span className="checkbox-text">
+                                        <span className="checkbox-name">天國金錢管理</span>
+                                        <span className="checkbox-desc">聖經金錢教導</span>
+                                    </span>
                                 </label>
                             </div>
                         </div>
 
-                        {savedGame && (
-                            <button className="btn-resume" onClick={handleResumeClick}>
-                                ▶️ 繼續上次遊戲
-                            </button>
-                        )}
+                        {/* Action Buttons */}
+                        <div className="action-buttons">
+                            {savedGame && (
+                                <button className="btn-resume" onClick={handleResumeClick}>
+                                    <span className="btn-icon">▶️</span>
+                                    繼續上次遊戲
+                                </button>
+                            )}
 
-                        <button className="btn-primary" onClick={handleStart} disabled={selectedDecks.length === 0}>
-                            下一步：遊戲規則
-                        </button>
+                            <button
+                                className="btn-primary"
+                                onClick={handleStart}
+                                disabled={selectedDecks.length === 0}
+                            >
+                                <span className="btn-icon">🎮</span>
+                                開始遊戲
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
