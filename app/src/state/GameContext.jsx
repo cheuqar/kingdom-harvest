@@ -40,7 +40,8 @@ const initialState = {
   highlightedSeries: null, // Series name to highlight on board
   selectedEventDecks: ['default'],
   auction: null,
-  actionTimer: 5 // seconds, 0 = disabled
+  actionTimer: 5, // seconds, 0 = disabled
+  offering: null // { totalIncome, oneTenthAmount, seeds, doubleSeeds }
 };
 
 // Helper to shuffle array
@@ -81,7 +82,8 @@ const gameReducer = (state, action) => {
         isBankrupt: false,
         miracles: [],
         rollCount: 0,
-        color: ['#FF5252', '#4CAF50', '#2196F3', '#FFC107'][index % 4]
+        color: ['#FF5252', '#4CAF50', '#2196F3', '#FFC107'][index % 4],
+        incomeSinceLastReplenish: 0 // Track income for tithing calculation
       }));
 
       // Initialize lands ownership
@@ -166,10 +168,17 @@ const gameReducer = (state, action) => {
     }
 
     case 'ADD_CASH': {
-      const { teamId, amount } = action.payload;
+      const { teamId, amount, skipIncomeTracking } = action.payload;
       const newTeams = state.teams.map(t => {
         if (t.id === teamId) {
-          return { ...t, cash: t.cash + amount };
+          const newCash = t.cash + amount;
+          // Track positive income for tithing (unless explicitly skipped)
+          const incomeToAdd = (!skipIncomeTracking && amount > 0) ? amount : 0;
+          return {
+            ...t,
+            cash: newCash,
+            incomeSinceLastReplenish: (t.incomeSinceLastReplenish || 0) + incomeToAdd
+          };
         }
         return t;
       });
@@ -306,26 +315,43 @@ const gameReducer = (state, action) => {
         // Calculate final rankings with seed multiplier
         const totalSeeds = newTeams.reduce((sum, t) => sum + (t.seeds || 0), 0);
 
-        const rankings = newTeams.map(team => {
-          const ownedLands = Object.values(state.lands).filter(l => l.ownerId === team.id);
-          const landCount = ownedLands.length;
-          const landValue = ownedLands.reduce((sum, land) => {
-            const landData = state.config?.lands?.find(l => l.id === land.id);
-            return sum + (landData?.price || 0) + (land.innCount * (landData?.innCost || 0));
+        // First pass: calculate base assets for all teams
+        const teamsWithBaseAssets = newTeams.map(team => {
+          // Get owned lands from state.lands (which has ownerId, innCount)
+          const ownedLandIds = Object.entries(state.lands)
+            .filter(([id, landState]) => landState.ownerId === team.id)
+            .map(([id]) => id);
+          const landCount = ownedLandIds.length;
+
+          // Calculate land value using landsData (imported JSON with price/innCost)
+          const landValue = ownedLandIds.reduce((sum, landId) => {
+            const landData = landsData.find(l => l.id === landId);
+            const landState = state.lands[landId];
+            if (!landData) return sum;
+            return sum + (landData.price || 0) + ((landState?.innCount || 0) * (landData.innCost || 0));
           }, 0);
           const baseAssets = team.cash + landValue;
-
-          // Seed multiplier: (baseAssets) * (playerSeeds / totalSeeds)
-          // If totalSeeds is 0, no multiplier bonus
-          const seedMultiplier = totalSeeds > 0 ? (team.seeds || 0) / totalSeeds : 0;
-          const seedBonus = baseAssets * seedMultiplier;
-          const finalScore = baseAssets + seedBonus;
 
           return {
             ...team,
             landCount,
             landValue,
-            baseAssets,
+            baseAssets
+          };
+        });
+
+        // Calculate total base assets of ALL players
+        const totalBaseAssets = teamsWithBaseAssets.reduce((sum, t) => sum + t.baseAssets, 0);
+
+        // Second pass: calculate seed bonus using total assets of ALL players
+        const rankings = teamsWithBaseAssets.map(team => {
+          // Seed bonus: (total assets of ALL players) * (playerSeeds / totalSeeds)
+          const seedMultiplier = totalSeeds > 0 ? (team.seeds || 0) / totalSeeds : 0;
+          const seedBonus = totalBaseAssets * seedMultiplier;
+          const finalScore = team.baseAssets + seedBonus;
+
+          return {
+            ...team,
             seedMultiplier,
             seedBonus,
             finalScore
@@ -340,7 +366,8 @@ const gameReducer = (state, action) => {
             team: rankings[0],
             rankings,
             reason: 'bankruptcy',
-            totalSeeds
+            totalSeeds,
+            totalBaseAssets
           },
           log: [...state.log, `${currentTeam.cash < 0 ? currentTeam.name + ' 破產了！' : ''}`, `遊戲結束！${rankings[0].name} 獲勝！`]
         };
@@ -377,25 +404,43 @@ const gameReducer = (state, action) => {
       // Calculate final rankings with seed multiplier
       const totalSeeds = state.teams.reduce((sum, t) => sum + (t.seeds || 0), 0);
 
-      const rankings = state.teams.map(team => {
-        const ownedLands = Object.values(state.lands).filter(l => l.ownerId === team.id);
-        const landCount = ownedLands.length;
-        const landValue = ownedLands.reduce((sum, land) => {
-          const landData = state.config?.lands?.find(l => l.id === land.id);
-          return sum + (landData?.price || 0) + (land.innCount * (landData?.innCost || 0));
+      // First pass: calculate base assets for all teams
+      const teamsWithBaseAssets = state.teams.map(team => {
+        // Get owned lands from state.lands (which has ownerId, innCount)
+        const ownedLandIds = Object.entries(state.lands)
+          .filter(([id, landState]) => landState.ownerId === team.id)
+          .map(([id]) => id);
+        const landCount = ownedLandIds.length;
+
+        // Calculate land value using landsData (imported JSON with price/innCost)
+        const landValue = ownedLandIds.reduce((sum, landId) => {
+          const landData = landsData.find(l => l.id === landId);
+          const landState = state.lands[landId];
+          if (!landData) return sum;
+          return sum + (landData.price || 0) + ((landState?.innCount || 0) * (landData.innCost || 0));
         }, 0);
         const baseAssets = team.cash + landValue;
-
-        // Seed multiplier: (baseAssets) * (playerSeeds / totalSeeds)
-        const seedMultiplier = totalSeeds > 0 ? (team.seeds || 0) / totalSeeds : 0;
-        const seedBonus = baseAssets * seedMultiplier;
-        const finalScore = baseAssets + seedBonus;
 
         return {
           ...team,
           landCount,
           landValue,
-          baseAssets,
+          baseAssets
+        };
+      });
+
+      // Calculate total base assets of ALL players
+      const totalBaseAssets = teamsWithBaseAssets.reduce((sum, t) => sum + t.baseAssets, 0);
+
+      // Second pass: calculate seed bonus using total assets of ALL players
+      const rankings = teamsWithBaseAssets.map(team => {
+        // Seed bonus: (total assets of ALL players) * (playerSeeds / totalSeeds)
+        const seedMultiplier = totalSeeds > 0 ? (team.seeds || 0) / totalSeeds : 0;
+        const seedBonus = totalBaseAssets * seedMultiplier;
+        const finalScore = team.baseAssets + seedBonus;
+
+        return {
+          ...team,
           seedMultiplier,
           seedBonus,
           finalScore
@@ -409,7 +454,8 @@ const gameReducer = (state, action) => {
           team: rankings[0],
           rankings,
           reason: action.payload?.reason || 'manual',
-          totalSeeds
+          totalSeeds,
+          totalBaseAssets
         }
       };
     }
@@ -419,6 +465,12 @@ const gameReducer = (state, action) => {
 
     case 'CLEAR_SAVE':
       return state;
+
+    case 'SET_ACTION_TIMER':
+      return {
+        ...state,
+        actionTimer: action.payload
+      };
 
     case 'START_AUCTION':
       return {
@@ -462,6 +514,28 @@ const gameReducer = (state, action) => {
         // Phase change usually handled separately or here?
         // Let's assume caller handles phase change (e.g. NEXT_TURN)
       };
+
+    case 'START_OFFERING': {
+      const { totalIncome, oneTenthAmount, seeds, doubleSeeds } = action.payload;
+      return {
+        ...state,
+        phase: 'OFFERING_EVENT',
+        offering: { totalIncome, oneTenthAmount, seeds, doubleSeeds }
+      };
+    }
+
+    case 'COMPLETE_OFFERING': {
+      const { teamId } = action.payload;
+      // Reset the income tracker for this team
+      const newTeams = state.teams.map(t =>
+        t.id === teamId ? { ...t, incomeSinceLastReplenish: 0 } : t
+      );
+      return {
+        ...state,
+        teams: newTeams,
+        offering: null
+      };
+    }
 
     case 'REPLACE_STATE':
       return {

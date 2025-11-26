@@ -6,8 +6,15 @@ import './SystemMenu.css';
 
 const SystemMenu = ({ onClose }) => {
     const { state, dispatch, network } = useGame();
-    const { teams, gameDuration, gameStartTime } = state;
+    const { teams, gameDuration, gameStartTime, actionTimer } = state;
     const [activeTab, setActiveTab] = useState('connections');
+
+    const handleTimerChange = (newValue) => {
+        dispatch({
+            type: 'SET_ACTION_TIMER',
+            payload: newValue
+        });
+    };
 
     const getJoinUrl = (teamIndex) => {
         const baseUrl = window.location.origin;
@@ -99,6 +106,54 @@ const SystemMenu = ({ onClose }) => {
                                 <label>開始時間</label>
                                 <div className="value">
                                     {gameStartTime ? new Date(gameStartTime).toLocaleTimeString() : '-'}
+                                </div>
+                            </div>
+
+                            <div className="setting-item editable">
+                                <label>行動倒數計時</label>
+                                <div className="timer-control">
+                                    <button
+                                        className="timer-btn"
+                                        onClick={() => handleTimerChange(Math.max(0, actionTimer - 1))}
+                                        disabled={actionTimer <= 0}
+                                    >
+                                        -
+                                    </button>
+                                    <span className="timer-value">
+                                        {actionTimer === 0 ? '關閉' : `${actionTimer} 秒`}
+                                    </span>
+                                    <button
+                                        className="timer-btn"
+                                        onClick={() => handleTimerChange(actionTimer + 1)}
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                                <div className="timer-presets">
+                                    <button
+                                        className={`preset-btn ${actionTimer === 0 ? 'active' : ''}`}
+                                        onClick={() => handleTimerChange(0)}
+                                    >
+                                        關閉
+                                    </button>
+                                    <button
+                                        className={`preset-btn ${actionTimer === 5 ? 'active' : ''}`}
+                                        onClick={() => handleTimerChange(5)}
+                                    >
+                                        5秒
+                                    </button>
+                                    <button
+                                        className={`preset-btn ${actionTimer === 10 ? 'active' : ''}`}
+                                        onClick={() => handleTimerChange(10)}
+                                    >
+                                        10秒
+                                    </button>
+                                    <button
+                                        className={`preset-btn ${actionTimer === 15 ? 'active' : ''}`}
+                                        onClick={() => handleTimerChange(15)}
+                                    >
+                                        15秒
+                                    </button>
                                 </div>
                             </div>
 

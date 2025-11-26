@@ -4,6 +4,7 @@ import { useGameEngine } from '../hooks/useGameEngine';
 import CardDisplay from './CardDisplay';
 import QuestionModal from './QuestionModal';
 import AuctionInterface from './AuctionInterface';
+import OfferingModal from './OfferingModal';
 import Modal from './Modal';
 import CountdownTimer from './CountdownTimer';
 import './MainArea.css';
@@ -175,6 +176,11 @@ const MainArea = () => {
                         </div>
                     </div>
                 </Modal>
+            )}
+
+            {/* Offering Modal (Tithing) */}
+            {state.phase === 'OFFERING_EVENT' && (
+                <OfferingModal />
             )}
         </div>
     );

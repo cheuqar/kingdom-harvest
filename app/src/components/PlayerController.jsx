@@ -8,12 +8,13 @@ import { useGameEngine } from '../hooks/useGameEngine';
 const PlayerInterface = ({ teamIndex }) => {
     const { state, dispatch, network } = useGame();
     const { teams, currentTeamIndex, phase } = state;
-    const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass, handleDecision } = useGameEngine();
+    const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass, handleDecision, handleOffering } = useGameEngine();
 
     const myTeam = teams[teamIndex];
     const isMyTurn = currentTeamIndex === teamIndex;
     const isAuction = phase === 'AUCTION';
     const isDecision = phase === 'DECISION_EVENT';
+    const isOffering = phase === 'OFFERING_EVENT';
 
     if (!myTeam) return <div className="loading">Waiting for game state...</div>;
 
@@ -93,6 +94,41 @@ const PlayerInterface = ({ teamIndex }) => {
                 );
             case 'BUILD_INN':
                 return <div className="phase-msg">請在主螢幕選擇土地建造旅店</div>;
+            case 'OFFERING_EVENT':
+                const offering = state.offering;
+                if (!offering) return <div className="phase-msg">等待奉獻數據...</div>;
+                const { oneTenthAmount, seeds, doubleSeeds } = offering;
+                const doubleAmount = oneTenthAmount * 2;
+                const canAffordTithe = myTeam.cash >= oneTenthAmount;
+                const canAffordDouble = myTeam.cash >= doubleAmount;
+                return (
+                    <div className="decision-controls">
+                        <div className="offering-preview">
+                            <h3>十分之一奉獻</h3>
+                            <p>十分之一: ${oneTenthAmount}</p>
+                            <p className="offering-hint">每 $100 = 1 種子</p>
+                        </div>
+                        <div className="btn-group-vertical">
+                            <button className="btn-action btn-secondary" onClick={() => handleOffering('none')}>
+                                不奉獻
+                            </button>
+                            <button
+                                className="btn-action btn-success"
+                                onClick={() => handleOffering('tithe')}
+                                disabled={!canAffordTithe}
+                            >
+                                十分之一 (-${oneTenthAmount} → +{seeds} 種子)
+                            </button>
+                            <button
+                                className="btn-action btn-gold"
+                                onClick={() => handleOffering('double')}
+                                disabled={!canAffordDouble}
+                            >
+                                雙倍奉獻 (-${doubleAmount} → +{doubleSeeds} 種子)
+                            </button>
+                        </div>
+                    </div>
+                );
             case 'AUCTION':
                 if (!state.auction) return <div className="phase-msg">等待拍賣數據...</div>;
 
@@ -157,9 +193,9 @@ const PlayerInterface = ({ teamIndex }) => {
             </div>
 
             <div className="action-area">
-                {isMyTurn || isAuction ? (
+                {isMyTurn || isAuction || isOffering ? (
                     <div className="active-turn-controls">
-                        {isAuction ? <h2>土地拍賣</h2> : (phase === 'DECISION_EVENT' ? <h2>事件選擇</h2> : <h2>輪到你了！</h2>)}
+                        {isAuction ? <h2>土地拍賣</h2> : (isOffering ? <h2>十分之一奉獻</h2> : (phase === 'DECISION_EVENT' ? <h2>事件選擇</h2> : <h2>輪到你了！</h2>))}
                         {renderPhaseControls()}
                     </div>
                 ) : (

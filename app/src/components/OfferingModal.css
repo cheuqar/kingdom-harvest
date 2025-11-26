@@ -1,0 +1,153 @@
+.offering-content {
+    width: 100%;
+    max-width: 500px;
+    padding: 10px;
+}
+
+.offering-info {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.income-display,
+.tithe-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.income-display .label,
+.tithe-display .label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.income-display .value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.tithe-display .value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.offering-description {
+    text-align: center;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.offering-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.offering-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.offering-btn:hover:not(.disabled) {
+    transform: translateX(5px);
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.offering-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-icon {
+    font-size: 2rem;
+    min-width: 40px;
+    text-align: center;
+}
+
+.btn-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    flex: 1;
+}
+
+.btn-detail {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: right;
+}
+
+/* Button type-specific styles */
+.btn-skip {
+    border-color: rgba(158, 158, 158, 0.5);
+}
+
+.btn-skip:hover:not(.disabled) {
+    border-color: #9e9e9e;
+    background: rgba(158, 158, 158, 0.2);
+}
+
+.btn-tithe {
+    border-color: rgba(76, 175, 80, 0.5);
+}
+
+.btn-tithe:hover:not(.disabled) {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.2);
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+}
+
+.btn-double {
+    border-color: rgba(255, 215, 0, 0.5);
+}
+
+.btn-double:hover:not(.disabled) {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.offering-hint {
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+}
+
+/* Animation for modal entrance */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.offering-content {
+    animation: slideUp 0.4s ease-out;
+}

@@ -25,43 +25,67 @@ export const useGameEngine = () => {
         // Check for 7-roll bonus (per player)
         // currentTeam.rollCount is from BEFORE the roll, so add 1
         const currentRollCount = (currentTeam.rollCount || 0) + 1;
-        if (currentRollCount % 7 === 0) {
+        const is7thToss = currentRollCount % 7 === 0;
+
+        if (is7thToss) {
+            // Add replenishment bonus (track as income for tithing)
+            const replenishAnimationDuration = 1500; // 1.5 seconds
             dispatch({
                 type: 'ADD_CASH',
                 payload: { teamId: currentTeam.id, amount: 1000 }
             });
             dispatch({
                 type: 'SET_ANIMATION',
-                payload: { type: 'BONUS_CASH', data: { amount: 1000 }, duration: 3000 }
+                payload: { type: 'BONUS_CASH', data: { amount: 1000 }, duration: replenishAnimationDuration }
             });
             dispatch({ type: 'ADD_LOG', payload: '每7次擲骰獎勵：銀行發放 $1000！' });
+
+            // Calculate offering amounts (income includes the $1000 just received)
+            // Note: incomeSinceLastReplenish is updated by ADD_CASH, so we need to add the new amount
+            const totalIncome = (currentTeam.incomeSinceLastReplenish || 0) + 1000;
+            const oneTenthAmount = Math.floor(totalIncome / 10);
+            const seeds = Math.floor(oneTenthAmount / 100); // 1 seed per $100
+            const doubleSeeds = seeds * 2;
+
+            // Trigger offering event AFTER the replenishment animation ends
+            // so the countdown timer starts after the animation
+            setTimeout(() => {
+                dispatch({
+                    type: 'START_OFFERING',
+                    payload: { totalIncome, oneTenthAmount, seeds, doubleSeeds }
+                });
+            }, replenishAnimationDuration);
         }
 
-        setTimeout(() => {
-            if (val <= 3) {
-                // If deck is empty OR roll is 3, trigger Random Land logic
-                if (state.deck.lands.length === 0 || val === 3) {
-                    handleRandomLandPhase();
-                } else {
-                    handleLandPhase();
-                }
-            } else if (val === 4) {
-                // If team has no lands, treat as Land Phase (or Random Land if empty)
-                const ownedLands = landsData.filter(l => state.lands[l.id].ownerId === currentTeam.id);
-                if (ownedLands.length === 0) {
-                    dispatch({ type: 'ADD_LOG', payload: '無土地可建旅店，改為抽土地卡！' });
-                    if (state.deck.lands.length === 0) {
+        // If it's the 7th toss, don't proceed to dice phases yet - wait for offering to complete
+        if (!is7thToss) {
+            setTimeout(() => {
+                if (val <= 3) {
+                    // If deck is empty OR roll is 3, trigger Random Land logic
+                    if (state.deck.lands.length === 0 || val === 3) {
                         handleRandomLandPhase();
                     } else {
                         handleLandPhase();
                     }
+                } else if (val === 4) {
+                    // If team has no lands, treat as Land Phase (or Random Land if empty)
+                    const ownedLands = landsData.filter(l => state.lands[l.id].ownerId === currentTeam.id);
+                    if (ownedLands.length === 0) {
+                        dispatch({ type: 'ADD_LOG', payload: '無土地可建旅店，改為抽土地卡！' });
+                        if (state.deck.lands.length === 0) {
+                            handleRandomLandPhase();
+                        } else {
+                            handleLandPhase();
+                        }
+                    } else {
+                        handleInnPhase();
+                    }
                 } else {
-                    handleInnPhase();
+                    handleEventPhase();
                 }
-            } else {
-                handleEventPhase();
-            }
-        }, 1000);
+            }, 1000);
+        }
+        // For 7th toss, the dice phase will be triggered after offering is completed
     };
 
     const handleLandPhase = () => {
@@ -379,6 +403,76 @@ export const useGameEngine = () => {
         dispatch({ type: 'NEXT_TURN' });
     };
 
+    const handleOffering = (choice) => {
+        // choice: 'none', 'tithe', 'double'
+        const { oneTenthAmount, seeds, doubleSeeds } = state.offering || {};
+
+        if (choice === 'tithe' && oneTenthAmount > 0) {
+            // Deduct one-tenth and give seeds
+            dispatch({
+                type: 'ADD_CASH',
+                payload: { teamId: currentTeam.id, amount: -oneTenthAmount, skipIncomeTracking: true }
+            });
+            dispatch({
+                type: 'ADD_SEEDS',
+                payload: { teamId: currentTeam.id, amount: seeds }
+            });
+            dispatch({
+                type: 'SET_ANIMATION',
+                payload: { type: 'OFFERING', data: { amount: oneTenthAmount, seeds }, duration: 2500 }
+            });
+            dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 奉獻十分之一 $${oneTenthAmount}，獲得 ${seeds} 顆種子！` });
+        } else if (choice === 'double' && oneTenthAmount > 0) {
+            // Deduct double and give double seeds
+            const doubleAmount = oneTenthAmount * 2;
+            dispatch({
+                type: 'ADD_CASH',
+                payload: { teamId: currentTeam.id, amount: -doubleAmount, skipIncomeTracking: true }
+            });
+            dispatch({
+                type: 'ADD_SEEDS',
+                payload: { teamId: currentTeam.id, amount: doubleSeeds }
+            });
+            dispatch({
+                type: 'SET_ANIMATION',
+                payload: { type: 'OFFERING', data: { amount: doubleAmount, seeds: doubleSeeds }, duration: 2500 }
+            });
+            dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 雙倍奉獻 $${doubleAmount}，獲得 ${doubleSeeds} 顆種子！` });
+        } else {
+            dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 選擇不奉獻。` });
+        }
+
+        // Complete offering and reset income tracker
+        dispatch({ type: 'COMPLETE_OFFERING', payload: { teamId: currentTeam.id } });
+
+        // Now continue to the dice phase based on the roll value
+        // We need to get the dice value from state
+        const val = state.dice;
+        setTimeout(() => {
+            if (val <= 3) {
+                if (state.deck.lands.length === 0 || val === 3) {
+                    handleRandomLandPhase();
+                } else {
+                    handleLandPhase();
+                }
+            } else if (val === 4) {
+                const ownedLands = landsData.filter(l => state.lands[l.id].ownerId === currentTeam.id);
+                if (ownedLands.length === 0) {
+                    dispatch({ type: 'ADD_LOG', payload: '無土地可建旅店，改為抽土地卡！' });
+                    if (state.deck.lands.length === 0) {
+                        handleRandomLandPhase();
+                    } else {
+                        handleLandPhase();
+                    }
+                } else {
+                    handleInnPhase();
+                }
+            } else {
+                handleEventPhase();
+            }
+        }, 500);
+    };
+
     const payRent = () => {
         const { rent, owner } = state.rentInfo;
 
@@ -433,6 +527,7 @@ export const useGameEngine = () => {
         handleBid,
         handlePass,
         handleDecision,
+        handleOffering,
         resolveAuction,
         currentTeam
     };
