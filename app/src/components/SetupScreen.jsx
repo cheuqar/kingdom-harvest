@@ -11,8 +11,8 @@ const SetupScreen = () => {
     const [saveTimestamp, setSaveTimestamp] = useState(null);
     const [showResumeModal, setShowResumeModal] = useState(false);
 
-    const [selectedDecks, setSelectedDecks] = useState(['default']);
-    const [actionTimer, setActionTimer] = useState(5);
+    const [selectedDecks, setSelectedDecks] = useState(['default', 'money']);
+    const [actionTimer, setActionTimer] = useState(10);
 
     // Helper function to format time ago
     const getTimeAgo = (timestamp) => {
