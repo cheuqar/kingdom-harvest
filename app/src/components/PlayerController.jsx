@@ -11,12 +11,28 @@ const PlayerInterface = ({ teamIndex }) => {
     const { teams, currentTeamIndex, phase } = state;
     const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass, handleDecision, handleOffering, buildInn, answerQuestion } = useGameEngine();
     const [timeLeft, setTimeLeft] = React.useState(null);
+    const [showProperties, setShowProperties] = React.useState(false);
 
     const myTeam = teams[teamIndex];
     const isMyTurn = currentTeamIndex === teamIndex;
     const isAuction = phase === 'AUCTION';
     const isDecision = phase === 'DECISION_EVENT';
     const isOffering = phase === 'OFFERING_EVENT';
+
+    // Calculate owned properties
+    const ownedProperties = React.useMemo(() => {
+        return landsData.filter(land => state.lands[land.id]?.ownerId === myTeam.id).map(land => ({
+            ...land,
+            innCount: state.lands[land.id].innCount,
+            currentRent: land.rent + (state.lands[land.id].innCount * land.innRent)
+        }));
+    }, [landsData, state.lands, myTeam.id]);
+
+    const totalPropertyValue = React.useMemo(() => {
+        return ownedProperties.reduce((sum, prop) => {
+            return sum + prop.price + (prop.innCount * prop.innCost);
+        }, 0);
+    }, [ownedProperties]);
 
     // Timer Logic
     React.useEffect(() => {
@@ -322,6 +338,57 @@ const PlayerInterface = ({ teamIndex }) => {
                     <span className="label">🎲</span>
                     <span className="value">{myTeam.rollCount || 0}</span>
                 </div>
+            </div>
+
+            {/* Properties Section */}
+            <div className="properties-section">
+                <button
+                    className="properties-toggle"
+                    onClick={() => setShowProperties(!showProperties)}
+                >
+                    <span className="toggle-text">
+                        🏠 我的土地 ({ownedProperties.length})
+                    </span>
+                    <span className="toggle-icon">{showProperties ? '▼' : '▶'}</span>
+                </button>
+
+                {showProperties && (
+                    <div className="properties-list">
+                        {ownedProperties.length === 0 ? (
+                            <p className="empty-text">尚未擁有土地</p>
+                        ) : (
+                            <>
+                                <div className="properties-summary">
+                                    <span>總價值: ${totalPropertyValue}</span>
+                                </div>
+                                {ownedProperties.map((property) => (
+                                    <div key={property.id} className="property-item">
+                                        <div className="property-header">
+                                            <span className="property-name">{property.name}</span>
+                                            <span className="property-series">{property.series}</span>
+                                        </div>
+                                        <div className="property-details">
+                                            <div className="detail-row">
+                                                <span className="detail-label">價格:</span>
+                                                <span className="detail-value">${property.price}</span>
+                                            </div>
+                                            <div className="detail-row">
+                                                <span className="detail-label">租金:</span>
+                                                <span className="detail-value">${property.currentRent}</span>
+                                            </div>
+                                            <div className="detail-row">
+                                                <span className="detail-label">旅店:</span>
+                                                <span className="detail-value">
+                                                    {property.innCount} / {property.maxInns}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className="action-area">

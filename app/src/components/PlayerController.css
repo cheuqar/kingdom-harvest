@@ -483,3 +483,128 @@
 .mt-2 {
     margin-top: 1rem;
 }
+
+/* Properties Section */
+.properties-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.properties-toggle {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 0.8rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.properties-toggle:active {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.toggle-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toggle-icon {
+    font-size: 0.8rem;
+    color: #4ecca3;
+}
+
+.properties-list {
+    padding: 0 1rem 1rem 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        max-height: 300px;
+    }
+}
+
+.properties-summary {
+    background: rgba(78, 204, 163, 0.15);
+    padding: 0.6rem;
+    border-radius: 8px;
+    margin-bottom: 0.8rem;
+    text-align: center;
+    font-weight: bold;
+    color: #4ecca3;
+    border: 1px solid rgba(78, 204, 163, 0.3);
+}
+
+.property-item {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 0.8rem;
+    margin-bottom: 0.6rem;
+    border-left: 3px solid var(--team-color, #4ecca3);
+}
+
+.property-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.property-name {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.property-series {
+    font-size: 0.75rem;
+    color: #aab7b8;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.property-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.detail-label {
+    color: #aab7b8;
+}
+
+.detail-value {
+    color: #fff;
+    font-weight: 500;
+}
+
+.properties-list .empty-text {
+    padding: 1rem;
+    text-align: center;
+}
