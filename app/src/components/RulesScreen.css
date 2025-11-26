@@ -12,8 +12,8 @@
     background: rgba(0, 0, 0, 0.8);
     padding: 40px;
     border-radius: 20px;
-    max-width: 800px;
-    width: 90%;
+    max-width: 1000px;
+    width: 95%;
     max-height: 90vh;
     overflow-y: auto;
     text-align: center;
@@ -29,10 +29,13 @@
 .rules-list {
     text-align: left;
     margin: 30px 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
 }
 
 .rules-list section {
-    margin-bottom: 25px;
+    margin-bottom: 0;
     padding: 20px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
@@ -48,11 +51,114 @@
 .rules-list p {
     margin: 10px 0;
     line-height: 1.6;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
-.rules-content button {
+.start-btn {
     margin-top: 20px;
-    padding: 15px 40px;
-    font-size: 1.2rem;
+    padding: 15px 60px;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #4ecca3, #45b393);
+    border: none;
+    border-radius: 50px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(78, 204, 163, 0.4);
+    transition: transform 0.2s;
+}
+
+.start-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Connection Section Styles */
+.connection-section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.connection-section h2 {
+    color: #4ecca3;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.qr-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.qr-card {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 10px;
+    width: 180px;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.qr-card.connected {
+    border-color: #4ecca3;
+    background: rgba(78, 204, 163, 0.1);
+}
+
+.team-header {
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.qr-wrapper {
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 10px;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.connected-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #4ecca3;
+    font-weight: bold;
+}
+
+.connected-status .icon {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.btn-disconnect-mini {
+    background: rgba(255, 82, 82, 0.2);
+    border: 1px solid #ff5252;
+    color: #ff5252;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.btn-disconnect-mini:hover {
+    background: #ff5252;
+    color: white;
+}
+
+.loading-text {
+    color: #aab7b8;
+    font-style: italic;
+    padding: 20px;
 }
