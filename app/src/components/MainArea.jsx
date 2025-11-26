@@ -72,7 +72,7 @@ const MainArea = () => {
                                 放棄
                             </button>
                         </div>
-                        {Number(currentTeam.cash) < Number(state.currentCard.price) && (
+                        {state.currentCard && Number(currentTeam.cash) < Number(state.currentCard.price) && (
                             <div className="error-message">現金不足 (缺 ${Number(state.currentCard.price) - Number(currentTeam.cash)})</div>
                         )}
                     </Modal>
