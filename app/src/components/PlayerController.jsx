@@ -6,15 +6,35 @@ import './PlayerController.css';
 import { useGameEngine } from '../hooks/useGameEngine';
 
 const PlayerInterface = ({ teamIndex }) => {
-    const { state, dispatch, network } = useGame();
+    const { state, dispatch, network, landsData } = useGame();
     const { teams, currentTeamIndex, phase } = state;
-    const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass, handleDecision, handleOffering } = useGameEngine();
+    const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass, handleDecision, handleOffering, buildInn } = useGameEngine();
+    const [timeLeft, setTimeLeft] = React.useState(null);
 
     const myTeam = teams[teamIndex];
     const isMyTurn = currentTeamIndex === teamIndex;
     const isAuction = phase === 'AUCTION';
     const isDecision = phase === 'DECISION_EVENT';
     const isOffering = phase === 'OFFERING_EVENT';
+
+    // Timer Logic
+    React.useEffect(() => {
+        if (state.actionTimer > 0 && ['DRAW_LAND', 'DRAW_EVENT', 'DECISION_EVENT', 'OFFERING_EVENT'].includes(phase)) {
+            setTimeLeft(state.actionTimer);
+            const timer = setInterval(() => {
+                setTimeLeft(prev => {
+                    if (prev <= 1) {
+                        clearInterval(timer);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+            return () => clearInterval(timer);
+        } else {
+            setTimeLeft(null);
+        }
+    }, [phase, state.actionTimer]);
 
     if (!myTeam) return <div className="loading">Waiting for game state...</div>;
 
@@ -24,11 +44,16 @@ const PlayerInterface = ({ teamIndex }) => {
         }
     };
 
+    const handleRollDice = () => {
+        if (navigator.vibrate) navigator.vibrate(200);
+        rollDice();
+    };
+
     const renderPhaseControls = () => {
         switch (phase) {
             case 'ROLL':
                 return (
-                    <button className="btn-action btn-roll" onClick={rollDice}>
+                    <button className="btn-action btn-roll" onClick={handleRollDice}>
                         🎲 擲骰子
                     </button>
                 );
@@ -82,6 +107,23 @@ const PlayerInterface = ({ teamIndex }) => {
                             <h3>{card.name}</h3>
                             <p>{card.description}</p>
                         </div>
+                        <div className="decision-effects-preview">
+                            <div className="effect-row">
+                                <strong>Y:</strong>
+                                <span>
+                                    {card.yEffect.cash !== 0 && ` $${card.yEffect.cash}`}
+                                    {card.yEffect.seeds !== 0 && ` 🌰${card.yEffect.seeds}`}
+                                </span>
+                            </div>
+                            <div className="effect-row">
+                                <strong>N:</strong>
+                                <span>
+                                    {card.nEffect.cash !== 0 && ` $${card.nEffect.cash}`}
+                                    {card.nEffect.seeds !== 0 && ` 🌰${card.nEffect.seeds}`}
+                                    {card.nEffect.cash === 0 && card.nEffect.seeds === 0 && ' 無效果'}
+                                </span>
+                            </div>
+                        </div>
                         <div className="btn-group">
                             <button className="btn-action btn-success" onClick={() => handleDecision('Y')}>
                                 是 (Y)
@@ -93,7 +135,39 @@ const PlayerInterface = ({ teamIndex }) => {
                     </div>
                 );
             case 'BUILD_INN':
-                return <div className="phase-msg">請在主螢幕選擇土地建造旅店</div>;
+                const ownedLands = landsData.filter(l => state.lands[l.id].ownerId === myTeam.id);
+                if (ownedLands.length === 0) return <div className="phase-msg">沒有可建造旅店的土地</div>;
+
+                return (
+                    <div className="build-inn-list">
+                        <h3>選擇土地建造旅店</h3>
+                        <div className="lands-grid">
+                            {ownedLands.map(land => {
+                                const landState = state.lands[land.id];
+                                const canAfford = myTeam.cash >= land.innCost;
+                                return (
+                                    <div key={land.id} className="land-item">
+                                        <div className="land-info">
+                                            <span className="land-name">{land.name}</span>
+                                            <span className="inn-count">旅店: {landState.innCount}</span>
+                                            <span className="inn-cost">費用: ${land.innCost}</span>
+                                        </div>
+                                        <button
+                                            className="btn-build"
+                                            disabled={!canAfford}
+                                            onClick={() => buildInn(land.id)}
+                                        >
+                                            建造
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <button className="btn-action btn-secondary mt-2" onClick={endTurn}>
+                            結束回合
+                        </button>
+                    </div>
+                );
             case 'OFFERING_EVENT':
                 const offering = state.offering;
                 if (!offering) return <div className="phase-msg">等待奉獻數據...</div>;
@@ -196,6 +270,11 @@ const PlayerInterface = ({ teamIndex }) => {
                 {isMyTurn || isAuction || isOffering ? (
                     <div className="active-turn-controls">
                         {isAuction ? <h2>土地拍賣</h2> : (isOffering ? <h2>十分之一奉獻</h2> : (phase === 'DECISION_EVENT' ? <h2>事件選擇</h2> : <h2>輪到你了！</h2>))}
+                        {timeLeft !== null && (
+                            <div className="action-timer">
+                                ⏱️ {timeLeft}s
+                            </div>
+                        )}
                         {renderPhaseControls()}
                     </div>
                 ) : (
