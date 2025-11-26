@@ -2,58 +2,176 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
+    width: 100vw;
     background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
     color: white;
     padding: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+    /* Prevent body scroll */
 }
 
 .rules-content {
-    background: rgba(0, 0, 0, 0.8);
-    padding: 40px;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 30px;
     border-radius: 20px;
-    max-width: 1000px;
-    width: 95%;
-    max-height: 90vh;
-    overflow-y: auto;
-    text-align: center;
+    width: 100%;
+    max-width: 1400px;
+    height: 95vh;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
 }
 
 .rules-content h1 {
     color: #ffd700;
-    margin-bottom: 30px;
-    font-size: 2.5rem;
+    margin: 0 0 20px 0;
+    font-size: 2.2rem;
+    text-align: center;
+    flex-shrink: 0;
 }
 
-.rules-list {
-    text-align: left;
-    margin: 30px 0;
+/* Main Grid Layout */
+.rules-main-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: 350px 1fr;
+    /* Fixed width for connection, rest for rules */
+    gap: 30px;
+    flex: 1;
+    min-height: 0;
+    /* Important for nested scrolling if needed */
+    overflow: hidden;
+}
+
+/* Left Column: Connection */
+.connection-section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.connection-section h2 {
+    color: #4ecca3;
+    margin: 0 0 15px 0;
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+.qr-grid {
+    display: flex;
+    flex-direction: column;
+    /* Stack vertically on the side */
+    gap: 15px;
+    align-items: center;
+}
+
+.qr-card {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 280px;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.qr-card.connected {
+    border-color: #4ecca3;
+    background: rgba(78, 204, 163, 0.1);
+}
+
+.team-header {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    min-width: 80px;
+    text-align: center;
+}
+
+.qr-wrapper {
+    background: white;
+    padding: 5px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+}
+
+.connected-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #4ecca3;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.connected-status .icon {
+    font-size: 1.5rem;
+}
+
+.btn-disconnect-mini {
+    background: rgba(255, 82, 82, 0.2);
+    border: 1px solid #ff5252;
+    color: #ff5252;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.btn-disconnect-mini:hover {
+    background: #ff5252;
+    color: white;
+}
+
+/* Right Column: Rules */
+.rules-list {
+    display: grid;
+    grid-template-rows: repeat(3, 1fr);
+    /* 3 equal rows */
+    gap: 15px;
+    height: 100%;
+    margin: 0;
 }
 
 .rules-list section {
-    margin-bottom: 0;
     padding: 20px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .rules-list h3 {
     color: #ffd700;
     border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+    padding-bottom: 8px;
+    margin: 0 0 10px 0;
+    font-size: 1.4rem;
 }
 
 .rules-list p {
-    margin: 10px 0;
-    line-height: 1.6;
-    font-size: 1rem;
+    margin: 5px 0;
+    line-height: 1.5;
+    font-size: 1.1rem;
 }
 
+/* Footer Button */
 .start-btn {
     margin-top: 20px;
     padding: 15px 60px;
@@ -66,99 +184,17 @@
     cursor: pointer;
     box-shadow: 0 10px 30px rgba(78, 204, 163, 0.4);
     transition: transform 0.2s;
+    align-self: center;
+    flex-shrink: 0;
 }
 
 .start-btn:hover {
     transform: scale(1.05);
 }
 
-/* Connection Section Styles */
-.connection-section {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 30px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.connection-section h2 {
-    color: #4ecca3;
-    margin-bottom: 20px;
-    font-size: 1.5rem;
-}
-
-.qr-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-}
-
-.qr-card {
-    background: rgba(0, 0, 0, 0.3);
-    padding: 15px;
-    border-radius: 10px;
-    width: 180px;
-    border: 2px solid transparent;
-    transition: all 0.3s;
-}
-
-.qr-card.connected {
-    border-color: #4ecca3;
-    background: rgba(78, 204, 163, 0.1);
-}
-
-.team-header {
-    padding: 5px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.qr-wrapper {
-    background: white;
-    padding: 10px;
-    border-radius: 5px;
-    display: inline-block;
-    margin-bottom: 10px;
-    min-height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.connected-status {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #4ecca3;
-    font-weight: bold;
-}
-
-.connected-status .icon {
-    font-size: 2rem;
-    margin-bottom: 5px;
-}
-
-.btn-disconnect-mini {
-    background: rgba(255, 82, 82, 0.2);
-    border: 1px solid #ff5252;
-    color: #ff5252;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.2s;
-}
-
-.btn-disconnect-mini:hover {
-    background: #ff5252;
-    color: white;
-}
-
 .loading-text {
     color: #aab7b8;
     font-style: italic;
+    text-align: center;
     padding: 20px;
 }
