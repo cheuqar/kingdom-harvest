@@ -2,6 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../state/GameContext';
 import './SetupScreen.css';
 
+// Import event data
+import defaultEvents from '../config/events.json';
+import moneyEvents from '../config/events_money.json';
+
+const eventDeckInfo = {
+    default: {
+        name: '預設事件',
+        description: '基本遊戲事件，包含各種日常生活中會遇到的選擇和挑戰。',
+        events: defaultEvents
+    },
+    money: {
+        name: '天國金錢管理',
+        description: '以聖經教導為基礎的金錢管理事件，幫助玩家學習智慧理財和天國價值觀。',
+        events: moneyEvents
+    }
+};
+
 const SetupScreen = () => {
     const { dispatch, state } = useGame();
     const [teamCount, setTeamCount] = useState(2);
@@ -13,6 +30,7 @@ const SetupScreen = () => {
 
     const [selectedDecks, setSelectedDecks] = useState(['default', 'money']);
     const [actionTimer, setActionTimer] = useState(10);
+    const [previewDeck, setPreviewDeck] = useState(null);
 
     // Helper function to format time ago
     const getTimeAgo = (timestamp) => {
@@ -194,6 +212,16 @@ const SetupScreen = () => {
                                         <span className="checkbox-name">預設事件</span>
                                         <span className="checkbox-desc">基本遊戲事件</span>
                                     </span>
+                                    <button
+                                        type="button"
+                                        className="btn-preview-deck"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setPreviewDeck('default');
+                                        }}
+                                    >
+                                        ℹ️
+                                    </button>
                                 </label>
                                 <label className="checkbox-label">
                                     <input
@@ -211,6 +239,16 @@ const SetupScreen = () => {
                                         <span className="checkbox-name">天國金錢管理</span>
                                         <span className="checkbox-desc">聖經金錢教導</span>
                                     </span>
+                                    <button
+                                        type="button"
+                                        className="btn-preview-deck"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setPreviewDeck('money');
+                                        }}
+                                    >
+                                        ℹ️
+                                    </button>
                                 </label>
                             </div>
                         </div>
@@ -270,6 +308,60 @@ const SetupScreen = () => {
                             <button className="btn-secondary" onClick={() => setShowResumeModal(false)}>
                                 取消
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Event Deck Preview Modal */}
+            {previewDeck && eventDeckInfo[previewDeck] && (
+                <div className="modal-overlay" onClick={() => setPreviewDeck(null)}>
+                    <div className="deck-preview-modal" onClick={(e) => e.stopPropagation()}>
+                        <button className="btn-close-modal" onClick={() => setPreviewDeck(null)}>✕</button>
+
+                        <h2 className="preview-title">
+                            <span className="preview-icon">🎴</span>
+                            {eventDeckInfo[previewDeck].name}
+                        </h2>
+
+                        <p className="preview-description">
+                            {eventDeckInfo[previewDeck].description}
+                        </p>
+
+                        <div className="preview-events-section">
+                            <h3>事件列表 ({eventDeckInfo[previewDeck].events.length} 張)</h3>
+                            <div className="preview-events-list">
+                                {eventDeckInfo[previewDeck].events.map((event, index) => (
+                                    <div key={index} className="preview-event-card">
+                                        <div className="preview-event-header">
+                                            <span className="preview-event-name">{event.name}</span>
+                                            <span className={`preview-event-type ${event.type}`}>
+                                                {event.type === 'decision' ? '🤔 選擇' : '💰 金錢'}
+                                            </span>
+                                        </div>
+                                        <p className="preview-event-desc">{event.description}</p>
+                                        {event.type === 'decision' && event.yEffect && (
+                                            <div className="preview-effects">
+                                                <div className="preview-effect">
+                                                    <span className="effect-label">✅ 是:</span>
+                                                    <span className="effect-value">
+                                                        {event.yEffect.cash !== 0 && ` $${event.yEffect.cash > 0 ? '+' + event.yEffect.cash : event.yEffect.cash}`}
+                                                        {event.yEffect.seeds !== 0 && ` 🌰${event.yEffect.seeds > 0 ? '+' + event.yEffect.seeds : event.yEffect.seeds}`}
+                                                    </span>
+                                                </div>
+                                                <div className="preview-effect">
+                                                    <span className="effect-label">❌ 否:</span>
+                                                    <span className="effect-value">
+                                                        {event.nEffect?.cash !== 0 && ` $${event.nEffect.cash > 0 ? '+' + event.nEffect.cash : event.nEffect.cash}`}
+                                                        {event.nEffect?.seeds !== 0 && ` 🌰${event.nEffect.seeds > 0 ? '+' + event.nEffect.seeds : event.nEffect.seeds}`}
+                                                        {event.nEffect?.cash === 0 && event.nEffect?.seeds === 0 && ' 無效果'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
