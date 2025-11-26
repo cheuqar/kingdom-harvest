@@ -144,19 +144,19 @@ const gameReducer = (state, action) => {
       return { ...state, currentCard: action.payload };
 
     case 'SET_QUESTION':
-      return { ...state, currentQuestion: action.payload };
+      return { ...state, currentQuestion: action.payload === undefined ? null : action.payload };
 
     case 'SET_RENT_INFO':
-      return { ...state, rentInfo: action.payload };
+      return { ...state, rentInfo: action.payload === undefined ? null : action.payload };
 
     case 'SET_ANIMATION':
-      return { ...state, animation: action.payload };
+      return { ...state, animation: action.payload === undefined ? null : action.payload };
 
     case 'CLEAR_ANIMATION':
       return { ...state, animation: null };
 
     case 'SET_HIGHLIGHTED_SERIES':
-      return { ...state, highlightedSeries: action.payload };
+      return { ...state, highlightedSeries: action.payload === undefined ? null : action.payload };
 
     case 'CLEAR_HIGHLIGHTED_SERIES':
       return { ...state, highlightedSeries: null };
@@ -289,6 +289,7 @@ const gameReducer = (state, action) => {
 
     case 'ADD_TO_AUCTION': {
       const card = action.payload;
+      if (!card) return state;
       return {
         ...state,
         auctionPool: [...state.auctionPool, card]
