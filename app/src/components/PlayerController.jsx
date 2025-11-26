@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { GameProvider, useGame } from '../state/GameContext';
+import AnimationOverlay from './AnimationOverlay';
 import './PlayerController.css';
 
 import { useGameEngine } from '../hooks/useGameEngine';
@@ -364,6 +365,7 @@ const PlayerInterface = ({ teamIndex }) => {
                     ))}
                 </div>
             </div>
+            <AnimationOverlay />
         </div>
     );
 };

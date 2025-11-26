@@ -81,6 +81,30 @@ const AnimationOverlay = () => {
                     </div>
                 </div>
             )}
+
+            {animation.type === 'CORRECT_ANSWER' && (
+                <div className="answer-feedback-effect correct">
+                    <div className="answer-icon">✓</div>
+                    <div className="answer-text">答對了！</div>
+                    <div className="answer-sparkles">
+                        {[...Array(12)].map((_, i) => (
+                            <span key={i} className="sparkle" style={{
+                                left: `${50 + Math.cos(i * 30 * Math.PI / 180) * 40}%`,
+                                top: `${50 + Math.sin(i * 30 * Math.PI / 180) * 40}%`,
+                                animationDelay: `${i * 0.05}s`
+                            }}>✨</span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {animation.type === 'WRONG_ANSWER' && (
+                <div className="answer-feedback-effect wrong">
+                    <div className="answer-icon">✗</div>
+                    <div className="answer-text">答錯了</div>
+                    <div className="shake-effect"></div>
+                </div>
+            )}
         </div>
     );
 };

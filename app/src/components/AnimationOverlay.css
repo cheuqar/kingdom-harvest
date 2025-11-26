@@ -368,3 +368,144 @@
         transform: translateY(-10px);
     }
 }
+
+/* Answer Feedback Animations */
+.answer-feedback-effect {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    animation: fadeInScale 0.3s ease-out;
+}
+
+.answer-feedback-effect.correct {
+    background: radial-gradient(circle, rgba(78, 204, 163, 0.3) 0%, transparent 70%);
+}
+
+.answer-feedback-effect.wrong {
+    background: radial-gradient(circle, rgba(255, 82, 82, 0.3) 0%, transparent 70%);
+}
+
+.answer-icon {
+    font-size: 8rem;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 20px;
+    animation: iconPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.correct .answer-icon {
+    color: #4ecca3;
+    text-shadow: 0 0 30px rgba(78, 204, 163, 0.8);
+}
+
+.wrong .answer-icon {
+    color: #ff5252;
+    text-shadow: 0 0 30px rgba(255, 82, 82, 0.8);
+    animation: iconPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), shake 0.5s ease-in-out 0.3s;
+}
+
+.answer-text {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    animation: textSlideUp 0.5s ease-out 0.2s both;
+}
+
+.answer-sparkles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.sparkle {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0;
+    animation: sparkleFloat 1s ease-out forwards;
+}
+
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes iconPop {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes textSlideUp {
+    0% {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0) scale(1);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-10px) scale(1.05);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(10px) scale(1.05);
+    }
+}
+
+@keyframes sparkleFloat {
+    0% {
+        transform: translateY(0) scale(0);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-80px) scale(1.5);
+        opacity: 0;
+    }
+}

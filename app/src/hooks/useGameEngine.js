@@ -515,15 +515,28 @@ export const useGameEngine = () => {
     };
 
     const answerQuestion = (isCorrect) => {
-        if (isCorrect) {
-            dispatch({ type: 'SET_QUESTION', payload: null });
-        } else {
-            const card = state.currentCard;
-            dispatch({ type: 'ADD_TO_AUCTION', payload: card });
-            dispatch({ type: 'SET_QUESTION', payload: null });
-            dispatch({ type: 'ADD_LOG', payload: '回答錯誤，無法購買土地，土地進入拍賣池。' });
-            endTurn();
-        }
+        // Show animation first
+        dispatch({
+            type: 'SET_ANIMATION',
+            payload: {
+                type: isCorrect ? 'CORRECT_ANSWER' : 'WRONG_ANSWER',
+                duration: 1500
+            }
+        });
+
+        // Process answer after animation
+        setTimeout(() => {
+            if (isCorrect) {
+                dispatch({ type: 'SET_QUESTION', payload: null });
+                // Player can now proceed to buy the land
+            } else {
+                const card = state.currentCard;
+                dispatch({ type: 'ADD_TO_AUCTION', payload: card });
+                dispatch({ type: 'SET_QUESTION', payload: null });
+                dispatch({ type: 'ADD_LOG', payload: '回答錯誤，無法購買土地，土地進入拍賣池。' });
+                endTurn();
+            }
+        }, 1500);
     };
 
     return {
