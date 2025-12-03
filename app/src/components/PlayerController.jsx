@@ -514,25 +514,71 @@ const PlayerInterface = ({ teamIndex }) => {
     );
 };
 
+const CLIENT_CONNECTION_KEY = 'monopoly-client-connection';
+
 const PlayerController = () => {
     const [searchParams] = useSearchParams();
-    const hostId = searchParams.get('host');
-    const teamIndex = parseInt(searchParams.get('team'), 10);
+    const urlHostId = searchParams.get('host');
+    const urlTeamIndex = parseInt(searchParams.get('team'), 10);
 
-    const networkParams = useMemo(() => ({ hostId, teamIndex }), [hostId, teamIndex]);
+    // Try to get saved connection params for reconnection
+    const [connectionParams, setConnectionParams] = React.useState(null);
+    const [isReconnecting, setIsReconnecting] = React.useState(false);
 
-    if (!hostId || isNaN(teamIndex)) {
+    React.useEffect(() => {
+        // If URL params are valid, use them and save for future reconnection
+        if (urlHostId && !isNaN(urlTeamIndex)) {
+            const params = { hostId: urlHostId, teamIndex: urlTeamIndex };
+            setConnectionParams(params);
+            // Save to localStorage for future reconnection
+            localStorage.setItem(CLIENT_CONNECTION_KEY, JSON.stringify(params));
+            return;
+        }
+
+        // Otherwise, try to load saved connection params
+        try {
+            const saved = localStorage.getItem(CLIENT_CONNECTION_KEY);
+            if (saved) {
+                const savedParams = JSON.parse(saved);
+                if (savedParams.hostId && !isNaN(savedParams.teamIndex)) {
+                    setConnectionParams(savedParams);
+                    setIsReconnecting(true);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load saved connection:', error);
+        }
+    }, [urlHostId, urlTeamIndex]);
+
+    const networkParams = useMemo(() => connectionParams, [connectionParams]);
+
+    // Show loading while checking for connection params
+    if (!connectionParams) {
+        // No URL params and no saved connection
+        if (!urlHostId || isNaN(urlTeamIndex)) {
+            return (
+                <div className="error-screen">
+                    <h1>無效的連接連結</h1>
+                    <p>請重新掃描 QR Code</p>
+                </div>
+            );
+        }
         return (
-            <div className="error-screen">
-                <h1>無效的連接連結</h1>
-                <p>請重新掃描 QR Code</p>
+            <div className="connecting-screen">
+                <div className="loading-spinner"></div>
+                <h2>正在連接...</h2>
             </div>
         );
     }
 
     return (
         <GameProvider isClientMode={true} networkParams={networkParams}>
-            <PlayerInterface teamIndex={teamIndex} />
+            {isReconnecting && (
+                <div className="reconnecting-banner">
+                    正在重新連接到遊戲...
+                </div>
+            )}
+            <PlayerInterface teamIndex={connectionParams.teamIndex} />
         </GameProvider>
     );
 };

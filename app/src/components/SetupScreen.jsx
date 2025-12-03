@@ -20,13 +20,15 @@ const eventDeckInfo = {
 };
 
 const SetupScreen = () => {
-    const { dispatch, state } = useGame();
+    const { dispatch, state, network } = useGame();
     const [teamCount, setTeamCount] = useState(2);
     const [names, setNames] = useState(['隊伍 A', '隊伍 B', '隊伍 C', '隊伍 D']);
     const [gameDuration, setGameDuration] = useState(0); // 0 means no limit
     const [savedGame, setSavedGame] = useState(null);
+    const [savedPeerId, setSavedPeerId] = useState(null);
     const [saveTimestamp, setSaveTimestamp] = useState(null);
     const [showResumeModal, setShowResumeModal] = useState(false);
+    const [isRestoring, setIsRestoring] = useState(false);
 
     const [selectedDecks, setSelectedDecks] = useState(['default', 'money']);
     const [actionTimer, setActionTimer] = useState(10);
@@ -55,9 +57,11 @@ const SetupScreen = () => {
                 if (saveData.gameState) {
                     setSavedGame(saveData.gameState);
                     setSaveTimestamp(saveData.timestamp);
+                    setSavedPeerId(saveData.peerId || null);
                 } else {
                     setSavedGame(saveData);
                     setSaveTimestamp(null);
+                    setSavedPeerId(null);
                 }
             }
         } catch (error) {
@@ -82,15 +86,35 @@ const SetupScreen = () => {
         setShowResumeModal(true);
     };
 
-    const handleConfirmResume = () => {
+    const handleConfirmResume = async () => {
         if (savedGame) {
+            setIsRestoring(true);
+
+            // If we have a saved peerId, try to restore the network connection
+            if (savedPeerId) {
+                console.log('[SetupScreen] Restoring with peerId:', savedPeerId);
+                const result = await network.restoreHost(savedPeerId);
+                console.log('[SetupScreen] Restore result:', result);
+            } else {
+                // No saved peerId, initialize a new network connection
+                console.log('[SetupScreen] No saved peerId, initializing new connection');
+                network.initializePeer();
+            }
+
+            // Load the game state
             dispatch({ type: 'LOAD_GAME', payload: savedGame });
+
+            // After loading, the game will transition to CONNECT phase if needed
+            // to allow players to reconnect
+            setIsRestoring(false);
         }
     };
 
     const handleDeleteSave = () => {
         localStorage.removeItem('monopoly-game-save');
+        network.clearSavedRoom();
         setSavedGame(null);
+        setSavedPeerId(null);
         setSaveTimestamp(null);
         setShowResumeModal(false);
     };
@@ -277,38 +301,59 @@ const SetupScreen = () => {
 
             {/* Resume Confirmation Modal */}
             {showResumeModal && savedGame && (
-                <div className="modal-overlay" onClick={() => setShowResumeModal(false)}>
+                <div className="modal-overlay" onClick={() => !isRestoring && setShowResumeModal(false)}>
                     <div className="resume-modal" onClick={(e) => e.stopPropagation()}>
-                        <h3>繼續遊戲</h3>
-                        {saveTimestamp && (
-                            <p className="modal-save-time">最後儲存：{getTimeAgo(saveTimestamp)}</p>
+                        {isRestoring ? (
+                            <div className="restoring-state">
+                                <div className="loading-spinner"></div>
+                                <h3>正在恢復遊戲...</h3>
+                                <p>正在重新建立連線</p>
+                            </div>
+                        ) : (
+                            <>
+                                <h3>繼續遊戲</h3>
+                                {saveTimestamp && (
+                                    <p className="modal-save-time">最後儲存：{getTimeAgo(saveTimestamp)}</p>
+                                )}
+                                <div className="modal-game-summary">
+                                    <div className="modal-summary-item">
+                                        <span>隊伍數量:</span>
+                                        <strong>{savedGame.teams?.length || 0} 隊</strong>
+                                    </div>
+                                    <div className="modal-summary-item">
+                                        <span>當前玩家:</span>
+                                        <strong>{savedGame.teams?.[savedGame.currentTeamIndex]?.name || '-'}</strong>
+                                    </div>
+                                    <div className="modal-summary-item">
+                                        <span>遊戲階段:</span>
+                                        <strong>{savedGame.phase || '-'}</strong>
+                                    </div>
+                                    {savedPeerId && (
+                                        <div className="modal-summary-item">
+                                            <span>房間代碼:</span>
+                                            <strong className="room-code">{savedPeerId}</strong>
+                                        </div>
+                                    )}
+                                </div>
+                                {savedPeerId && (
+                                    <p className="modal-reconnect-info">
+                                        玩家裝置將自動重新連接
+                                    </p>
+                                )}
+                                <p className="modal-question">確定要繼續這場遊戲嗎？</p>
+                                <div className="modal-buttons">
+                                    <button className="btn-success" onClick={handleConfirmResume}>
+                                        確定繼續
+                                    </button>
+                                    <button className="btn-danger" onClick={handleDeleteSave}>
+                                        刪除存檔
+                                    </button>
+                                    <button className="btn-secondary" onClick={() => setShowResumeModal(false)}>
+                                        取消
+                                    </button>
+                                </div>
+                            </>
                         )}
-                        <div className="modal-game-summary">
-                            <div className="modal-summary-item">
-                                <span>隊伍數量:</span>
-                                <strong>{savedGame.teams?.length || 0} 隊</strong>
-                            </div>
-                            <div className="modal-summary-item">
-                                <span>當前玩家:</span>
-                                <strong>{savedGame.teams?.[savedGame.currentTeamIndex]?.name || '-'}</strong>
-                            </div>
-                            <div className="modal-summary-item">
-                                <span>遊戲階段:</span>
-                                <strong>{savedGame.phase || '-'}</strong>
-                            </div>
-                        </div>
-                        <p className="modal-question">確定要繼續這場遊戲嗎？</p>
-                        <div className="modal-buttons">
-                            <button className="btn-success" onClick={handleConfirmResume}>
-                                確定繼續
-                            </button>
-                            <button className="btn-danger" onClick={handleDeleteSave}>
-                                刪除存檔
-                            </button>
-                            <button className="btn-secondary" onClick={() => setShowResumeModal(false)}>
-                                取消
-                            </button>
-                        </div>
                     </div>
                 </div>
             )}

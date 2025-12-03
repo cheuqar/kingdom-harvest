@@ -1,14 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { db } from '../config/firebase';
-import { ref, set, onValue, push, remove, onDisconnect, serverTimestamp } from 'firebase/database';
+import { ref, set, get, onValue, push, remove, onDisconnect, serverTimestamp } from 'firebase/database';
+
+const ROOM_ID_KEY = 'monopoly-room-id';
 
 export const useNetwork = () => {
     const [peerId, setPeerId] = useState(null); // We'll use this as "Room ID"
     const [connectedTeams, setConnectedTeams] = useState({});
     const [isHost, setIsHost] = useState(false);
+    const [connectionState, setConnectionState] = useState('disconnected'); // 'disconnected' | 'connecting' | 'connected'
 
     // Callback ref
     const onDataReceivedRef = useRef(null);
+    const unsubscribeRef = useRef(null);
+
     const setOnDataReceived = (callback) => {
         onDataReceivedRef.current = callback;
     };
@@ -23,40 +28,113 @@ export const useNetwork = () => {
         return result;
     };
 
-    // Initialize Host (Create Room)
-    const initializeHost = useCallback(() => {
-        const roomId = generateRoomId();
-        setPeerId(roomId);
-        setIsHost(true);
-
-        const roomRef = ref(db, `games/${roomId}`);
+    // Setup host listeners for a given room
+    const setupHostListeners = useCallback((roomId) => {
         const actionsRef = ref(db, `games/${roomId}/actions`);
         const presenceRef = ref(db, `games/${roomId}/host`);
+        const teamsRef = ref(db, `games/${roomId}/teams`);
 
-        // Set host presence
+        // Set host presence (only update presence, don't delete room on disconnect)
         set(presenceRef, { online: true, timestamp: serverTimestamp() });
-        onDisconnect(presenceRef).remove();
-        onDisconnect(roomRef).remove(); // Optional: Delete room when host leaves? Maybe keep it for refresh.
+        onDisconnect(presenceRef).set({ online: false, lastSeen: serverTimestamp() });
 
         // Listen for actions from clients
-        const unsubscribe = onValue(actionsRef, (snapshot) => {
+        const actionsUnsubscribe = onValue(actionsRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                // Iterate over actions (since it's a list)
                 Object.entries(data).forEach(([key, actionData]) => {
                     if (onDataReceivedRef.current) {
                         onDataReceivedRef.current(actionData, actionData.sender);
                     }
-                    // Remove processed action
                     remove(ref(db, `games/${roomId}/actions/${key}`));
                 });
             }
         });
 
+        // Restore connected teams from DB
+        get(teamsRef).then((snapshot) => {
+            const teamsData = snapshot.val();
+            if (teamsData) {
+                const restoredTeams = {};
+                Object.entries(teamsData).forEach(([teamIndex, teamData]) => {
+                    if (teamData.deviceId) {
+                        restoredTeams[teamIndex] = teamData.deviceId;
+                    }
+                });
+                if (Object.keys(restoredTeams).length > 0) {
+                    setConnectedTeams(restoredTeams);
+                    console.log('[useNetwork] Restored connected teams:', restoredTeams);
+                }
+            }
+        });
+
+        setConnectionState('connected');
+
+        return actionsUnsubscribe;
+    }, []);
+
+    // Initialize Host (Create Room)
+    const initializeHost = useCallback(() => {
+        const roomId = generateRoomId();
+        setPeerId(roomId);
+        setIsHost(true);
+        setConnectionState('connecting');
+
+        // Persist room ID
+        localStorage.setItem(ROOM_ID_KEY, roomId);
+        console.log('[useNetwork] Created room:', roomId);
+
+        const unsubscribe = setupHostListeners(roomId);
+        unsubscribeRef.current = unsubscribe;
+
         return () => {
-            unsubscribe();
-            remove(roomRef);
+            if (unsubscribeRef.current) {
+                unsubscribeRef.current();
+            }
         };
+    }, [setupHostListeners]);
+
+    // Restore Host (Rejoin existing room)
+    const restoreHost = useCallback(async (savedRoomId) => {
+        console.log('[useNetwork] Attempting to restore room:', savedRoomId);
+        setConnectionState('connecting');
+
+        try {
+            // Check if room still exists in Firebase
+            const roomRef = ref(db, `games/${savedRoomId}`);
+            const snapshot = await get(roomRef);
+
+            if (snapshot.exists()) {
+                console.log('[useNetwork] Room exists, restoring...');
+                setPeerId(savedRoomId);
+                setIsHost(true);
+                localStorage.setItem(ROOM_ID_KEY, savedRoomId);
+
+                const unsubscribe = setupHostListeners(savedRoomId);
+                unsubscribeRef.current = unsubscribe;
+
+                return { success: true, roomId: savedRoomId };
+            } else {
+                console.log('[useNetwork] Room does not exist, creating new one');
+                // Room doesn't exist, create a new one
+                initializeHost();
+                return { success: false, reason: 'room_not_found' };
+            }
+        } catch (error) {
+            console.error('[useNetwork] Error restoring room:', error);
+            setConnectionState('disconnected');
+            return { success: false, reason: 'error', error };
+        }
+    }, [setupHostListeners, initializeHost]);
+
+    // Get saved room ID
+    const getSavedRoomId = useCallback(() => {
+        return localStorage.getItem(ROOM_ID_KEY);
+    }, []);
+
+    // Clear saved room ID
+    const clearSavedRoom = useCallback(() => {
+        localStorage.removeItem(ROOM_ID_KEY);
     }, []);
 
     const [clientId] = useState(() => 'client_' + Math.random().toString(36).substr(2, 9));
@@ -158,6 +236,11 @@ export const useNetwork = () => {
         connectedTeams,
         registerTeamDevice,
         disconnectTeam,
-        setIsHost
+        setIsHost,
+        // New reconnection features
+        connectionState,
+        restoreHost,
+        getSavedRoomId,
+        clearSavedRoom
     };
 };

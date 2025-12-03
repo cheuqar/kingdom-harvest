@@ -548,6 +548,7 @@ export const useGameEngine = () => {
         useMiracle,
         handleBid,
         handlePass,
+        resolveAuction,
         handleDecision,
         handleOffering,
         buildInn,

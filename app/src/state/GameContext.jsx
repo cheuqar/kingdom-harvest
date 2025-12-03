@@ -632,6 +632,7 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
       try {
         const saveData = {
           gameState: state,
+          peerId: network.peerId, // Save the room ID for reconnection
           timestamp: Date.now()
         };
         localStorage.setItem('monopoly-game-save', JSON.stringify(saveData));
@@ -640,11 +641,12 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
       }
     }
 
-    // Clear save when game ends
+    // Clear save and room when game ends
     if (state.phase === 'GAME_OVER') {
       localStorage.removeItem('monopoly-game-save');
+      network.clearSavedRoom();
     }
-  }, [state, isClientMode]);
+  }, [state, isClientMode, network.peerId]);
 
   return (
     <GameContext.Provider value={{ state, dispatch, landsData, eventsData: eventsDefault, questionsData, network, isClientMode }}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useGame } from '../state/GameContext';
 import { useGameEngine } from '../hooks/useGameEngine';
 import CardDisplay from './CardDisplay';
@@ -8,6 +8,12 @@ import './AuctionInterface.css';
 const AuctionInterface = () => {
     const { state } = useGame();
     const { handleBid, handlePass, resolveAuction } = useGameEngine();
+    const resolveAuctionRef = useRef(resolveAuction);
+
+    // Keep ref updated
+    useEffect(() => {
+        resolveAuctionRef.current = resolveAuction;
+    }, [resolveAuction]);
 
     const auction = state.auction;
 
@@ -16,12 +22,12 @@ const AuctionInterface = () => {
         if (!auction) return;
 
         if (auction.activeBidders.length === 0) {
-            resolveAuction();
+            resolveAuctionRef.current();
         } else if (auction.activeBidders.length === 1 && auction.activeBidders[0] === auction.highestBidderId) {
             // Winner determined
-            resolveAuction();
+            resolveAuctionRef.current();
         }
-    }, [auction, resolveAuction]);
+    }, [auction]);
 
     // Auto-pass all remaining bidders when timer expires
     const handleAuctionExpire = () => {
