@@ -551,7 +551,7 @@ const gameReducer = (state, action) => {
 
 export const GameProvider = ({ children, isClientMode = false, networkParams = {} }) => {
   const [state, localDispatch] = useReducer(gameReducer, initialState);
-  const network = useNetwork();
+  const network = useNetwork(networkParams.clientId);
 
   // Network Data Handler
   useEffect(() => {
@@ -563,13 +563,17 @@ export const GameProvider = ({ children, isClientMode = false, networkParams = {
         const { teamIndex } = data;
         console.log('[Host] Received JOIN_REQUEST for team', teamIndex);
         if (state.teams[teamIndex]) {
-          network.registerTeamDevice(teamIndex, senderPeerId);
-          console.log('[Host] Registered team device, broadcasting state');
+          const registered = network.registerTeamDevice(teamIndex, senderPeerId);
 
-          // Trigger a broadcast immediately
-          // We can do this by just calling broadcast directly
-          const { config, ...dynamicState } = state;
-          network.broadcast({ type: 'SYNC_STATE', state: dynamicState });
+          if (registered) {
+            console.log('[Host] Registered team device, broadcasting state');
+            // Trigger a broadcast immediately
+            // We can do this by just calling broadcast directly
+            const { config, ...dynamicState } = state;
+            network.broadcast({ type: 'SYNC_STATE', state: dynamicState });
+          } else {
+            console.log('[Host] Device takeover pending, not broadcasting state until approved');
+          }
         } else {
           console.warn('[Host] Invalid team index in JOIN_REQUEST');
         }

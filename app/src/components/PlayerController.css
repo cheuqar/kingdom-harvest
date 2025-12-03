@@ -856,3 +856,72 @@
 .error-screen p {
     color: #aab7b8;
 }
+
+.error-screen .error-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.error-screen.device-replaced .error-icon {
+    animation: shake 0.5s ease-in-out;
+}
+
+.error-screen.join-rejected .error-icon {
+    color: #ff5252;
+}
+
+.error-screen .hint {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 1rem;
+}
+
+.error-screen .reason {
+    font-size: 0.85rem;
+    color: #ffa500;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 165, 0, 0.1);
+    border-radius: 4px;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* Pending approval screen */
+.error-screen.join-pending {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.error-screen.join-pending h1 {
+    color: #ffa500;
+}
+
+.error-screen.join-pending p {
+    color: #ccc;
+    margin-bottom: 0.5rem;
+}
+
+.pending-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: pendingPulse 2s ease-in-out infinite;
+}
+
+@keyframes pendingPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.pending-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 165, 0, 0.2);
+    border-top-color: #ffa500;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-top: 1.5rem;
+}

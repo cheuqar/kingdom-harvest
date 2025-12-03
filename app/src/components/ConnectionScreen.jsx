@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useGame } from '../state/GameContext';
+import DeviceTakeoverToast from './DeviceTakeoverToast';
 import './ConnectionScreen.css';
 
 const ConnectionScreen = () => {
@@ -157,6 +158,20 @@ const ConnectionScreen = () => {
             <div className="connection-summary">
                 {Object.values(network.connectedTeams).filter(Boolean).length} / {teams.length} 裝置已連接
             </div>
+
+            {/* Device Takeover Toast */}
+            <DeviceTakeoverToast
+                pendingTakeover={network.pendingTakeover}
+                teamName={network.pendingTakeover ? teams[network.pendingTakeover.teamIndex]?.name : ''}
+                teamColor={network.pendingTakeover ? teams[network.pendingTakeover.teamIndex]?.color : '#fff'}
+                onConfirm={() => {
+                    network.confirmTakeover();
+                    // Broadcast updated state after takeover
+                    const { config, ...dynamicState } = state;
+                    network.broadcast({ type: 'SYNC_STATE', state: dynamicState });
+                }}
+                onReject={() => network.rejectTakeover()}
+            />
         </div>
     );
 };

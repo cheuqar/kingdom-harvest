@@ -351,7 +351,7 @@ const PlayerInterface = ({ teamIndex }) => {
                     </div>
                 );
             case 'AUCTION':
-                if (!state.auction) return <div className="phase-msg">等待拍賣數據...</div>;
+                if (!state.auction || !state.auction.activeBidders) return <div className="phase-msg">等待拍賣數據...</div>;
 
                 const isActiveBidder = state.auction.activeBidders.includes(myTeam.id);
                 const isHighestBidder = state.auction.highestBidderId === myTeam.id;
@@ -516,6 +516,18 @@ const PlayerInterface = ({ teamIndex }) => {
 
 const CLIENT_CONNECTION_KEY = 'monopoly-client-connection';
 
+// Generate or retrieve a stable client ID per team
+// This ensures each team connection has its own unique ID, even on the same device
+const getClientIdForTeam = (teamIndex) => {
+    const storageKey = `monopoly-client-id-team-${teamIndex}`;
+    let clientId = localStorage.getItem(storageKey);
+    if (!clientId) {
+        clientId = `client_t${teamIndex}_` + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem(storageKey, clientId);
+    }
+    return clientId;
+};
+
 const PlayerController = () => {
     const [searchParams] = useSearchParams();
     const urlHostId = searchParams.get('host');
@@ -524,14 +536,62 @@ const PlayerController = () => {
     // Try to get saved connection params for reconnection
     const [connectionParams, setConnectionParams] = React.useState(null);
     const [isReconnecting, setIsReconnecting] = React.useState(false);
+    const [connectionStatus, setConnectionStatus] = React.useState('connecting'); // 'connecting' | 'connected' | 'replaced' | 'rejected' | 'pending'
+    const [rejectionReason, setRejectionReason] = React.useState(null);
+
+    // Get stable client ID for this specific team connection
+    const [clientId, setClientId] = React.useState(null);
+
+    // Listen for device-specific messages at the top level (before GameProvider)
+    React.useEffect(() => {
+        const hostId = urlHostId || connectionParams?.hostId;
+        if (!hostId || !clientId) return;
+
+        let unsubscribe;
+        const listenForMessages = async () => {
+            const { db } = await import('../config/firebase');
+            const { ref, onValue, remove } = await import('firebase/database');
+
+            const messageRef = ref(db, `games/${hostId}/messages/${clientId}`);
+            unsubscribe = onValue(messageRef, (snapshot) => {
+                const message = snapshot.val();
+                if (message) {
+                    console.log('[PlayerController] Received message:', message.type);
+                    if (message.type === 'DEVICE_REPLACED') {
+                        setConnectionStatus('replaced');
+                        localStorage.removeItem(CLIENT_CONNECTION_KEY);
+                    } else if (message.type === 'JOIN_REJECTED') {
+                        setConnectionStatus('rejected');
+                        setRejectionReason(message.reason);
+                        localStorage.removeItem(CLIENT_CONNECTION_KEY);
+                    } else if (message.type === 'JOIN_PENDING') {
+                        setConnectionStatus('pending');
+                    } else if (message.type === 'JOIN_ACCEPTED') {
+                        setConnectionStatus('connected');
+                    }
+                    // Clear the message after reading
+                    remove(messageRef);
+                }
+            });
+        };
+
+        listenForMessages();
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
+    }, [urlHostId, connectionParams?.hostId, clientId]);
 
     React.useEffect(() => {
         // If URL params are valid, use them and save for future reconnection
         if (urlHostId && !isNaN(urlTeamIndex)) {
             const params = { hostId: urlHostId, teamIndex: urlTeamIndex };
             setConnectionParams(params);
+            // Generate clientId for this specific team
+            setClientId(getClientIdForTeam(urlTeamIndex));
             // Save to localStorage for future reconnection
             localStorage.setItem(CLIENT_CONNECTION_KEY, JSON.stringify(params));
+            setConnectionStatus('connected');
             return;
         }
 
@@ -542,7 +602,10 @@ const PlayerController = () => {
                 const savedParams = JSON.parse(saved);
                 if (savedParams.hostId && !isNaN(savedParams.teamIndex)) {
                     setConnectionParams(savedParams);
+                    // Generate clientId for this specific team
+                    setClientId(getClientIdForTeam(savedParams.teamIndex));
                     setIsReconnecting(true);
+                    setConnectionStatus('connected');
                 }
             }
         } catch (error) {
@@ -550,10 +613,52 @@ const PlayerController = () => {
         }
     }, [urlHostId, urlTeamIndex]);
 
-    const networkParams = useMemo(() => connectionParams, [connectionParams]);
 
-    // Show loading while checking for connection params
-    if (!connectionParams) {
+    const networkParams = useMemo(() => {
+        if (!connectionParams) return null;
+        return { ...connectionParams, clientId };
+    }, [connectionParams, clientId]);
+
+    // Show device replaced screen
+    if (connectionStatus === 'replaced') {
+        return (
+            <div className="error-screen device-replaced">
+                <div className="error-icon">📱❌</div>
+                <h1>連接已斷開</h1>
+                <p>另一台裝置已接管此隊伍的控制權</p>
+                <p className="hint">請聯繫主機確認</p>
+            </div>
+        );
+    }
+
+    // Show join rejected screen
+    if (connectionStatus === 'rejected') {
+        return (
+            <div className="error-screen join-rejected">
+                <div className="error-icon">🚫</div>
+                <h1>連接被拒絕</h1>
+                <p>主機拒絕了裝置接管請求</p>
+                {rejectionReason && <p className="reason">{rejectionReason}</p>}
+                <p className="hint">請聯繫主機或重新掃描 QR Code</p>
+            </div>
+        );
+    }
+
+    // Show pending approval screen
+    if (connectionStatus === 'pending') {
+        return (
+            <div className="error-screen join-pending">
+                <div className="pending-icon">⏳</div>
+                <h1>等待主機批准</h1>
+                <p>此隊伍已有其他裝置連接</p>
+                <p>請等待主機確認是否允許接管...</p>
+                <div className="pending-spinner"></div>
+            </div>
+        );
+    }
+
+    // Show loading while checking for connection params or clientId
+    if (!connectionParams || !clientId) {
         // No URL params and no saved connection
         if (!urlHostId || isNaN(urlTeamIndex)) {
             return (
@@ -578,7 +683,9 @@ const PlayerController = () => {
                     正在重新連接到遊戲...
                 </div>
             )}
-            <PlayerInterface teamIndex={connectionParams.teamIndex} />
+            <PlayerInterface
+                teamIndex={connectionParams.teamIndex}
+            />
         </GameProvider>
     );
 };

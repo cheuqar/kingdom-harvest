@@ -11,10 +11,11 @@ import LogPanel from './LogPanel';
 import VisualBoard from './VisualBoard';
 import AnimationOverlay from './AnimationOverlay';
 import SystemMenu from './SystemMenu';
+import DeviceTakeoverToast from './DeviceTakeoverToast';
 import './GameBoard.css';
 
 const GameBoard = () => {
-    const { state, dispatch, landsData } = useGame();
+    const { state, dispatch, landsData, network } = useGame();
     const [timeRemaining, setTimeRemaining] = useState(null);
     const [showMenu, setShowMenu] = useState(false);
 
@@ -56,6 +57,19 @@ const GameBoard = () => {
             </div>
 
             <AnimationOverlay />
+
+            {/* Device Takeover Toast - non-blocking notification */}
+            <DeviceTakeoverToast
+                pendingTakeover={network.pendingTakeover}
+                teamName={network.pendingTakeover ? state.teams[network.pendingTakeover.teamIndex]?.name : ''}
+                teamColor={network.pendingTakeover ? state.teams[network.pendingTakeover.teamIndex]?.color : '#fff'}
+                onConfirm={() => {
+                    network.confirmTakeover();
+                    const { config, ...dynamicState } = state;
+                    network.broadcast({ type: 'SYNC_STATE', state: dynamicState });
+                }}
+                onReject={() => network.rejectTakeover()}
+            />
         </div>
     );
 };

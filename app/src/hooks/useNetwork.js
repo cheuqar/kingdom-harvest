@@ -4,11 +4,12 @@ import { ref, set, get, onValue, push, remove, onDisconnect, serverTimestamp } f
 
 const ROOM_ID_KEY = 'monopoly-room-id';
 
-export const useNetwork = () => {
+export const useNetwork = (providedClientId = null) => {
     const [peerId, setPeerId] = useState(null); // We'll use this as "Room ID"
     const [connectedTeams, setConnectedTeams] = useState({});
     const [isHost, setIsHost] = useState(false);
     const [connectionState, setConnectionState] = useState('disconnected'); // 'disconnected' | 'connecting' | 'connected'
+    const [pendingTakeover, setPendingTakeover] = useState(null); // { teamIndex, newDeviceId, oldDeviceId }
 
     // Callback ref
     const onDataReceivedRef = useRef(null);
@@ -137,7 +138,7 @@ export const useNetwork = () => {
         localStorage.removeItem(ROOM_ID_KEY);
     }, []);
 
-    const [clientId] = useState(() => 'client_' + Math.random().toString(36).substr(2, 9));
+    const [clientId] = useState(() => providedClientId || 'client_' + Math.random().toString(36).substr(2, 9));
     const hostConnRef = useRef(null);
 
     // Connect Client (Join Room)
@@ -205,10 +206,65 @@ export const useNetwork = () => {
         // We rely on global state sync
     };
 
-    const registerTeamDevice = (teamIndex, deviceId) => {
-        setConnectedTeams(prev => ({ ...prev, [teamIndex]: deviceId }));
-        // Optionally write to DB
-        set(ref(db, `games/${peerId}/teams/${teamIndex}`), { deviceId, online: true });
+    // Register team device - returns true if registered, false if takeover pending
+    const registerTeamDevice = (teamIndex, newDeviceId) => {
+        const existingDeviceId = connectedTeams[teamIndex];
+        console.log('[useNetwork] registerTeamDevice called:', { teamIndex, newDeviceId, existingDeviceId, connectedTeams });
+
+        if (existingDeviceId && existingDeviceId !== newDeviceId) {
+            // Existing device from different ID - request takeover confirmation
+            console.log('[useNetwork] Device takeover requested for team', teamIndex);
+            setPendingTakeover({ teamIndex, newDeviceId, oldDeviceId: existingDeviceId });
+
+            // Notify new device that it's pending approval
+            const messageRef = ref(db, `games/${peerId}/messages/${newDeviceId}`);
+            set(messageRef, { type: 'JOIN_PENDING', timestamp: serverTimestamp() });
+
+            return false; // Don't register yet
+        }
+
+        // No existing device or same device reconnecting - register directly
+        setConnectedTeams(prev => ({ ...prev, [teamIndex]: newDeviceId }));
+        set(ref(db, `games/${peerId}/teams/${teamIndex}`), { deviceId: newDeviceId, online: true });
+        return true;
+    };
+
+    // Confirm device takeover - notify old device and register new one
+    const confirmTakeover = () => {
+        if (!pendingTakeover || !peerId) return;
+        const { teamIndex, newDeviceId, oldDeviceId } = pendingTakeover;
+
+        console.log('[useNetwork] Confirming takeover for team', teamIndex);
+
+        // Notify old device it's been replaced (via dedicated message path)
+        const oldMessageRef = ref(db, `games/${peerId}/messages/${oldDeviceId}`);
+        set(oldMessageRef, { type: 'DEVICE_REPLACED', timestamp: serverTimestamp() });
+
+        // Notify new device it's been accepted
+        const newMessageRef = ref(db, `games/${peerId}/messages/${newDeviceId}`);
+        set(newMessageRef, { type: 'JOIN_ACCEPTED', timestamp: serverTimestamp() });
+
+        // Register new device
+        setConnectedTeams(prev => ({ ...prev, [teamIndex]: newDeviceId }));
+        set(ref(db, `games/${peerId}/teams/${teamIndex}`), { deviceId: newDeviceId, online: true });
+
+        // Clear pending
+        setPendingTakeover(null);
+    };
+
+    // Reject device takeover - notify new device
+    const rejectTakeover = () => {
+        if (!pendingTakeover || !peerId) return;
+        const { newDeviceId } = pendingTakeover;
+
+        console.log('[useNetwork] Rejecting takeover');
+
+        // Notify new device it's rejected
+        const messageRef = ref(db, `games/${peerId}/messages/${newDeviceId}`);
+        set(messageRef, { type: 'JOIN_REJECTED', reason: 'Host rejected device takeover', timestamp: serverTimestamp() });
+
+        // Clear pending
+        setPendingTakeover(null);
     };
 
     const disconnectTeam = (teamIndex) => {
@@ -237,10 +293,15 @@ export const useNetwork = () => {
         registerTeamDevice,
         disconnectTeam,
         setIsHost,
-        // New reconnection features
+        // Reconnection features
         connectionState,
         restoreHost,
         getSavedRoomId,
-        clearSavedRoom
+        clearSavedRoom,
+        // Device takeover features
+        pendingTakeover,
+        confirmTakeover,
+        rejectTakeover,
+        clientId
     };
 };
