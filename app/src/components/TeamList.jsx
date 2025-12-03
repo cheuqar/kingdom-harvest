@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useGame } from '../state/GameContext';
 import TeamAssetsModal from './TeamAssetsModal';
 import AnimatedNumber from './AnimatedNumber';
 import './TeamList.css';
 
+// Helper function to convert hex color to rgba
+const hexToRgba = (hex, alpha) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 const TeamList = () => {
     const { state, landsData } = useGame();
     const [selectedTeamId, setSelectedTeamId] = useState(null);
 
+    // Sort team indices with current player at top
+    const sortedTeamIndices = useMemo(() => {
+        const indices = state.teams.map((_, index) => index);
+
+        // Move current team to top
+        return indices.sort((a, b) => {
+            if (a === state.currentTeamIndex) return -1;
+            if (b === state.currentTeamIndex) return 1;
+            return a - b;
+        });
+    }, [state.teams.length, state.currentTeamIndex]);
+
     return (
         <div className="team-list">
-            {state.teams.map((team, index) => {
-                const isCurrent = index === state.currentTeamIndex;
+            {sortedTeamIndices.map((teamIndex) => {
+                // Get fresh team data from state on each render
+                const team = state.teams[teamIndex];
+                const isCurrent = teamIndex === state.currentTeamIndex;
                 const ownedLands = landsData.filter(l => state.lands[l.id].ownerId === team.id);
                 const totalAssets = ownedLands.length + team.miracles.length;
                 let stackClass = '';
@@ -19,15 +41,22 @@ const TeamList = () => {
                 if (totalAssets > 5) stackClass = 'stack-2';
                 if (totalAssets > 10) stackClass = 'stack-3';
 
+                // Create a semi-transparent version of the team color for background
+                const bgColorRgba = hexToRgba(team.color, 0.15);
+
                 return (
                     <div
                         key={team.id}
                         className={`team-card ${isCurrent ? 'active' : ''} ${team.isBankrupt ? 'bankrupt' : ''} ${stackClass}`}
-                        style={{ borderLeftColor: team.color }}
+                        style={{
+                            borderLeftColor: team.color,
+                            backgroundColor: bgColorRgba,
+                            '--team-color': team.color
+                        }}
                         onClick={() => setSelectedTeamId(team.id)}
                     >
                         <div className="team-header" style={{
-                            background: `linear-gradient(90deg, ${team.color}22 0%, transparent 100%)`
+                            background: `linear-gradient(90deg, ${team.color}44 0%, transparent 100%)`
                         }}>
                             <div className="team-name-section">
                                 <div className="color-indicator" style={{ backgroundColor: team.color }}></div>

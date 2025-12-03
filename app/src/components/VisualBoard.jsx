@@ -36,6 +36,9 @@ const VisualBoard = ({ children }) => {
         const isBuildable = state.phase === 'BUILD_INN' && landState.ownerId === currentTeam.id;
         const isHighlighted = state.highlightedSeries && land.series === state.highlightedSeries;
 
+        // Use owner's color for the header if owned, otherwise grey
+        const headerColor = getSeriesColor(land.series, owner?.color);
+
         return (
             <div
                 key={`${land.id}-${landState.ownerId || 'unowned'}-${innCount}`}
@@ -47,16 +50,13 @@ const VisualBoard = ({ children }) => {
                 }}
                 onClick={() => handleLandClick(land)}
             >
-                <div className="cell-header" style={{ backgroundColor: getSeriesColor(land.series) }}></div>
+                <div className="cell-header" style={{ backgroundColor: headerColor }}></div>
                 <div className="cell-content">
                     <span className="cell-name">{land.name}</span>
                     {landState.innCount > 0 && (
                         <div className="inn-icons">
                             {'🏠'.repeat(landState.innCount)}
                         </div>
-                    )}
-                    {owner && (
-                        <div className="owner-indicator" style={{ backgroundColor: owner.color }}></div>
                     )}
                     {isBuildable && (
                         <div className="build-overlay">

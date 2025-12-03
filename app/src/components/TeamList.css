@@ -11,8 +11,10 @@
     border-radius: 6px;
     padding: 0.4rem 0.6rem;
     border-left: 5px solid #ccc;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    /* Smooth reorder animation */
+    animation: slideIn 0.4s ease-out;
 }
 
 .team-card.active {
@@ -170,6 +172,19 @@
 /* Specific box colors */
 .cash-box {
     border-color: rgba(78, 204, 163, 0.4);
+    flex: 1.5;
+    min-width: 70px;
+}
+
+.cash-box .stat-icon {
+    font-size: 1.3rem;
+}
+
+.cash-box .stat-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #4ecca3;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
 }
 
 .cash-box:hover {
@@ -374,4 +389,21 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 4px 4px 0 rgba(255, 255, 255, 0.05);
     /* 3rd layer simulation */
+}
+
+/* Slide in animation for reordering */
+@keyframes slideIn {
+    0% {
+        opacity: 0.7;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Active card moves to top with emphasis */
+.team-card.active {
+    order: -1;
 }

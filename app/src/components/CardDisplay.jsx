@@ -42,16 +42,22 @@ const CardDisplay = ({ card, type }) => {
     return null;
 };
 
-export const getSeriesColor = (series) => {
-    const map = {
-        "祖先與應許": "#8d6e63",
-        "出埃及與曠野": "#ef5350",
-        "王國與敬拜": "#ffa726",
-        "耶穌腳蹤": "#42a5f5",
-        "宣教拓展": "#66bb6a",
-        "普世與啟示": "#ab47bc"
+export const getSeriesColor = (series, ownerColor = null) => {
+    // If owned, return the owner's color
+    if (ownerColor) {
+        return ownerColor;
+    }
+
+    // Default: different shades of grey for each series
+    const greyMap = {
+        "祖先與應許": "#6b6b6b",
+        "出埃及與曠野": "#7a7a7a",
+        "王國與敬拜": "#5c5c5c",
+        "耶穌腳蹤": "#8a8a8a",
+        "宣教拓展": "#4d4d4d",
+        "普世與啟示": "#9a9a9a"
     };
-    return map[series] || "#78909c";
+    return greyMap[series] || "#666666";
 };
 
 export const getEventTypeLabel = (type) => {
