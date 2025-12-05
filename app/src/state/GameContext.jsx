@@ -7,6 +7,7 @@ import landsData from '../config/lands.json';
 import eventsDefault from '../config/events.json';
 import eventsMoney from '../config/events_money.json';
 import questionsData from '../config/questions.json';
+import logger from '../utils/logger';
 
 const ALL_EVENT_DECKS = {
   default: { name: '預設事件', cards: eventsDefault },
@@ -631,8 +632,34 @@ const gameReducer = (state, action) => {
   }
 };
 
+// Safe reducer wrapper that catches errors and prevents crashes
+const safeReducer = (state, action) => {
+  try {
+    logger.state(`Dispatch: ${action.type}`, action.payload);
+    const newState = gameReducer(state, action);
+
+    // Log phase changes
+    if (newState.phase !== state.phase) {
+      logger.phase(state.phase, newState.phase);
+    }
+
+    return newState;
+  } catch (error) {
+    logger.error('State', `Reducer error on ${action.type}:`, error);
+    // Return current state to prevent crash, but add error info
+    return {
+      ...state,
+      lastError: {
+        action: action.type,
+        message: error.message,
+        timestamp: Date.now()
+      }
+    };
+  }
+};
+
 export const GameProvider = ({ children, isClientMode = false, networkParams = {}, restoreFromRoom = null }) => {
-  const [state, localDispatch] = useReducer(gameReducer, initialState);
+  const [state, localDispatch] = useReducer(safeReducer, initialState);
   const [isInitialized, setIsInitialized] = useState(!restoreFromRoom);
   const network = useNetwork(networkParams.clientId || restoreFromRoom);
 

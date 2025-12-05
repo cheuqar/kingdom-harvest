@@ -52,12 +52,17 @@
     font-family: monospace;
 }
 
-.btn-system-menu {
+.top-buttons {
     position: absolute;
     top: 10px;
     right: 320px;
-    /* Position to the left of right panel */
     z-index: 100;
+    display: flex;
+    gap: 8px;
+}
+
+.btn-system-menu,
+.btn-leaderboard {
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: #fff;
@@ -75,6 +80,12 @@
     background: rgba(78, 204, 163, 0.2);
     border-color: #4ecca3;
     color: #4ecca3;
+}
+
+.btn-leaderboard:hover {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: #ffd700;
+    color: #ffd700;
 }
 
 /* Game Over Screen */

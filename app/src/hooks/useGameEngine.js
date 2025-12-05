@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback } from 'react';
 import { useGame } from '../state/GameContext';
 import { calculateRent } from '../utils/gameUtils';
 import { EFFECTS } from '../engine/effects';
+import logger from '../utils/logger';
 
 export const useGameEngine = () => {
     const { state, dispatch, landsData, eventsData, questionsData, isClientMode } = useGame();
@@ -42,16 +43,19 @@ export const useGameEngine = () => {
     const rollDice = () => {
         // Guard: Only allow rolling if phase is ROLL
         if (state.phase !== 'ROLL') {
+            logger.warn('Game', `Roll attempted in wrong phase: ${state.phase}`);
             return;
         }
 
         // In client mode, just send the request - host will handle the logic
         if (isClientMode) {
+            logger.game('Client: Roll dice request');
             dispatchClientAction('ROLL_DICE');
             return;
         }
 
         const val = Math.floor(Math.random() * 6) + 1;
+        logger.game(`Roll dice: ${val}`, { team: currentTeam.name, rollCount: (currentTeam.rollCount || 0) + 1 });
         dispatch({ type: 'ROLL_DICE', payload: val });
 
         // Immediately change phase to prevent multiple clicks
@@ -215,12 +219,16 @@ export const useGameEngine = () => {
 
     const buyLand = () => {
         if (isClientMode) {
+            logger.game('Client: Buy land request');
             dispatchClientAction('BUY_LAND');
             return;
         }
 
         const card = state.currentCard;
-        if (!card) return; // Guard against null card
+        if (!card) {
+            logger.warn('Game', 'Buy land called with no current card');
+            return;
+        }
 
         if (currentTeam.cash >= card.price) {
             dispatch({
@@ -311,7 +319,11 @@ export const useGameEngine = () => {
     };
 
     const resolveAuction = () => {
-        if (!state.auction) return;
+        if (!state.auction) {
+            logger.warn('Game', 'Resolve auction called with no auction');
+            return;
+        }
+        logger.game('Resolving auction', { landId: state.auction.landId, highestBid: state.auction.highestBid });
 
         const { highestBidderId, highestBid, landId } = state.auction;
         const land = landsData.find(l => l.id === landId);
@@ -381,7 +393,7 @@ export const useGameEngine = () => {
     };
 
     const executeEvent = (card) => {
-        console.log('[Event] Executing:', card.name, 'Type:', card.type, 'Effect:', card.effectCode);
+        logger.game('Execute event', { name: card.name, type: card.type, effect: card.effectCode });
 
         if (card.type === 'decision') {
             dispatch({ type: 'SET_PHASE', payload: 'DECISION_EVENT' });
@@ -402,10 +414,10 @@ export const useGameEngine = () => {
             });
             const effectFunc = EFFECTS[card.effectCode];
             if (effectFunc) {
-                console.log('[Event] Calling effect function:', card.effectCode, 'with params:', card.params);
+                logger.game('Calling effect function', { effectCode: card.effectCode, params: card.params });
                 effectFunc(dispatch, state, card.params, currentTeam.id, landsData);
             } else {
-                console.warn('Unknown effect:', card.effectCode);
+                logger.warn('Game', `Unknown effect: ${card.effectCode}`);
                 dispatch({ type: 'ADD_LOG', payload: `未知效果: ${card.name}` });
             }
         }

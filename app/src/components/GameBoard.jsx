@@ -12,12 +12,15 @@ import VisualBoard from './VisualBoard';
 import AnimationOverlay from './AnimationOverlay';
 import SystemMenu from './SystemMenu';
 import DeviceTakeoverToast from './DeviceTakeoverToast';
+import ErrorBoundary from './ErrorBoundary';
+import LeaderboardModal from './LeaderboardModal';
 import './GameBoard.css';
 
 const GameBoard = () => {
     const { state, dispatch, landsData, network } = useGame();
     const [timeRemaining, setTimeRemaining] = useState(null);
     const [showMenu, setShowMenu] = useState(false);
+    const [showLeaderboard, setShowLeaderboard] = useState(false);
 
     // ... (timer logic)
 
@@ -31,10 +34,16 @@ const GameBoard = () => {
 
     return (
         <div className="game-board">
-            <button className="btn-system-menu" onClick={() => setShowMenu(true)}>
-                ⚙️ 選單
-            </button>
+            <div className="top-buttons">
+                <button className="btn-leaderboard" onClick={() => setShowLeaderboard(true)}>
+                    🏆 排名
+                </button>
+                <button className="btn-system-menu" onClick={() => setShowMenu(true)}>
+                    ⚙️ 選單
+                </button>
+            </div>
             {showMenu && <SystemMenu onClose={() => setShowMenu(false)} />}
+            {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} />}
 
             {state.gameDuration > 0 && timeRemaining !== null && (
                 <div className="timer-display">
@@ -48,7 +57,9 @@ const GameBoard = () => {
 
             <div className="center-panel">
                 <VisualBoard>
-                    <MainArea />
+                    <ErrorBoundary name="MainArea">
+                        <MainArea />
+                    </ErrorBoundary>
                 </VisualBoard>
             </div>
 

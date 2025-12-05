@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { GameProvider, useGame } from '../state/GameContext';
 import AnimationOverlay from './AnimationOverlay';
 import PlayerLobbyScreen from './PlayerLobbyScreen';
+import ErrorBoundary from './ErrorBoundary';
 import { db } from '../config/firebase';
 import { ref, get } from 'firebase/database';
 import './PlayerController.css';
@@ -848,9 +849,11 @@ const PlayerController = () => {
                     正在重新連接到遊戲...
                 </div>
             )}
-            <PlayerInterface
-                teamIndex={connectionParams.teamIndex}
-            />
+            <ErrorBoundary name="PlayerInterface">
+                <PlayerInterface
+                    teamIndex={connectionParams.teamIndex}
+                />
+            </ErrorBoundary>
         </GameProvider>
     );
 };
