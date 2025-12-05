@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { GameProvider } from './state/GameContext';
 import GameBoard from './components/GameBoard';
 import PlayerController from './components/PlayerController';
+import ScheduleGameScreen from './components/ScheduleGameScreen';
+import HostController from './components/HostController';
 import './App.css';
 
 const HostApp = () => {
@@ -65,6 +67,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HostApp />} />
+        <Route path="/schedule" element={<ScheduleGameScreen onBack={() => window.location.href = '/'} />} />
+        <Route path="/host" element={<HostController />} />
         <Route path="/join" element={<PlayerController />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

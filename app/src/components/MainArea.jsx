@@ -1,18 +1,57 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGame } from '../state/GameContext';
 import { useGameEngine } from '../hooks/useGameEngine';
 import CardDisplay from './CardDisplay';
 import QuestionModal from './QuestionModal';
 import AuctionInterface from './AuctionInterface';
 import OfferingModal from './OfferingModal';
+import RankingSummaryModal from './RankingSummaryModal';
 import Modal from './Modal';
 import CountdownTimer from './CountdownTimer';
 import './MainArea.css';
 
 
 const MainArea = () => {
-    const { state, dispatch } = useGame();
-    const { rollDice, buyLand, skipLand, payRent, endTurn, currentTeam, useMiracle, handleDecision } = useGameEngine();
+    const { state, dispatch, registerGameActions, isClientMode } = useGame();
+    const gameEngine = useGameEngine();
+    const { rollDice, buyLand, skipLand, payRent, endTurn, currentTeam, useMiracle, handleDecision, handleOffering, handleBid, handlePass, buildInn, answerQuestion } = gameEngine;
+
+    // Register game actions for host to handle client GAME_ACTION requests
+    useEffect(() => {
+        if (!isClientMode && registerGameActions) {
+            registerGameActions({
+                rollDice,
+                buyLand,
+                skipLand,
+                payRent,
+                endTurn,
+                useMiracle,
+                handleDecision,
+                handleOffering,
+                handleBid,
+                handlePass,
+                buildInn,
+                answerQuestion
+            });
+        }
+    }, [isClientMode, registerGameActions, rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleDecision, handleOffering, handleBid, handlePass, buildInn, answerQuestion]);
+
+    // Detect when ranking summary is triggered and show it
+    useEffect(() => {
+        if (state.rankingSummary?.triggered && !state.rankingSummary?.active) {
+            dispatch({
+                type: 'SHOW_RANKING_SUMMARY',
+                payload: {
+                    round: state.rankingSummary.round
+                }
+            });
+        }
+    }, [state.rankingSummary, dispatch]);
+
+    // Guard against undefined currentTeam
+    if (!currentTeam || !currentTeam.name) {
+        return <div className="main-area"><div className="center-info">載入中...</div></div>;
+    }
 
     return (
         <div className="main-area">
@@ -123,16 +162,17 @@ const MainArea = () => {
                             <div className="effect-option">
                                 <strong>是 (Y):</strong>
                                 <span>
-                                    {state.currentCard?.yEffect.cash !== 0 && ` 現金${state.currentCard.yEffect.cash > 0 ? '+' : ''}$${state.currentCard.yEffect.cash}`}
-                                    {state.currentCard?.yEffect.seeds !== 0 && ` 種子${state.currentCard.yEffect.seeds > 0 ? '+' : ''}${state.currentCard.yEffect.seeds}`}
+                                    {state.currentCard?.yEffect?.cash ? ` 現金${state.currentCard.yEffect.cash > 0 ? '+' : ''}$${state.currentCard.yEffect.cash}` : ''}
+                                    {state.currentCard?.yEffect?.seeds ? ` 種子${state.currentCard.yEffect.seeds > 0 ? '+' : ''}${state.currentCard.yEffect.seeds}` : ''}
+                                    {!state.currentCard?.yEffect?.cash && !state.currentCard?.yEffect?.seeds && ' 無效果'}
                                 </span>
                             </div>
                             <div className="effect-option">
                                 <strong>否 (N):</strong>
                                 <span>
-                                    {state.currentCard?.nEffect.cash !== 0 && ` 現金${state.currentCard.nEffect.cash > 0 ? '+' : ''}$${state.currentCard.nEffect.cash}`}
-                                    {state.currentCard?.nEffect.seeds !== 0 && ` 種子${state.currentCard.nEffect.seeds > 0 ? '+' : ''}${state.currentCard.nEffect.seeds}`}
-                                    {state.currentCard?.nEffect.cash === 0 && state.currentCard?.nEffect.seeds === 0 && ' 無效果'}
+                                    {state.currentCard?.nEffect?.cash ? ` 現金${state.currentCard.nEffect.cash > 0 ? '+' : ''}$${state.currentCard.nEffect.cash}` : ''}
+                                    {state.currentCard?.nEffect?.seeds ? ` 種子${state.currentCard.nEffect.seeds > 0 ? '+' : ''}${state.currentCard.nEffect.seeds}` : ''}
+                                    {!state.currentCard?.nEffect?.cash && !state.currentCard?.nEffect?.seeds && ' 無效果'}
                                 </span>
                             </div>
                         </div>
@@ -181,6 +221,11 @@ const MainArea = () => {
             {/* Offering Modal (Tithing) */}
             {state.phase === 'OFFERING_EVENT' && (
                 <OfferingModal />
+            )}
+
+            {/* Ranking Summary Modal */}
+            {state.phase === 'RANKING_SUMMARY' && (
+                <RankingSummaryModal />
             )}
         </div>
     );

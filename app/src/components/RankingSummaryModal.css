@@ -1,0 +1,177 @@
+.ranking-summary-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.ranking-summary-modal {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid #4ecca3;
+    border-radius: 16px;
+    padding: 2rem;
+    min-width: 500px;
+    max-width: 700px;
+    animation: scaleIn 0.4s ease;
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.summary-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #ffffff;
+}
+
+.countdown-timer {
+    font-size: 2rem;
+    color: #ff6b6b;
+    font-weight: bold;
+    animation: pulse 1s infinite;
+}
+
+.rankings-list {
+    margin-bottom: 1.5rem;
+}
+
+.ranking-row {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.ranking-row:hover {
+    transform: scale(1.02);
+}
+
+.ranking-row.rank-1 {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent);
+    border-left: 4px solid gold;
+}
+
+.ranking-row.rank-2 {
+    background: linear-gradient(90deg, rgba(192, 192, 192, 0.15), transparent);
+    border-left: 4px solid silver;
+}
+
+.ranking-row.rank-3 {
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.15), transparent);
+    border-left: 4px solid #cd7f32;
+}
+
+.rank {
+    font-size: 1.5rem;
+    font-weight: bold;
+    width: 50px;
+    color: #ffffff;
+}
+
+.team-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    min-width: 120px;
+}
+
+.assets-breakdown {
+    margin-left: auto;
+    display: flex;
+    gap: 1rem;
+    font-size: 0.95rem;
+}
+
+.cash {
+    color: #f1c40f;
+}
+
+.land {
+    color: #3498db;
+}
+
+.total {
+    font-weight: bold;
+    color: #4ecca3;
+    font-size: 1.1rem;
+}
+
+.btn-skip {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #4ecca3, #3db892);
+    border: none;
+    border-radius: 8px;
+    color: #1a1a2e;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-skip:hover {
+    transform: scale(1.02);
+    background: linear-gradient(135deg, #5ee8b7, #4ecca3);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .ranking-summary-modal {
+        min-width: auto;
+        width: 90%;
+        padding: 1.5rem;
+    }
+
+    .assets-breakdown {
+        flex-direction: column;
+        gap: 0.3rem;
+        text-align: right;
+    }
+
+    .summary-header h2 {
+        font-size: 1.4rem;
+    }
+
+    .countdown-timer {
+        font-size: 1.5rem;
+    }
+}

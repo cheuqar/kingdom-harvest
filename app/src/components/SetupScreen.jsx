@@ -294,6 +294,14 @@ const SetupScreen = () => {
                                 <span className="btn-icon">🎮</span>
                                 開始遊戲
                             </button>
+
+                            <button
+                                className="btn-schedule"
+                                onClick={() => window.location.href = '/schedule'}
+                            >
+                                <span className="btn-icon">📅</span>
+                                預約遊戲
+                            </button>
                         </div>
                     </div>
                 </div>

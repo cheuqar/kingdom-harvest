@@ -2,6 +2,9 @@ import React, { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { GameProvider, useGame } from '../state/GameContext';
 import AnimationOverlay from './AnimationOverlay';
+import PlayerLobbyScreen from './PlayerLobbyScreen';
+import { db } from '../config/firebase';
+import { ref, get } from 'firebase/database';
 import './PlayerController.css';
 
 import { useGameEngine } from '../hooks/useGameEngine';
@@ -12,6 +15,16 @@ const PlayerInterface = ({ teamIndex }) => {
     const { rollDice, buyLand, skipLand, payRent, endTurn, useMiracle, handleBid, handlePass, handleDecision, handleOffering, buildInn, answerQuestion } = useGameEngine();
     const [timeLeft, setTimeLeft] = React.useState(null);
     const [showProperties, setShowProperties] = React.useState(false);
+
+    // Question answer state
+    const [questionResult, setQuestionResult] = React.useState(null); // { isCorrect, selectedAnswer, correctAnswer }
+
+    // Clear questionResult when the question is cleared from game state
+    React.useEffect(() => {
+        if (!state.currentQuestion && questionResult) {
+            setQuestionResult(null);
+        }
+    }, [state.currentQuestion, questionResult]);
 
     const myTeam = teams[teamIndex];
     const isMyTurn = currentTeamIndex === teamIndex;
@@ -127,7 +140,7 @@ const PlayerInterface = ({ teamIndex }) => {
                     ))}
                 </div>
 
-                <AnimationOverlay />
+                <AnimationOverlay myTeamId={myTeam.id} />
             </div>
         );
     }
@@ -154,6 +167,52 @@ const PlayerInterface = ({ teamIndex }) => {
             case 'DRAW_LAND':
                 if (state.currentQuestion) {
                     const q = state.currentQuestion;
+
+                    // Show result after answering
+                    if (questionResult) {
+                        return (
+                            <div className="question-result">
+                                <div className={`result-banner ${questionResult.isCorrect ? 'correct' : 'wrong'}`}>
+                                    {questionResult.isCorrect ? (
+                                        <>
+                                            <span className="result-icon">✓</span>
+                                            <span className="result-text">正確！</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="result-icon">✗</span>
+                                            <span className="result-text">錯誤！</span>
+                                        </>
+                                    )}
+                                </div>
+                                {!questionResult.isCorrect && (
+                                    <div className="correct-answer-reveal">
+                                        <p className="your-answer">您的答案：<span className="wrong">{questionResult.selectedAnswer}</span></p>
+                                        <p className="correct-answer">正確答案：<span className="correct">{questionResult.correctAnswer}</span></p>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    }
+
+                    // Handle answer selection - guard against multiple clicks
+                    const handleAnswerSelect = (selectedOption) => {
+                        if (questionResult) return; // Already answered, prevent multiple clicks
+
+                        const isCorrect = selectedOption === q.answer;
+                        setQuestionResult({
+                            isCorrect,
+                            selectedAnswer: selectedOption,
+                            correctAnswer: q.answer
+                        });
+
+                        // Delay before calling answerQuestion
+                        // Don't reset questionResult here - let the useEffect clear it when question is removed from state
+                        setTimeout(() => {
+                            answerQuestion(isCorrect);
+                        }, isCorrect ? 1500 : 2500); // 1.5s for correct, 2.5s for wrong to see answer
+                    };
+
                     return (
                         <div className="question-control">
                             <h3 className="question-text">{q.question}</h3>
@@ -162,8 +221,9 @@ const PlayerInterface = ({ teamIndex }) => {
                                     q.options.map((opt, i) => (
                                         <button
                                             key={i}
-                                            className="btn-option"
-                                            onClick={() => answerQuestion(opt === q.answer)}
+                                            className={`btn-option ${questionResult ? 'disabled' : ''}`}
+                                            onClick={() => handleAnswerSelect(opt)}
+                                            disabled={!!questionResult}
                                         >
                                             {opt}
                                         </button>
@@ -258,16 +318,17 @@ const PlayerInterface = ({ teamIndex }) => {
                             <div className="effect-row">
                                 <strong>Y:</strong>
                                 <span>
-                                    {card.yEffect.cash !== 0 && ` $${card.yEffect.cash}`}
-                                    {card.yEffect.seeds !== 0 && ` 🌰${card.yEffect.seeds}`}
+                                    {card.yEffect?.cash ? ` $${card.yEffect.cash}` : ''}
+                                    {card.yEffect?.seeds ? ` 🌰${card.yEffect.seeds}` : ''}
+                                    {!card.yEffect?.cash && !card.yEffect?.seeds && ' 無效果'}
                                 </span>
                             </div>
                             <div className="effect-row">
                                 <strong>N:</strong>
                                 <span>
-                                    {card.nEffect.cash !== 0 && ` $${card.nEffect.cash}`}
-                                    {card.nEffect.seeds !== 0 && ` 🌰${card.nEffect.seeds}`}
-                                    {card.nEffect.cash === 0 && card.nEffect.seeds === 0 && ' 無效果'}
+                                    {card.nEffect?.cash ? ` $${card.nEffect.cash}` : ''}
+                                    {card.nEffect?.seeds ? ` 🌰${card.nEffect.seeds}` : ''}
+                                    {!card.nEffect?.cash && !card.nEffect?.seeds && ' 無效果'}
                                 </span>
                             </div>
                         </div>
@@ -279,6 +340,12 @@ const PlayerInterface = ({ teamIndex }) => {
                                 否 (N)
                             </button>
                         </div>
+                    </div>
+                );
+            case 'RANKING_SUMMARY':
+                return (
+                    <div className="phase-msg">
+                        <p>📊 查看主螢幕的排名摘要</p>
                     </div>
                 );
             case 'BUILD_INN':
@@ -481,7 +548,7 @@ const PlayerInterface = ({ teamIndex }) => {
                     </div>
                 ) : (
                     <div className="waiting-turn">
-                        <p>等待 {teams[currentTeamIndex].name} 行動...</p>
+                        <p>等待 {teams[currentTeamIndex]?.name || '其他玩家'} 行動...</p>
                         <p className="phase-hint">當前階段: {phase}</p>
                     </div>
                 )}
@@ -509,7 +576,7 @@ const PlayerInterface = ({ teamIndex }) => {
                     ))}
                 </div>
             </div>
-            <AnimationOverlay />
+            <AnimationOverlay myTeamId={myTeam.id} />
         </div>
     );
 };
@@ -536,11 +603,45 @@ const PlayerController = () => {
     // Try to get saved connection params for reconnection
     const [connectionParams, setConnectionParams] = React.useState(null);
     const [isReconnecting, setIsReconnecting] = React.useState(false);
-    const [connectionStatus, setConnectionStatus] = React.useState('connecting'); // 'connecting' | 'connected' | 'replaced' | 'rejected' | 'pending'
+    const [connectionStatus, setConnectionStatus] = React.useState('connecting'); // 'connecting' | 'connected' | 'replaced' | 'rejected' | 'pending' | 'waiting'
     const [rejectionReason, setRejectionReason] = React.useState(null);
+    const [gameStatus, setGameStatus] = React.useState(null); // 'scheduled' | 'lobby' | 'active' | null
 
     // Get stable client ID for this specific team connection
     const [clientId, setClientId] = React.useState(null);
+
+    // Check game status when connecting
+    React.useEffect(() => {
+        const hostId = urlHostId || connectionParams?.hostId;
+        if (!hostId) return;
+
+        const checkGameStatus = async () => {
+            try {
+                const metaRef = ref(db, `games/${hostId}/meta`);
+                const snapshot = await get(metaRef);
+                const meta = snapshot.val();
+
+                if (meta?.status === 'scheduled' || meta?.status === 'lobby') {
+                    setGameStatus(meta.status);
+                    setConnectionStatus('waiting');
+                } else if (meta?.status === 'active') {
+                    setGameStatus('active');
+                    setConnectionStatus('connected');
+                } else {
+                    // No meta or unknown status - proceed normally (legacy game)
+                    setGameStatus('active');
+                    setConnectionStatus('connected');
+                }
+            } catch (error) {
+                console.error('Error checking game status:', error);
+                // On error, proceed normally
+                setGameStatus('active');
+                setConnectionStatus('connected');
+            }
+        };
+
+        checkGameStatus();
+    }, [urlHostId, connectionParams?.hostId]);
 
     // Listen for device-specific messages at the top level (before GameProvider)
     React.useEffect(() => {
@@ -568,6 +669,14 @@ const PlayerController = () => {
                         setConnectionStatus('pending');
                     } else if (message.type === 'JOIN_ACCEPTED') {
                         setConnectionStatus('connected');
+                    } else if (message.type === 'GAME_STARTED') {
+                        setGameStatus('active');
+                        setConnectionStatus('connected');
+                    } else if (message.type === 'PLAYER_KICKED') {
+                        setConnectionStatus('kicked');
+                        setRejectionReason(message.reason || 'Removed by host');
+                    } else if (message.type === 'ROOM_CANCELLED') {
+                        setConnectionStatus('cancelled');
                     }
                     // Clear the message after reading
                     remove(messageRef);
@@ -657,6 +766,58 @@ const PlayerController = () => {
         );
     }
 
+    // Show kicked screen
+    if (connectionStatus === 'kicked') {
+        return (
+            <div className="error-screen kicked">
+                <div className="error-icon">!</div>
+                <h1>已被移除</h1>
+                <p>主機已將您從遊戲大廳移除</p>
+                {rejectionReason && <p className="reason">{rejectionReason}</p>}
+                <button className="btn-retry" onClick={() => window.location.reload()}>
+                    重新加入
+                </button>
+            </div>
+        );
+    }
+
+    // Show cancelled screen
+    if (connectionStatus === 'cancelled') {
+        return (
+            <div className="error-screen cancelled">
+                <div className="error-icon">!</div>
+                <h1>遊戲已取消</h1>
+                <p>主機已取消此遊戲房間</p>
+                <button className="btn-retry" onClick={() => window.location.href = '/'}>
+                    返回首頁
+                </button>
+            </div>
+        );
+    }
+
+    // Show waiting lobby screen if game is scheduled/lobby
+    if (connectionStatus === 'waiting' && connectionParams && clientId) {
+        const handleGameStart = () => {
+            setGameStatus('active');
+            setConnectionStatus('connected');
+        };
+
+        const handleKicked = (reason) => {
+            setConnectionStatus('kicked');
+            setRejectionReason(reason);
+        };
+
+        return (
+            <PlayerLobbyScreen
+                roomId={connectionParams.hostId}
+                teamIndex={connectionParams.teamIndex}
+                deviceId={clientId}
+                onGameStart={handleGameStart}
+                onKicked={handleKicked}
+            />
+        );
+    }
+
     // Show loading while checking for connection params or clientId
     if (!connectionParams || !clientId) {
         // No URL params and no saved connection
@@ -677,7 +838,11 @@ const PlayerController = () => {
     }
 
     return (
-        <GameProvider isClientMode={true} networkParams={networkParams}>
+        <GameProvider
+            isClientMode={true}
+            networkParams={networkParams}
+            restoreFromRoom={connectionParams.hostId}
+        >
             {isReconnecting && (
                 <div className="reconnecting-banner">
                     正在重新連接到遊戲...

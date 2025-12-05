@@ -1,15 +1,53 @@
+import { useRef, useEffect, useCallback } from 'react';
 import { useGame } from '../state/GameContext';
 import { calculateRent } from '../utils/gameUtils';
 import { EFFECTS } from '../engine/effects';
 
 export const useGameEngine = () => {
-    const { state, dispatch, landsData, eventsData, questionsData } = useGame();
+    const { state, dispatch, landsData, eventsData, questionsData, isClientMode } = useGame();
+
+    // Ref to prevent duplicate action dispatches (especially in client mode)
+    const pendingActionRef = useRef(null);
+
+    // Clear pending action when phase changes (indicates action was processed)
+    useEffect(() => {
+        pendingActionRef.current = null;
+    }, [state.phase]);
+
+    // Helper to dispatch client actions with duplicate prevention
+    const dispatchClientAction = useCallback((actionName, payload) => {
+        // Prevent duplicate dispatches while waiting for server response
+        if (pendingActionRef.current === actionName) {
+            console.log(`[Client] Skipping duplicate ${actionName} dispatch`);
+            return false;
+        }
+        pendingActionRef.current = actionName;
+        // Clear the pending flag after a short delay (in case sync fails)
+        setTimeout(() => {
+            if (pendingActionRef.current === actionName) {
+                pendingActionRef.current = null;
+            }
+        }, 2000);
+        // Only include payload if it's defined (Firebase rejects undefined values)
+        const actionData = { type: 'GAME_ACTION', action: actionName };
+        if (payload !== undefined) {
+            actionData.payload = payload;
+        }
+        dispatch(actionData);
+        return true;
+    }, [dispatch]);
 
     const currentTeam = state.teams[state.currentTeamIndex] || {};
 
     const rollDice = () => {
         // Guard: Only allow rolling if phase is ROLL
         if (state.phase !== 'ROLL') {
+            return;
+        }
+
+        // In client mode, just send the request - host will handle the logic
+        if (isClientMode) {
+            dispatchClientAction('ROLL_DICE');
             return;
         }
 
@@ -36,7 +74,7 @@ export const useGameEngine = () => {
             });
             dispatch({
                 type: 'SET_ANIMATION',
-                payload: { type: 'BONUS_CASH', data: { amount: 1000 }, duration: replenishAnimationDuration }
+                payload: { type: 'BONUS_CASH', data: { amount: 1000 }, duration: replenishAnimationDuration, targetTeamId: currentTeam.id }
             });
             dispatch({ type: 'ADD_LOG', payload: '每7次擲骰獎勵：銀行發放 $1000！' });
 
@@ -176,6 +214,11 @@ export const useGameEngine = () => {
     };
 
     const buyLand = () => {
+        if (isClientMode) {
+            dispatchClientAction('BUY_LAND');
+            return;
+        }
+
         const card = state.currentCard;
         if (!card) return; // Guard against null card
 
@@ -190,7 +233,7 @@ export const useGameEngine = () => {
             });
             dispatch({
                 type: 'SET_ANIMATION',
-                payload: { type: 'ACQUIRE_LAND', data: { name: card.name }, duration: 2000 }
+                payload: { type: 'ACQUIRE_LAND', data: { name: card.name }, duration: 2000, targetTeamId: currentTeam.id }
             });
             dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 購買了 ${card.name}` });
             endTurn();
@@ -201,6 +244,11 @@ export const useGameEngine = () => {
     };
 
     const skipLand = () => {
+        if (isClientMode) {
+            dispatchClientAction('SKIP_LAND');
+            return;
+        }
+
         const card = state.currentCard;
         if (!card) return; // Guard against null card
         // Trigger Auction instead of just adding to pool
@@ -241,12 +289,22 @@ export const useGameEngine = () => {
     // So we should export a generic placeBid(teamId, amount).
 
     const handleBid = (teamId, amount) => {
+        if (isClientMode) {
+            dispatchClientAction('BID', { teamId, amount });
+            return;
+        }
+
         if (state.auction && amount > state.auction.highestBid) {
             dispatch({ type: 'PLACE_BID', payload: { teamId, amount } });
         }
     };
 
     const handlePass = (teamId) => {
+        if (isClientMode) {
+            dispatchClientAction('PASS', { teamId });
+            return;
+        }
+
         if (state.auction) {
             dispatch({ type: 'PASS_AUCTION', payload: { teamId } });
         }
@@ -271,7 +329,7 @@ export const useGameEngine = () => {
             dispatch({ type: 'ADD_LOG', payload: `拍賣結束！${winner.name} 以 $${highestBid} 購得 ${land.name}` });
             dispatch({
                 type: 'SET_ANIMATION',
-                payload: { type: 'ACQUIRE_LAND', data: { name: land.name }, duration: 2000 }
+                payload: { type: 'ACQUIRE_LAND', data: { name: land.name }, duration: 2000, targetTeamId: winner.id }
             });
         } else {
             dispatch({ type: 'ADD_LOG', payload: '無人出價，土地流拍。' });
@@ -333,14 +391,14 @@ export const useGameEngine = () => {
         if (card.type === 'miracle') {
             dispatch({
                 type: 'SET_ANIMATION',
-                payload: { type: 'EVENT', data: { name: `獲得: ${card.name}`, type: 'miracle' }, duration: 2000 }
+                payload: { type: 'EVENT', data: { name: `獲得: ${card.name}`, type: 'miracle' }, duration: 2000, targetTeamId: currentTeam.id }
             });
             dispatch({ type: 'ADD_MIRACLE', payload: { teamId: currentTeam.id, card } });
             dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 獲得神蹟卡：${card.name}` });
         } else {
             dispatch({
                 type: 'SET_ANIMATION',
-                payload: { type: 'EVENT', data: { name: card.name, type: card.type || 'event' }, duration: 2000 }
+                payload: { type: 'EVENT', data: { name: card.name, type: card.type || 'event' }, duration: 2000, targetTeamId: currentTeam.id }
             });
             const effectFunc = EFFECTS[card.effectCode];
             if (effectFunc) {
@@ -354,10 +412,22 @@ export const useGameEngine = () => {
     };
 
     const handleDecision = (choice) => {
+        if (isClientMode) {
+            dispatchClientAction('DECISION', { choice });
+            return;
+        }
+
         const card = state.currentCard;
         if (!card || card.type !== 'decision') return;
 
         const effect = choice === 'Y' ? card.yEffect : card.nEffect;
+
+        // Guard against missing effect
+        if (!effect) {
+            dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 選擇了 ${choice === 'Y' ? '是' : '否'}。` });
+            endTurn();
+            return;
+        }
 
         if (effect.cash !== 0) {
             dispatch({ type: 'ADD_CASH', payload: { teamId: currentTeam.id, amount: effect.cash } });
@@ -371,6 +441,11 @@ export const useGameEngine = () => {
     };
 
     const buildInn = (landId) => {
+        if (isClientMode) {
+            dispatchClientAction('BUILD_INN', { landId });
+            return;
+        }
+
         const land = landsData.find(l => l.id === landId);
         if (currentTeam.cash >= land.innCost) {
             dispatch({
@@ -387,11 +462,16 @@ export const useGameEngine = () => {
     };
 
     const useMiracle = (card) => {
+        if (isClientMode) {
+            dispatchClientAction('USE_MIRACLE', { cardId: card.id });
+            return;
+        }
+
         const effectFunc = EFFECTS[card.effectCode];
         if (effectFunc) {
             dispatch({
                 type: 'SET_ANIMATION',
-                payload: { type: 'MIRACLE', data: { name: card.name }, duration: 2500 }
+                payload: { type: 'MIRACLE', data: { name: card.name }, duration: 2500, targetTeamId: currentTeam.id }
             });
             effectFunc(dispatch, state, card.params, currentTeam.id, landsData);
             dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 使用了神蹟卡：${card.name}` });
@@ -400,10 +480,19 @@ export const useGameEngine = () => {
     };
 
     const endTurn = () => {
+        if (isClientMode) {
+            dispatchClientAction('END_TURN');
+            return;
+        }
         dispatch({ type: 'NEXT_TURN' });
     };
 
     const handleOffering = (choice) => {
+        if (isClientMode) {
+            dispatchClientAction('OFFERING', { choice });
+            return;
+        }
+
         // choice: 'none', 'tithe', 'double'
         const { oneTenthAmount, seeds, doubleSeeds } = state.offering || {};
 
@@ -419,7 +508,7 @@ export const useGameEngine = () => {
             });
             dispatch({
                 type: 'SET_ANIMATION',
-                payload: { type: 'OFFERING', data: { amount: oneTenthAmount, seeds }, duration: 2500 }
+                payload: { type: 'OFFERING', data: { amount: oneTenthAmount, seeds }, duration: 2500, targetTeamId: currentTeam.id }
             });
             dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 奉獻十分之一 $${oneTenthAmount}，獲得 ${seeds} 顆種子！` });
         } else if (choice === 'double' && oneTenthAmount > 0) {
@@ -435,7 +524,7 @@ export const useGameEngine = () => {
             });
             dispatch({
                 type: 'SET_ANIMATION',
-                payload: { type: 'OFFERING', data: { amount: doubleAmount, seeds: doubleSeeds }, duration: 2500 }
+                payload: { type: 'OFFERING', data: { amount: doubleAmount, seeds: doubleSeeds }, duration: 2500, targetTeamId: currentTeam.id }
             });
             dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 雙倍奉獻 $${doubleAmount}，獲得 ${doubleSeeds} 顆種子！` });
         } else {
@@ -474,6 +563,11 @@ export const useGameEngine = () => {
     };
 
     const payRent = () => {
+        if (isClientMode) {
+            dispatchClientAction('PAY_RENT');
+            return;
+        }
+
         const { rent, owner } = state.rentInfo;
 
         dispatch({
@@ -486,7 +580,7 @@ export const useGameEngine = () => {
         });
         dispatch({
             type: 'SET_ANIMATION',
-            payload: { type: 'PAY_RENT', data: { amount: rent }, duration: 2000 }
+            payload: { type: 'PAY_RENT', data: { amount: rent }, duration: 2000, targetTeamId: currentTeam.id }
         });
         dispatch({ type: 'ADD_LOG', payload: `${currentTeam.name} 支付租金 $${rent} 給 ${owner.name}` });
         dispatch({ type: 'SET_RENT_INFO', payload: null });
@@ -515,12 +609,21 @@ export const useGameEngine = () => {
     };
 
     const answerQuestion = (isCorrect) => {
+        if (isClientMode) {
+            dispatchClientAction('ANSWER_QUESTION', { isCorrect });
+            return;
+        }
+
+        // Capture card before setTimeout (important for player device where state may update)
+        const card = state.currentCard;
+
         // Show animation first
         dispatch({
             type: 'SET_ANIMATION',
             payload: {
                 type: isCorrect ? 'CORRECT_ANSWER' : 'WRONG_ANSWER',
-                duration: 1500
+                duration: 1500,
+                targetTeamId: currentTeam.id
             }
         });
 
@@ -530,7 +633,6 @@ export const useGameEngine = () => {
                 dispatch({ type: 'SET_QUESTION', payload: null });
                 // Player can now proceed to buy the land
             } else {
-                const card = state.currentCard;
                 dispatch({ type: 'ADD_TO_AUCTION', payload: card });
                 dispatch({ type: 'SET_QUESTION', payload: null });
                 dispatch({ type: 'ADD_LOG', payload: '回答錯誤，無法購買土地，土地進入拍賣池。' });

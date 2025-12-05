@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { db } from '../config/firebase';
-import { ref, set, get, onValue, push, remove, onDisconnect, serverTimestamp } from 'firebase/database';
+import { ref, set, get, onValue, onChildAdded, push, remove, onDisconnect, serverTimestamp } from 'firebase/database';
 
 const ROOM_ID_KEY = 'monopoly-room-id';
 
@@ -39,17 +39,26 @@ export const useNetwork = (providedClientId = null) => {
         set(presenceRef, { online: true, timestamp: serverTimestamp() });
         onDisconnect(presenceRef).set({ online: false, lastSeen: serverTimestamp() });
 
-        // Listen for actions from clients
-        const actionsUnsubscribe = onValue(actionsRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                Object.entries(data).forEach(([key, actionData]) => {
-                    if (onDataReceivedRef.current) {
-                        onDataReceivedRef.current(actionData, actionData.sender);
-                    }
-                    remove(ref(db, `games/${roomId}/actions/${key}`));
-                });
+        // Track processed action keys to prevent duplicate processing
+        const processedActions = new Set();
+
+        // Listen for actions from clients - use onChildAdded to only process NEW actions once
+        const actionsUnsubscribe = onChildAdded(actionsRef, (snapshot) => {
+            const actionData = snapshot.val();
+            const key = snapshot.key;
+
+            // Skip if already processed (prevents duplicates from re-attachment or race conditions)
+            if (processedActions.has(key)) {
+                console.log('[useNetwork] Skipping already processed action:', key);
+                return;
             }
+            processedActions.add(key);
+
+            if (actionData && onDataReceivedRef.current) {
+                onDataReceivedRef.current(actionData, actionData.sender);
+            }
+            // Remove the action after processing
+            remove(ref(db, `games/${roomId}/actions/${key}`));
         });
 
         // Restore connected teams from DB

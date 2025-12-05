@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../state/GameContext';
 import Modal from './Modal';
 import CountdownTimer from './CountdownTimer';
@@ -8,14 +8,34 @@ const QuestionModal = () => {
     const { state, dispatch } = useGame();
     const [selectedOption, setSelectedOption] = useState(null);
     const [showResult, setShowResult] = useState(false);
+    const [autoCloseTimer, setAutoCloseTimer] = useState(null);
     const question = state.currentQuestion;
 
     const handleSelectOption = (option) => {
         setSelectedOption(option);
         setShowResult(true);
+
+        // Auto-close after delay for wrong answers
+        const isAnswerCorrect = option === question.answer;
+        if (!isAnswerCorrect) {
+            const timer = setTimeout(() => {
+                handleWrong();
+            }, 2500); // 2.5 seconds to show correct answer
+            setAutoCloseTimer(timer);
+        }
     };
 
+    // Cleanup timer on unmount
+    useEffect(() => {
+        return () => {
+            if (autoCloseTimer) {
+                clearTimeout(autoCloseTimer);
+            }
+        };
+    }, [autoCloseTimer]);
+
     const handleCorrect = () => {
+        if (autoCloseTimer) clearTimeout(autoCloseTimer);
         dispatch({ type: 'SET_QUESTION', payload: null });
         setSelectedOption(null);
         setShowResult(false);
@@ -24,6 +44,7 @@ const QuestionModal = () => {
     };
 
     const handleWrong = () => {
+        if (autoCloseTimer) clearTimeout(autoCloseTimer);
         dispatch({ type: 'ADD_TO_AUCTION', payload: state.currentCard });
         dispatch({ type: 'SET_QUESTION', payload: null });
         dispatch({ type: 'ADD_LOG', payload: '回答錯誤，無法購買土地，土地進入拍賣池。' });
@@ -65,19 +86,21 @@ const QuestionModal = () => {
 
                     {/* Show result after selection */}
                     {showResult && (
-                        <div className="answer-section">
+                        <div className={`answer-section ${isCorrect ? 'correct' : 'wrong'}`}>
                             <div className={`result-indicator ${isCorrect ? 'correct' : 'wrong'}`}>
                                 {isCorrect ? '✓ 正確！' : '✗ 錯誤！'}
                             </div>
-                            <p className="selected-answer">
-                                選擇的答案：<span className={isCorrect ? 'correct' : 'wrong'}>{selectedOption}</span>
-                            </p>
+                            {!isCorrect && (
+                                <p className="selected-answer">
+                                    您的答案：<span className="wrong">{selectedOption}</span>
+                                </p>
+                            )}
                             <p className="answer-text">正確答案：{question.answer}</p>
                             <div className="judge-buttons">
                                 {isCorrect ? (
                                     <button className="btn-success" onClick={handleCorrect}>繼續購買</button>
                                 ) : (
-                                    <button className="btn-secondary" onClick={handleWrong}>放棄購買</button>
+                                    <button className="btn-secondary" onClick={handleWrong}>確定</button>
                                 )}
                             </div>
                         </div>

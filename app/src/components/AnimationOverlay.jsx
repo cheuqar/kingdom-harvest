@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useGame } from '../state/GameContext';
 import './AnimationOverlay.css';
 
-const AnimationOverlay = () => {
+const AnimationOverlay = ({ myTeamId = null }) => {
     const { state, dispatch } = useGame();
     const { animation } = state;
 
@@ -16,6 +16,11 @@ const AnimationOverlay = () => {
     }, [animation, dispatch]);
 
     if (!animation) return null;
+
+    // If myTeamId is provided (player device), only show animations for this team
+    if (myTeamId && animation.targetTeamId && animation.targetTeamId !== myTeamId) {
+        return null;
+    }
 
     return (
         <div className="animation-overlay">
