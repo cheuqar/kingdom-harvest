@@ -419,6 +419,10 @@ const SetupScreen = () => {
                     </div>
                 </div>
             )}
+
+            <div className="credits-footer">
+                Made with ❤️ by <a href="https://cheuqar.com" target="_blank" rel="noopener noreferrer">cheuqar.com</a>
+            </div>
         </div>
     );
 };

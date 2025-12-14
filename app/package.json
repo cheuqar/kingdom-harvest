@@ -1,7 +1,17 @@
 {
-  "name": "app",
+  "name": "kingdom-harvest",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "A biblical-themed Monopoly-style board game with real-time multiplayer support",
+  "author": {
+    "name": "cheuqar.com",
+    "url": "https://cheuqar.com"
+  },
+  "homepage": "https://kingdom-harvest.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cheuqar/kingdom-harvest"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

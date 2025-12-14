@@ -721,6 +721,7 @@ The only requirement is to include the original copyright notice in any copies o
 
 ## Acknowledgments
 
+- Created by [cheuqar.com](https://cheuqar.com)
 - Built with React and Firebase
 - Inspired by the classic Monopoly game with a biblical twist
 - Designed for church fellowship and Bible study groups
@@ -728,3 +729,9 @@ The only requirement is to include the original copyright notice in any copies o
 ---
 
 **May this game bring joy and Scripture learning to your community!**
+
+---
+
+<p align="center">
+  Made with ❤️ by <a href="https://cheuqar.com">cheuqar.com</a>
+</p>

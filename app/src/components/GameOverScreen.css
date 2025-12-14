@@ -455,3 +455,24 @@
         grid-template-columns: 1fr !important;
     }
 }
+
+/* Credits Footer */
+.credits-footer {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 100;
+}
+
+.credits-footer a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.credits-footer a:hover {
+    color: #4ecca3;
+    text-decoration: underline;
+}

@@ -806,3 +806,24 @@
     color: #4ecca3;
     font-weight: bold;
 }
+
+/* Credits Footer */
+.credits-footer {
+    position: absolute;
+    bottom: 1rem;
+    right: 1.5rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    z-index: 10;
+}
+
+.credits-footer a {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.credits-footer a:hover {
+    color: #4ecca3;
+    text-decoration: underline;
+}

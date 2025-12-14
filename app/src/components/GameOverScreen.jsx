@@ -160,6 +160,10 @@ const GameOverScreen = ({ winner }) => {
             <button className="btn-restart" onClick={() => window.location.reload()}>
                 重新開始
             </button>
+
+            <div className="credits-footer">
+                Made with ❤️ by <a href="https://cheuqar.com" target="_blank" rel="noopener noreferrer">cheuqar.com</a>
+            </div>
         </div>
     );
 };
