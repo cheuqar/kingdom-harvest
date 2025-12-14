@@ -620,7 +620,15 @@ This game stores data in two locations:
 
 ## License
 
-This project is created for educational and ministry purposes.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+You are free to:
+- Use the game for personal, educational, or ministry purposes
+- Modify and customize for your church or organization
+- Distribute copies to others
+- Use as a base for your own projects
+
+The only requirement is to include the original copyright notice in any copies or substantial portions of the software.
 
 ---
 
