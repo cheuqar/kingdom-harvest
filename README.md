@@ -493,7 +493,11 @@ npm run build
 ## Project Structure
 
 ```
-monopoly-bible/
+kingdom-harvest/
+├── README.md                         # Project documentation
+├── LICENSE                           # MIT License
+├── vercel.json                       # Deployment config
+│
 ├── app/                              # Main application
 │   ├── src/
 │   │   ├── components/               # React components (29+)
@@ -530,9 +534,14 @@ monopoly-bible/
 │   ├── public/                       # Static assets
 │   ├── package.json
 │   └── vite.config.js
-├── vercel.json                       # Deployment config
-├── package.json                      # Root package
-└── README.md                         # This file
+│
+└── docs/                             # Documentation
+    ├── DEPLOYMENT.md                 # Deployment guide
+    ├── FIREBASE_SETUP.md             # Firebase setup guide
+    ├── GAME_SPEC.md                  # Game specification
+    ├── LAND_CARDS.md                 # Land card details
+    ├── EVENT_CARDS.md                # Event card details
+    └── archive/                      # Historical documentation
 ```
 
 ---
