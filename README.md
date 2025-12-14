@@ -6,6 +6,14 @@
 
 ---
 
+## Live Demo
+
+**Play now for free:** [https://kingdom-harvest.vercel.app](https://kingdom-harvest.vercel.app)
+
+No registration required. Just open the link, configure your teams, and start playing!
+
+---
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -18,6 +26,7 @@
 - [Deployment](#deployment)
 - [Configuration](#configuration)
 - [Project Structure](#project-structure)
+- [Privacy & Data](#privacy--data)
 
 ---
 
@@ -568,6 +577,44 @@ All 24 lands are real locations from Scripture:
 - Auction interface
 - Offering modal
 - Game over screen with final rankings
+
+---
+
+## Privacy & Data
+
+### Data Storage
+
+This game stores data in two locations:
+
+**Local Storage (Browser)**
+- Game state for auto-save/resume functionality
+- Room ID for reconnection
+- Data stays on your device and is not transmitted externally
+- Cleared when you clear browser data or start a new game
+
+**Firebase Realtime Database (Cloud)**
+- Game room data for multiplayer synchronization
+- Includes: team names, game state, actions queue
+- Data is stored under a unique 6-character room ID
+- No personal information or accounts required
+
+### Data Retention
+
+- **Local Storage**: Persists until manually cleared or browser data is deleted
+- **Firebase Data**: Game room data persists in the database until periodically cleaned up by administrators
+
+### No Account Required
+
+- No user registration or login needed
+- No personal information collected
+- No cookies for tracking purposes
+- Anonymous gameplay experience
+
+### Third-Party Services
+
+- **Firebase** (Google): Used for real-time game synchronization
+- **Vercel**: Hosting platform for the web application
+- **Google Analytics**: Basic usage analytics (page views)
 
 ---
 
