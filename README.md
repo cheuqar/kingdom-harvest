@@ -27,6 +27,8 @@ No registration required. Just open the link, configure your teams, and start pl
 - [Configuration](#configuration)
 - [Project Structure](#project-structure)
 - [Privacy & Data](#privacy--data)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
 
 ---
 
@@ -615,6 +617,82 @@ This game stores data in two locations:
 - **Firebase** (Google): Used for real-time game synchronization
 - **Vercel**: Hosting platform for the web application
 - **Google Analytics**: Basic usage analytics (page views)
+
+---
+
+## Roadmap
+
+We have exciting plans for future development! Here's what's on the horizon:
+
+### Enhanced Graphics
+- Upgraded visual design with richer animations
+- Improved card artwork and board aesthetics
+- Sound effects and background music
+- Mobile-responsive improvements
+
+### Event Cards Creation System
+- In-app card editor for creating custom event cards
+- Import/export card deck functionality
+- Community card sharing platform
+- Card balancing tools and preview mode
+
+### Customization Theme (White Label)
+- Customizable branding (logos, colors, fonts)
+- Theme builder for different church/organization identities
+- Custom land names and biblical references
+- Localization support for multiple languages
+
+### Self-Hosting Package
+- Docker containerized deployment
+- One-click installation scripts
+- Offline mode support (local network play)
+- Self-contained database option (no Firebase dependency)
+- Comprehensive deployment documentation
+
+---
+
+## Contributing
+
+We welcome contributions from the community! Whether you're a developer, designer, or just passionate about biblical education, there are many ways to help.
+
+### How to Contribute
+
+1. **Fork the repository**
+   ```bash
+   git clone https://github.com/cheuqar/kingdom-harvest.git
+   ```
+
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make your changes** and test thoroughly
+
+4. **Submit a Pull Request** with a clear description of your changes
+
+### Ways to Contribute
+
+- **Code**: Bug fixes, new features, performance improvements
+- **Design**: UI/UX improvements, graphics, animations
+- **Documentation**: Improve README, add tutorials, translate content
+- **Testing**: Report bugs, suggest improvements, test on different devices
+- **Ideas**: Share feature requests and suggestions via GitHub Issues
+
+### Development Guidelines
+
+- Follow existing code style and patterns
+- Test your changes locally before submitting
+- Write clear commit messages
+- Update documentation for any new features
+- Be respectful and constructive in discussions
+
+### Get in Touch
+
+- Open an [Issue](https://github.com/cheuqar/kingdom-harvest/issues) for bugs or feature requests
+- Start a [Discussion](https://github.com/cheuqar/kingdom-harvest/discussions) for questions or ideas
+
+We appreciate every contribution, no matter how small. Together, we can make this game a blessing to more communities!
 
 ---
 
