@@ -357,8 +357,8 @@ Each land has an associated Scripture trivia question:
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/monopoly-bible.git
-cd monopoly-bible
+git clone https://github.com/cheuqar/kingdom-harvest.git
+cd kingdom-harvest
 
 # Install dependencies
 cd app
